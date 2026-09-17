@@ -3,7 +3,7 @@ name: Build AccessPress Deploy Branch
 on:
   push:
     branches:
-      - Master
+      - master
 
 jobs:
   deploy:
@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: Master
+          ref: master
 
       - name: Configure Git
         shell: bash
@@ -27,7 +27,7 @@ jobs:
 
       - name: Create New Deploy branch
         shell: bash
-        run: git checkout -b Deploy Master
+        run: git checkout -b Deploy master
 
       - name: Install Node dependencies
         shell: bash
@@ -73,9 +73,9 @@ jobs:
         shell: bash
         run: git push origin Deploy
 
-      - name: Checkout Master branch
+      - name: Checkout master branch
         shell: bash
-        run: git checkout Master
+        run: git checkout master
 
       - name: Fetch Deploy branch
         shell: bash
@@ -122,7 +122,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No deployment cleanup changes to commit"
           else
-            git commit -m "Deployment Ready - Remove development files and update to latest Master"
+            git commit -m "Deployment Ready - Remove development files and update to latest master"
           fi
 
       - name: Push Deploy
