@@ -1,0 +1,79 @@
+.accesspress-admin {
+	.accesspress-summary-card,
+	.accesspress-resource-card {
+		background: #fff;
+		border: 1px solid var(--accesspress-line);
+		border-radius: 0.75rem;
+		box-shadow: 0 0.5rem 1.5rem rgba(16, 42, 67, 0.06);
+		color: var(--accesspress-ink);
+		display: flex;
+		text-decoration: none;
+		transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+
+		&:hover,
+		&:focus-visible {
+			border-color: var(--accesspress-blue);
+			transform: translateY(-2px);
+			box-shadow: var(--bs-box-shadow) !important;
+		}
+	}
+
+	.accesspress-summary-card {
+		align-items: center;
+		gap: 0.75rem;
+		padding: 1.25rem;
+
+		strong { line-height: 1; margin-left: auto; }
+	}
+
+	.accesspress-summary-icon {
+		align-items: center;
+		background: #e8f0ff;
+		border-radius: 0.5rem;
+		color: var(--accesspress-blue);
+		display: inline-flex;
+		font-size: 1.25rem;
+		height: 2.5rem;
+		justify-content: center;
+		width: 2.5rem;
+	}
+
+	.accesspress-welcome-card {
+		background: linear-gradient(125deg, #e8f0ff 0%, #fff 72%);
+		border-left: 4px solid var(--accesspress-blue) !important;
+	}
+
+	.accesspress-recent-card .list-group-item-action {
+		transition: background-color 140ms ease, padding-left 140ms ease;
+
+		&:hover,
+		&:focus-visible { background: #f2f6ff; padding-left: 1.6rem !important; }
+	}
+
+	.accesspress-resource-card {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 0.55rem;
+		padding: 1.25rem;
+
+		.dashicons { color: var(--accesspress-blue); font-size: 1.35rem; height: 1.35rem; width: 1.35rem; }
+	}
+
+	.accesspress-count-ready {
+		animation: accesspress-count-ready 420ms ease-out both;
+	}
+}
+
+@keyframes accesspress-count-ready {
+	from { opacity: 0; transform: translateY(4px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.accesspress-admin .accesspress-summary-card,
+	.accesspress-admin .accesspress-resource-card,
+	.accesspress-admin .accesspress-recent-card .list-group-item-action { transition: none; }
+}
+
+
+

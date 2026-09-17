@@ -1,0 +1,896 @@
+<?php
+/**
+ * FontAwesome Icon Picker Class
+ *
+ * Provides functionality for browsing and selecting FontAwesome icons
+ *
+ * @package AccessPress
+ * @subpackage Includes\FontAwesome
+ * @since 1.0.0
+ */
+
+namespace AccessPress\Includes\Plugins\FontAwesome\Includes;
+
+use Exception;
+use Throwable;
+
+use FortAwesome\FontAwesome as FAFontAwesome;
+
+use AccessPress\Includes\Functions\Helpers\AjaxHelper;
+use AccessPress\Includes\Functions\Helpers\FormFieldHelper;
+use AccessPress\Includes\Functions\Helpers\LoaderHelper;
+use AccessPress\Includes\Functions\Helpers\LoggerHelper;
+use AccessPress\Includes\Functions\Helpers\RequestHelper;
+
+use function FortAwesome\fa;
+
+/**
+ * Class IconPicker
+ *
+ * Handles the FontAwesome icon picker functionality.
+ */
+class IconPicker {
+
+	/**
+	 * Singleton instance.
+	 *
+	 * @var IconPicker|null
+	 */
+	private static $instance = null;
+
+	/**
+	 * Loader instance.
+	 *
+	 * @var LoaderHelper
+	 */
+	private LoaderHelper $loader;
+
+	/**
+	 * Check if FontAwesome is available and properly initialized.
+	 *
+	 * @return bool
+	 */
+	private function is_fontawesome_available() {
+		if ( ! function_exists( 'fa' ) ) {
+			if ( ! class_exists( 'FortAwesome\\FontAwesome' ) ) {
+				return false;
+			}
+
+			try {
+				$fa = FAFontAwesome::instance();
+				$fa->version();
+				return true;
+			} catch ( Throwable $e ) {
+				return false;
+			}
+		}
+
+		try {
+			$fa = fa();
+			if ( ! $fa ) {
+				return false;
+			}
+
+			$fa->version();
+			return true;
+		} catch ( Throwable $e ) {
+			return false;
+		}
+	}
+
+	/**
+	 * Cached icon data
+	 *
+	 * @var array
+	 */
+	private $icon_cache = array();
+
+	/**
+	 * Get singleton instance.
+	 *
+	 * @return IconPicker
+	 */
+	public static function get_instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
+	 * Constructor.
+	 */
+	private function __construct() {
+		$this->loader = new LoaderHelper();
+		$this->init();
+	}
+
+	/**
+	 * Initialize the icon picker.
+	 */
+	private function init() {
+		// Only initialize WordPress hooks if WordPress functions are available.
+		if ( function_exists( 'add_action' ) ) {
+			$this->loader->register_component(
+				$this,
+				array(
+					array(
+						'type'     => 'action',
+						'hook'     => 'wp_ajax_accesspress_fontawesome_search_icons',
+						'callback' => 'ajax_search_icons',
+					),
+					array(
+						'type'     => 'action',
+						'hook'     => 'wp_ajax_accesspress_fontawesome_get_icon_data',
+						'callback' => 'ajax_get_icon_data',
+					),
+				)
+			)->run();
+		}
+	}
+
+	/**
+	 * AJAX handler for searching icons.
+	 */
+	public function ajax_search_icons() {
+		if ( ! AjaxHelper::has_valid_nonce( 'accesspress_fontawesome_picker' ) ) {
+			AjaxHelper::unauthorized( 'Security check failed.' );
+		}
+
+		$search   = RequestHelper::text( $_POST, 'search' );
+		$pack     = RequestHelper::text( $_POST, 'pack', 'classic' );
+		$style    = RequestHelper::text( $_POST, 'style', 'solid' );
+		$page     = RequestHelper::integer( $_POST, 'page', 1 );
+		$per_page = RequestHelper::integer( $_POST, 'per_page', 50 );
+
+		$icons = $this->search_icons( $search, $pack, $style, $page, $per_page );
+
+		AjaxHelper::success( $icons );
+	}
+
+	/**
+	 * AJAX handler for getting icon data.
+	 */
+	public function ajax_get_icon_data() {
+		if ( ! AjaxHelper::has_valid_nonce( 'accesspress_fontawesome_picker' ) ) {
+			AjaxHelper::unauthorized( 'Security check failed.' );
+		}
+
+		$icon_name = RequestHelper::text( $_POST, 'icon_name' );
+		$style     = RequestHelper::text( $_POST, 'style', 'fas' );
+
+		$icon_data = $this->get_icon_data( $icon_name, $style );
+
+		if ( $icon_data ) {
+			AjaxHelper::success( $icon_data );
+		} else {
+			AjaxHelper::error( 'Icon not found' );
+		}
+	}
+
+	/**
+	 * Search for icons based on criteria.
+	 *
+	 * @param string $search Search term
+	 * @param string $pack Icon pack (classic, duotone, sharp, sharp-duotone)
+	 * @param string $style Icon style (solid, regular, light, thin)
+	 * @param int    $page Page number
+	 * @param int    $per_page Items per page
+	 * @return array
+	 */
+	public function search_icons( $search = '', $pack = 'classic', $style = 'solid', $page = 1, $per_page = 50 ) {
+		if ( ! $this->is_fontawesome_available() ) {
+			$fallback_icons = $this->get_fallback_icons( $pack, $style, $search );
+			$total          = count( $fallback_icons );
+			$offset         = ( $page - 1 ) * $per_page;
+			$icons          = array_slice( $fallback_icons, $offset, $per_page );
+
+			return array(
+				'icons'       => array_values( $icons ),
+				'total'       => $total,
+				'page'        => $page,
+				'per_page'    => $per_page,
+				'total_pages' => ceil( $total / $per_page ),
+				'prefix'      => $this->get_fontawesome_prefix( $pack, $style ),
+			);
+		}
+
+		try {
+			$fa        = fa();
+			$all_icons = $this->get_available_icons_from_api( $pack, $style );
+
+			if ( ! empty( $search ) ) {
+				$all_icons = array_filter(
+					$all_icons,
+					function ( $icon ) use ( $search ) {
+						return stripos( $icon['name'], $search ) !== false ||
+							stripos( $icon['label'], $search ) !== false ||
+							( isset( $icon['search_terms'] ) && is_array( $icon['search_terms'] ) &&
+							array_filter(
+								$icon['search_terms'],
+								function ( $term ) use ( $search ) {
+									return stripos( $term, $search ) !== false;
+								}
+							) );
+					}
+				);
+			}
+
+			// Paginate results.
+			$total  = count( $all_icons );
+			$offset = ( $page - 1 ) * $per_page;
+			$icons  = array_slice( $all_icons, $offset, $per_page );
+
+			return array(
+				'icons'       => array_values( $icons ),
+				'total'       => $total,
+				'page'        => $page,
+				'per_page'    => $per_page,
+				'total_pages' => ceil( $total / $per_page ),
+				'prefix'      => $this->get_fontawesome_prefix( $pack, $style ),
+			);
+
+		} catch ( Exception $e ) {
+			LoggerHelper::write_log( 'AccessPress FontAwesome IconPicker: Error searching icons: ' . $e->getMessage() );
+			$fallback_icons = $this->get_fallback_icons( $pack, $style, $search );
+			$total          = count( $fallback_icons );
+			$offset         = ( $page - 1 ) * $per_page;
+			$icons          = array_slice( $fallback_icons, $offset, $per_page );
+
+			return array(
+				'icons'       => array_values( $icons ),
+				'total'       => $total,
+				'page'        => $page,
+				'per_page'    => $per_page,
+				'total_pages' => ceil( $total / $per_page ),
+				'prefix'      => $this->get_fontawesome_prefix( $pack, $style ),
+			);
+		}
+	}
+
+	/**
+	 * Get data for a specific icon.
+	 *
+	 * @param string $icon_name Icon name
+	 * @param string $pack Icon pack
+	 * @param string $style Icon style
+	 * @return array|null
+	 */
+	public function get_icon_data( $icon_name, $pack = 'classic', $style = 'solid' ) {
+		if ( ! $this->is_fontawesome_available() ) {
+			return null;
+		}
+
+		try {
+			$prefix = $this->get_fontawesome_prefix( $pack, $style );
+
+			if ( function_exists( 'FortAwesome\findIconDefinition' ) ) {
+				$definition = \FortAwesome\findIconDefinition(
+					array(
+						'prefix'   => $prefix,
+						'iconName' => $icon_name,
+					)
+				);
+
+				if ( $definition ) {
+					return array(
+						'name'       => $icon_name,
+						'pack'       => $pack,
+						'style'      => $style,
+						'prefix'     => $prefix,
+						'class'      => $prefix . ' fa-' . $icon_name,
+						'unicode'    => $definition->icon[3],
+						'svg'        => $this->definition_to_svg( $definition ),
+						'definition' => $definition,
+					);
+				}
+			}
+
+			// Fallback to basic data.
+			return array(
+				'name'    => $icon_name,
+				'pack'    => $pack,
+				'style'   => $style,
+				'prefix'  => $prefix,
+				'class'   => $prefix . ' fa-' . $icon_name,
+				'unicode' => '',
+				'svg'     => '',
+			);
+
+		} catch ( Exception $e ) {
+			LoggerHelper::write_log( 'AccessPress FontAwesome IconPicker: Error getting icon data: ' . $e->getMessage() );
+			return null;
+		}
+	}
+
+	/**
+	 * Convert FontAwesome icon definition to SVG.
+	 *
+	 * @param object $definition FontAwesome icon definition
+	 * @return string
+	 */
+	private function definition_to_svg( $definition ) {
+		if ( ! $definition || ! isset( $definition->icon ) ) {
+			return '';
+		}
+
+		$paths = array();
+		foreach ( $definition->icon[4] as $path ) {
+			$paths[] = '<path d="' . $path . '" />';
+		}
+
+		return sprintf(
+			'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" class="svg-inline--fa">%s</svg>',
+			$definition->icon[0],
+			$definition->icon[1],
+			implode( '', $paths )
+		);
+	}
+
+	/**
+	 * Get FontAwesome prefix for pack and style combination.
+	 *
+	 * @param string $pack Icon pack
+	 * @param string $style Icon style
+	 * @return string
+	 */
+	private function get_fontawesome_prefix( $pack, $style ) {
+		$prefix_map = array(
+			'classic'       => array(
+				'solid'   => 'fas',
+				'regular' => 'far',
+				'light'   => 'fal',
+				'thin'    => 'fat',
+			),
+			'duotone'       => array(
+				'solid'   => 'fad',
+				'regular' => 'fadr',
+				'light'   => 'fadl',
+				'thin'    => 'fadt',
+			),
+			'sharp'         => array(
+				'solid'   => 'fass',
+				'regular' => 'fasr',
+				'light'   => 'fasl',
+				'thin'    => 'fast',
+			),
+			'sharp-duotone' => array(
+				'solid'   => 'fasd',
+				'regular' => 'fasdr',
+				'light'   => 'fasdl',
+				'thin'    => 'fasdt',
+			),
+			'brands'        => array(
+				'solid' => 'fab',
+			),
+		);
+
+		return $prefix_map[ $pack ][ $style ] ?? 'fas';
+	}
+
+	/**
+	 * Get available icons from FontAwesome API.
+	 *
+	 * @param string $pack Icon pack
+	 * @param string $style Icon style
+	 * @return array
+	 */
+	private function get_available_icons_from_api( $pack, $style ) {
+		$cache_key = 'fa_icons_' . $pack . '_' . $style;
+
+		if ( isset( $this->icon_cache[ $cache_key ] ) ) {
+			return $this->icon_cache[ $cache_key ];
+		}
+
+		if ( ! $this->is_fontawesome_available() ) {
+			return array();
+		}
+
+		try {
+			$fa    = \FortAwesome\fa();
+			$icons = $this->query_fontawesome_api( $pack, $style );
+
+			$this->icon_cache[ $cache_key ] = $icons;
+			return $icons;
+
+		} catch ( Exception $e ) {
+			LoggerHelper::write_log( 'AccessPress FontAwesome IconPicker: Error getting icons from API: ' . $e->getMessage() );
+			return array();
+		}
+	}
+
+	/**
+	 * Query FontAwesome API for icons.
+	 *
+	 * @param string $pack Icon pack
+	 * @param string $style Icon style
+	 * @return array
+	 */
+	private function query_fontawesome_api( $pack, $style ) {
+		if ( ! $this->is_fontawesome_available() ) {
+			return array();
+		}
+
+		try {
+			$fa    = fa();
+			$query = 'query {
+                release(version: "latest") {
+                    icons {
+                        id
+                        label
+                        membership {
+                            free
+                            pro
+                        }
+                        styles
+                        unicode
+                    }
+                }
+            }';
+
+			LoggerHelper::write_log( 'AccessPress FontAwesome IconPicker: Executing GraphQL query for pack=' . $pack . ', style=' . $style );
+			$response_json = $fa->query( $query );
+			$response      = json_decode( $response_json, true );
+
+			if ( json_last_error() !== JSON_ERROR_NONE ) {
+				LoggerHelper::write_log( 'AccessPress FontAwesome IconPicker: JSON decode error: ' . json_last_error_msg() );
+				return array();
+			}
+
+			if ( ! isset( $response['data']['release']['icons'] ) ) {
+				LoggerHelper::write_log(
+					array(
+						'message'  => 'AccessPress FontAwesome IconPicker: Invalid API response structure.',
+						'response' => $response,
+					)
+				);
+				return array();
+			}
+
+			$all_icons = $response['data']['release']['icons'];
+			LoggerHelper::write_log( 'AccessPress FontAwesome IconPicker: Retrieved ' . count( $all_icons ) . ' total icons from API' );
+
+			$icons = array();
+			foreach ( $all_icons as $icon_data ) {
+				// Filter icons based on pack and style availability.
+				if ( ! $this->icon_matches_pack_style( $icon_data, $pack, $style ) ) {
+					continue;
+				}
+
+				// Build search terms array (empty for now since the search field is not available).
+				$search_terms = array();
+
+				$icons[] = array(
+					'name'         => $icon_data['id'],
+					'label'        => $icon_data['label'],
+					'search_terms' => $search_terms,
+				);
+			}
+
+			LoggerHelper::write_log( 'AccessPress FontAwesome IconPicker: Filtered to ' . count( $icons ) . ' icons for pack=' . $pack . ', style=' . $style );
+			return $icons;
+
+		} catch ( Exception $e ) {
+			LoggerHelper::write_log( 'AccessPress FontAwesome IconPicker: Error querying FontAwesome API: ' . $e->getMessage() );
+			LoggerHelper::write_log( 'AccessPress FontAwesome IconPicker: Exception trace: ' . $e->getTraceAsString() );
+			return array();
+		}
+	}
+	private function icon_matches_pack_style( $icon_data, $pack, $style ) {
+		$membership  = $icon_data['membership'] ?? array();
+		$free_styles = $membership['free'] ?? array();
+		$pro_styles  = $membership['pro'] ?? array();
+
+		$membership_style_map = array(
+			'classic'       => array(
+				'solid'   => 'solid',
+				'regular' => 'regular',
+				'light'   => 'light',
+				'thin'    => 'thin',
+			),
+			'duotone'       => array(
+				'solid'   => 'duotone',
+				'regular' => 'duotone',
+				'light'   => 'duotone',
+				'thin'    => 'duotone',
+			),
+			'sharp'         => array(
+				'solid'   => 'sharp',
+				'regular' => 'sharp',
+				'light'   => 'sharp',
+				'thin'    => 'sharp',
+			),
+			'sharp-duotone' => array(
+				'solid'   => 'sharp-duotone',
+				'regular' => 'sharp-duotone',
+				'light'   => 'sharp-duotone',
+				'thin'    => 'sharp-duotone',
+			),
+			'brands'        => array(
+				'solid' => 'brands',
+			),
+		);
+
+		$membership_style = $membership_style_map[ $pack ][ $style ] ?? null;
+		if ( ! $membership_style ) {
+			return false;
+		}
+
+		return in_array( $membership_style, $free_styles, true ) || in_array( $membership_style, $pro_styles, true );
+	}
+
+	/**
+	 * Render the icon picker HTML.
+	 *
+	 * @param string $input_name Name attribute for the hidden input
+	 * @param string $selected_icon Currently selected icon (class or name)
+	 * @param array  $args Additional arguments
+	 * @return string
+	 */
+	public function render_picker( $input_name, $selected_icon = '', $args = array() ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'id'           => uniqid( 'fa-picker-' ),
+				'input_id'     => '',
+				'class'        => 'accesspress-fa-picker',
+				'button_text'  => __( 'Choose Icon', 'accesspress' ),
+				'preview_size' => '24px',
+			)
+		);
+
+		if ( empty( $args['input_id'] ) ) {
+			$args['input_id'] = $args['id'] . '-input';
+		}
+
+		$selected_data = $this->parse_icon_value( $selected_icon );
+
+		ob_start();
+		?>
+		<div class="accesspress-fa-picker-container" id="<?php echo esc_attr( $args['id'] ); ?>">
+				<?php
+				echo wp_kses_post(
+					FormFieldHelper::input(
+						$input_name,
+						$selected_icon,
+						array(
+							'type'  => 'hidden',
+							'id'    => $args['input_id'],
+							'class' => 'accesspress-fa-picker-input',
+						)
+					)
+				);
+				?>
+
+				<button type="button"
+					class="btn btn-secondary accesspress-fa-picker-button"
+					data-picker-id="<?php echo esc_attr( $args['id'] ); ?>">
+				<span class="accesspress-fa-picker-preview">
+					<?php if ( $selected_data ) : ?>
+						<i class="<?php echo esc_attr( $selected_data['class'] ); ?>"
+							style="font-size: <?php echo esc_attr( $args['preview_size'] ); ?>"></i>
+					<?php endif; ?>
+				</span>
+				<span class="accesspress-fa-picker-text">
+					<?php echo esc_html( $args['button_text'] ); ?>
+				</span>
+			</button>
+
+			<div class="accesspress-fa-picker-modal" style="display: none;">
+				<div class="accesspress-fa-picker-overlay"></div>
+				<div class="accesspress-fa-picker-dialog">
+					<div class="accesspress-fa-picker-header">
+						<h3><?php _e( 'Choose an Icon', 'accesspress' ); ?></h3>
+						<button type="button" class="accesspress-fa-picker-close">&times;</button>
+					</div>
+
+					<div class="accesspress-fa-picker-search">
+						<?php
+						echo wp_kses_post(
+							FormFieldHelper::input(
+								'accesspress_fa_search',
+								'',
+								array(
+									'type'        => 'search',
+									'class'       => 'accesspress-fa-picker-search-input',
+									'placeholder' => __( 'Search icons...', 'accesspress' ),
+								)
+							)
+						);
+						?>
+						<?php
+						echo wp_kses_post(
+							FormFieldHelper::select(
+								'accesspress_fa_pack',
+								array(
+									'classic'       => __( 'Classic', 'accesspress' ),
+									'duotone'       => __( 'Duotone', 'accesspress' ),
+									'sharp'         => __( 'Sharp', 'accesspress' ),
+									'sharp-duotone' => __( 'Sharp Duotone', 'accesspress' ),
+									'brands'        => __( 'Brands', 'accesspress' ),
+								),
+								'classic',
+								array( 'class' => 'accesspress-fa-picker-pack-filter' )
+							)
+						);
+						?>
+						<?php
+						echo wp_kses_post(
+							FormFieldHelper::select(
+								'accesspress_fa_style',
+								array(
+									'solid'   => __( 'Solid', 'accesspress' ),
+									'regular' => __( 'Regular', 'accesspress' ),
+									'light'   => __( 'Light', 'accesspress' ),
+									'thin'    => __( 'Thin', 'accesspress' ),
+								),
+								'solid',
+								array( 'class' => 'accesspress-fa-picker-style-filter' )
+							)
+						);
+						?>
+					</div>
+
+					<div class="accesspress-fa-picker-results">
+						<div class="accesspress-fa-picker-loading">
+							<?php _e( 'Loading icons...', 'accesspress' ); ?>
+						</div>
+					</div>
+
+					<div class="accesspress-fa-picker-footer">
+						<button type="button" class="btn btn-secondary accesspress-fa-picker-cancel">
+							<?php _e( 'Cancel', 'accesspress' ); ?>
+						</button>
+						<button type="button" class="btn btn-primary accesspress-fa-picker-select" disabled>
+							<?php _e( 'Select Icon', 'accesspress' ); ?>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Parse icon value into components.
+	 *
+	 * @param string $icon_value Icon class or name
+	 * @return array|null
+	 */
+	private function parse_icon_value( $icon_value ) {
+		if ( empty( $icon_value ) ) {
+			return null;
+		}
+
+		// Check if it is a full class string with a FontAwesome prefix.
+		if ( preg_match( '/^(fa[sdrl][a-z]*)\s+fa-([a-z0-9-]+)$/', $icon_value, $matches ) ) {
+			$prefix = $matches[1];
+			$name   = $matches[2];
+
+			// Convert the prefix back to the pack and style.
+			$pack_style = $this->parse_fontawesome_prefix( $prefix );
+
+			return array(
+				'pack'   => $pack_style['pack'],
+				'style'  => $pack_style['style'],
+				'prefix' => $prefix,
+				'name'   => $name,
+				'class'  => $icon_value,
+			);
+		}
+
+		// Check if it is just a name.
+		if ( preg_match( '/^[a-z0-9-]+$/', $icon_value ) ) {
+			return array(
+				'pack'   => 'classic',
+				'style'  => 'solid',
+				'prefix' => 'fas',
+				'name'   => $icon_value,
+				'class'  => 'fas fa-' . $icon_value,
+			);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Parse FontAwesome prefix into pack and style.
+	 *
+	 * @param string $prefix FontAwesome prefix
+	 * @return array
+	 */
+	private function parse_fontawesome_prefix( $prefix ) {
+		$reverse_map = array(
+			'fas'   => array(
+				'pack'  => 'classic',
+				'style' => 'solid',
+			),
+			'far'   => array(
+				'pack'  => 'classic',
+				'style' => 'regular',
+			),
+			'fal'   => array(
+				'pack'  => 'classic',
+				'style' => 'light',
+			),
+			'fat'   => array(
+				'pack'  => 'classic',
+				'style' => 'thin',
+			),
+			'fab'   => array(
+				'pack'  => 'brands',
+				'style' => 'solid',
+			),
+			'fad'   => array(
+				'pack'  => 'duotone',
+				'style' => 'solid',
+			),
+			'fadr'  => array(
+				'pack'  => 'duotone',
+				'style' => 'regular',
+			),
+			'fadl'  => array(
+				'pack'  => 'duotone',
+				'style' => 'light',
+			),
+			'fadt'  => array(
+				'pack'  => 'duotone',
+				'style' => 'thin',
+			),
+			'fass'  => array(
+				'pack'  => 'sharp',
+				'style' => 'solid',
+			),
+			'fasr'  => array(
+				'pack'  => 'sharp',
+				'style' => 'regular',
+			),
+			'fasl'  => array(
+				'pack'  => 'sharp',
+				'style' => 'light',
+			),
+			'fast'  => array(
+				'pack'  => 'sharp',
+				'style' => 'thin',
+			),
+			'fasd'  => array(
+				'pack'  => 'sharp-duotone',
+				'style' => 'solid',
+			),
+			'fasdr' => array(
+				'pack'  => 'sharp-duotone',
+				'style' => 'regular',
+			),
+			'fasdl' => array(
+				'pack'  => 'sharp-duotone',
+				'style' => 'light',
+			),
+			'fasdt' => array(
+				'pack'  => 'sharp-duotone',
+				'style' => 'thin',
+			),
+		);
+
+		return $reverse_map[ $prefix ] ?? array(
+			'pack'  => 'classic',
+			'style' => 'solid',
+		);
+	}
+
+	/**
+	 * Get fallback icons when FontAwesome is not available
+	 *
+	 * @param string $pack Icon pack
+	 * @param string $style Icon style
+	 * @param string $search Search term
+	 * @return array
+	 */
+	private function get_fallback_icons( $pack = 'classic', $style = 'solid', $search = '' ) {
+		// Common FontAwesome icons that should be available.
+		$common_icons = array(
+			'user'                 => 'User',
+			'home'                 => 'Home',
+			'search'               => 'Search',
+			'heart'                => 'Heart',
+			'star'                 => 'Star',
+			'check'                => 'Check',
+			'times'                => 'Times',
+			'plus'                 => 'Plus',
+			'minus'                => 'Minus',
+			'cog'                  => 'Cog',
+			'wrench'               => 'Wrench',
+			'trash'                => 'Trash',
+			'edit'                 => 'Edit',
+			'save'                 => 'Save',
+			'download'             => 'Download',
+			'upload'               => 'Upload',
+			'file'                 => 'File',
+			'folder'               => 'Folder',
+			'image'                => 'Image',
+			'video'                => 'Video',
+			'music'                => 'Music',
+			'play'                 => 'Play',
+			'pause'                => 'Pause',
+			'stop'                 => 'Stop',
+			'chevron-left'         => 'Chevron Left',
+			'chevron-right'        => 'Chevron Right',
+			'chevron-up'           => 'Chevron Up',
+			'chevron-down'         => 'Chevron Down',
+			'arrow-left'           => 'Arrow Left',
+			'arrow-right'          => 'Arrow Right',
+			'arrow-up'             => 'Arrow Up',
+			'arrow-down'           => 'Arrow Down',
+			'lock'                 => 'Lock',
+			'unlock'               => 'Unlock',
+			'key'                  => 'Key',
+			'sign-in'              => 'Sign In',
+			'sign-out'             => 'Sign Out',
+			'user-plus'            => 'User Plus',
+			'users'                => 'Users',
+			'comment'              => 'Comment',
+			'comments'             => 'Comments',
+			'envelope'             => 'Envelope',
+			'phone'                => 'Phone',
+			'mobile'               => 'Mobile',
+			'map-marker'           => 'Map Marker',
+			'calendar'             => 'Calendar',
+			'clock'                => 'Clock',
+			'bell'                 => 'Bell',
+			'bookmark'             => 'Bookmark',
+			'tag'                  => 'Tag',
+			'tags'                 => 'Tags',
+			'thumbs-up'            => 'Thumbs Up',
+			'thumbs-down'          => 'Thumbs Down',
+			'eye'                  => 'Eye',
+			'exclamation-triangle' => 'Exclamation Triangle',
+			'info-circle'          => 'Info Circle',
+			'question-circle'      => 'Question Circle',
+			'check-circle'         => 'Check Circle',
+			'times-circle'         => 'Times Circle',
+			'plus-circle'          => 'Plus Circle',
+			'minus-circle'         => 'Minus Circle',
+			'spinner'              => 'Spinner',
+			'briefcase'            => 'Briefcase',
+			'building'             => 'Building',
+			'coffee'               => 'Coffee',
+			'gamepad'              => 'Gamepad',
+			'keyboard'             => 'Keyboard',
+			'desktop'              => 'Desktop',
+			'laptop'               => 'Laptop',
+			'tablet'               => 'Tablet',
+			'tv'                   => 'TV',
+			'camera'               => 'Camera',
+			'code'                 => 'Code',
+			'database'             => 'Database',
+			'server'               => 'Server',
+			'cloud'                => 'Cloud',
+			'globe'                => 'Globe',
+			'shield'               => 'Shield',
+			'flag'                 => 'Flag',
+			'gift'                 => 'Gift',
+			'trophy'               => 'Trophy',
+			'medal'                => 'Medal',
+			'star-half'            => 'Star Half',
+		);
+
+		$icons = array();
+		foreach ( $common_icons as $name => $label ) {
+			// Filter by search term.
+			if ( ! empty( $search ) && stripos( $name, $search ) === false && stripos( $label, $search ) === false ) {
+				continue;
+			}
+
+			$icons[] = array(
+				'name'         => $name,
+				'label'        => $label,
+				'search_terms' => array( $name, $label ),
+			);
+		}
+
+		return $icons;
+	}
+}
+
+
+

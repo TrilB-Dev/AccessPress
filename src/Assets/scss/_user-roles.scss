@@ -1,0 +1,55 @@
+.accesspress-admin {
+    .accesspress-role-card {
+    border-color: #dcdcde;
+    }
+
+    .accesspress-capability-buttons {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    }
+
+    .accesspress-capability-card {
+    border-color: #dcdcde;
+    max-height: 9.8rem;
+    overflow-y: auto;
+    padding: 16px 10px;
+    }
+
+    .accesspress-capability-card .card-body {
+    text-align: center;
+    padding: 5px;
+    }
+
+    .accesspress-capability-toggle {
+    min-width: 3.5rem;
+    }
+
+    .accesspress-capability-info {
+    color: var(--accesspress-blue);
+    font-size: 1.25rem;
+    margin-left: auto;
+    }
+
+    @media (min-width: 576px) {
+    .accesspress-capability-buttons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    }
+
+    @media (min-width: 768px) {
+    .accesspress-capability-buttons {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    }
+
+    @media (min-width: 992px) {
+    .accesspress-capability-buttons {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+    }
+
+    .accesspress-role-step[data-role-step="capabilities"] {
+    min-height: 20rem;
+    }
+}

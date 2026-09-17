@@ -1,0 +1,17 @@
+.accesspress-admin {
+	[data-accesspress-menu-builder] {
+		background: var(--bs-tertiary-bg);
+		border-color: var(--bs-border-color) !important;
+	}
+
+	[data-accesspress-nav-items] {
+		min-height: 2.75rem;
+	}
+
+	[data-accesspress-nav-item] {
+		cursor: grab;
+	}
+}
+
+
+

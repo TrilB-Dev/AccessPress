@@ -1,0 +1,42 @@
+.accesspress-admin {
+	.nav-tabs {
+		border-bottom-color: var(--bs-border-color);
+
+		.nav-link {
+			color: var(--bs-secondary-color);
+
+			&.active {
+				color: var(--bs-primary);
+				font-weight: 600;
+			}
+		}
+	}
+
+	.accesspress-settings-form,
+	.accesspress-import-form {
+		width: 100%;
+		max-width: 100%;
+	}
+
+	.accesspress-settings-form {
+		.tab-content {
+			margin-top: 1rem;
+		}
+
+		> .card-body > .btn {
+			margin-top: 1rem;
+		}
+	}
+
+	.accesspress-settings-tab-content {
+		transition: opacity 150ms ease;
+
+		&.is-loading {
+			opacity: .65;
+			pointer-events: none;
+		}
+	}
+}
+
+
+

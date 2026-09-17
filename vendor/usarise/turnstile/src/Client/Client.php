@@ -1,0 +1,67 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Turnstile\Client;
+
+use Psr\Http\Client\ClientInterface as PsrHttpClientInterface;
+use Psr\Http\Message\{RequestFactoryInterface, RequestInterface, ResponseInterface, StreamFactoryInterface};
+use Turnstile\Client\Abstract\RequestParameters as AbstractRequestParameters;
+use Turnstile\Exception\InvalidArgumentException;
+use Turnstile\TurnstileInterface;
+
+/**
+ * @api
+ */
+final class Client {
+    public readonly RequestFactoryInterface $requestFactory;
+
+    public readonly StreamFactoryInterface $streamFactory;
+
+    public function __construct(
+        public readonly PsrHttpClientInterface $httpClient,
+        ?RequestFactoryInterface $requestFactory = null,
+        ?StreamFactoryInterface $streamFactory = null,
+        public readonly string $siteVerifyUrl = TurnstileInterface::SITE_VERIFY_URL,
+    ) {
+        $requestFactory ??= $httpClient;
+        $streamFactory ??= $requestFactory;
+
+        if (!$requestFactory instanceof RequestFactoryInterface) {
+            throw new InvalidArgumentException(
+                'Argument #1 ($httpClient) or argument #2 ($requestFactory) must be support implement '
+                 . RequestFactoryInterface::class,
+            );
+        }
+
+        if (!$streamFactory instanceof StreamFactoryInterface) {
+            throw new InvalidArgumentException(
+                'Argument #1 ($httpClient) or argument #2 ($requestFactory) or argument #3 ($streamFactory) must be support implement '
+                 . StreamFactoryInterface::class,
+            );
+        }
+
+        $this->requestFactory = $requestFactory;
+        $this->streamFactory = $streamFactory;
+    }
+
+    public function createRequest(AbstractRequestParameters $requestParameters): RequestInterface {
+        return $this->requestFactory
+            ->createRequest('POST', $this->siteVerifyUrl)
+            ->withHeader('Content-Type', 'application/x-www-form-urlencoded')
+            ->withBody(
+                $this->streamFactory->createStream(
+                    (string) $requestParameters,
+                ),
+            )
+        ;
+    }
+
+    public function sendRequest(AbstractRequestParameters $requestParameters): ResponseInterface {
+        return $this->httpClient->sendRequest(
+            $this->createRequest(
+                $requestParameters,
+            ),
+        );
+    }
+}

@@ -1,0 +1,228 @@
+.accesspress-admin {
+	min-height: 100vh;
+	background: var(--accesspress-paper);
+	color: var(--accesspress-ink);
+	display: flex;
+	flex-direction: column;
+
+	&.wrap {
+		box-sizing: border-box;
+		max-width: none;
+		margin: 0;
+		width: auto;
+	}
+
+	.accesspress-header {
+		background: var(--accesspress-header);
+		box-shadow: 0 0.25rem 1rem rgba(16, 42, 67, 0.16);
+		min-height: 150px;
+		overflow: visible;
+		position: relative;
+		z-index: 10;
+
+		.navbar {
+			align-items: flex-start;
+			padding-top: 0;
+		}
+
+		.navbar-collapse {
+			align-self: flex-start;
+			align-items: flex-start;
+		}
+
+		.navbar-nav {
+			align-items: flex-start !important;
+		}
+
+		.navbar-brand,
+		.navbar .nav-link {
+			color: var(--accesspress-ink);
+		}
+
+		.navbar-brand {
+			width: 250px;
+			object-fit: contain;
+			margin-left: 35px;
+			margin-top: 1rem;
+		}
+
+		.nav-link {
+			border-radius: 999px;
+			font-size: 0.875rem;
+			padding-inline: 0.8rem !important;
+			transition: background-color 140ms ease, color 140ms ease;
+
+			&:hover,
+			&:focus-visible {
+				background: rgba(255, 255, 255, 0.72);
+				color: var(--accesspress-blue);
+			}
+		}
+
+		.navbar-toggler {
+			border-color: rgba(21, 34, 56, 0.3);
+		}
+
+		.navbar-toggler-icon {
+			filter: none;
+		}
+	}
+
+	.accesspress-shell {
+		width: 100%;
+		max-width: none;
+		margin-inline: 0;
+		position: relative;
+	}
+
+	.accesspress-admin-main .accesspress-shell {
+		padding-top: 0 !important;
+	}
+
+	.accesspress-admin-main {
+		flex: 1 0 auto;
+		min-height: calc(100vh - 10rem);
+	}
+
+	.accesspress-page-heading {
+		border-bottom: 1px solid var(--accesspress-line);
+		padding-bottom: 1rem;
+	}
+
+	.accesspress-sidebar {
+		background: var(--accesspress-header);
+		border: 0;
+		border-radius: 0;
+		box-shadow: none;
+		overflow: hidden;
+		min-height: 100%;
+		padding: 1.5rem 0.75rem 1rem;
+		position: relative;
+		z-index: 1;
+	}
+
+	.accesspress-sidebar-column {
+		flex: 0 0 350px;
+		max-width: 350px;
+	}
+
+	.accesspress-sidebar-group-link {
+		font-family: inherit;
+	}
+
+	.accesspress-sidebar-group-heading {
+		font-size: inherit;
+		font-weight: inherit;
+		margin: 0;
+	}
+
+	.accesspress-sidebar-group-items {
+		padding-left: 20px;
+	}
+
+	.accesspress-sidebar-link,
+	.accordion-button {
+		align-items: center;
+		color: var(--accesspress-ink);
+		display: flex;
+		font-size: 1.2rem;
+		font-weight: 600;
+		gap: 0.65rem;
+		text-decoration: none;
+		width: 100%;
+	}
+
+	.accesspress-sidebar-link {
+		border-radius: 0.5rem;
+		margin-bottom: 0.25rem;
+		padding: 0.7rem 0.75rem;
+		transition: background-color 140ms ease, color 140ms ease, transform 140ms ease;
+
+		&:hover,
+		&:focus-visible,
+		&.active {
+			background: #e8f0ff;
+			color: var(--accesspress-blue);
+		}
+
+		&:hover { transform: translateX(2px); }
+	}
+
+	.accesspress-sidebar .nav-link.active {
+		font-weight: 700;
+	}
+
+	.accesspress-sidebar-icon {
+		align-items: center;
+		background: #eaf0f6;
+		border-radius: 0.35rem;
+		display: inline-flex;
+		font-size: 1.15rem;
+		height: 1.65rem;
+		justify-content: center;
+		width: 1.65rem;
+	}
+
+	.accordion {
+		--bs-accordion-border-width: 0;
+		--bs-accordion-btn-focus-box-shadow: none;
+		--bs-accordion-btn-padding-x: 0.75rem;
+		--bs-accordion-btn-padding-y: 0.7rem;
+	}
+
+	.accordion-button {
+		background: transparent;
+		box-shadow: none;
+		color: var(--accesspress-ink);
+	}
+
+	.accordion-button:not(.collapsed) {
+		background: #f0f5f8;
+		box-shadow: none;
+		color: var(--accesspress-navy);
+	}
+
+	.accordion-body { padding-inline: 0.5rem; }
+
+	.accordion-body .nav-link {
+		border-left: 2px solid transparent;
+		color: var(--bs-secondary-color);
+		font-size: 0.8125rem;
+		padding: 0.55rem 0.75rem;
+
+		&:hover,
+		&:focus-visible,
+		&.active {
+			background: #e8f0ff;
+			border-left-color: var(--accesspress-blue);
+			color: var(--accesspress-blue);
+		}
+	}
+
+	.accesspress-footer {
+		background: #fff;
+	}
+
+	.card,
+	.accesspress-inline-form,
+	.accesspress-content-toolbar {
+		border-color: var(--accesspress-line);
+		max-width: 100%;
+	}
+}
+
+@media (max-width: 991.98px) {
+	.accesspress-admin .accesspress-sidebar { position: static !important; }
+	.accesspress-admin .accesspress-sidebar-column {
+		flex-basis: 100%;
+		max-width: 100%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.accesspress-admin .accesspress-sidebar-link,
+	.accesspress-admin .nav-link { transition: none; }
+}
+
+
+
