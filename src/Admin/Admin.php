@@ -19,7 +19,6 @@ use AccessPress\Includes\Functions\Admin\FunctionsSidebar;
 use AccessPress\Assets\Assets;
 use AccessPress\Admin\Manager\Tools\ToolsManager;
 use AccessPress\Admin\Manager\Dashboard\DashboardManager;
-use AccessPress\Admin\Manager\Members\MembersManager;
 use AccessPress\Admin\Manager\Reports\ReportsManager;
 use AccessPress\Admin\Manager\Settings\SettingsManager;
 
@@ -46,12 +45,6 @@ final class Admin {
 	 * @var ToolsManager
 	 */
 	private ToolsManager $tools_manager;
-	/**
-	 * MembersManager instance for managing members-related admin pages.
-	 *
-	 * @var MembersManager
-	 */
-	private MembersManager $members_manager;
 	/**
 	 * ReportsManager instance for managing reports-related admin pages.
 	 *
@@ -102,12 +95,6 @@ final class Admin {
 		 * @since 1.0.0
 		 */
 		$this->tools_manager = new ToolsManager();
-		/**
-		 * Initialize the members manager.
-		 *
-		 * @since 1.0.0
-		 */
-		$this->members_manager = new MembersManager();
 		/**
 		 * Initialize the reports manager.
 		 *
@@ -235,14 +222,6 @@ final class Admin {
 	 */
 	public function render_tools(): void {
 		$this->tools_manager->render();
-	}
-	/**
-	 * Render the members page.
-	 *
-	 * @return void
-	 */
-	public function render_members(): void {
-		$this->members_manager->render();
 	}
 	/**
 	 * Render the reports page.
