@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("[data-accesspress-count]").forEach(e=>{e.classList.add("accesspress-count-ready")})});

@@ -243,6 +243,8 @@ final class Admin {
 			'general'     => 'accesspress_settings_general_view',
 			'layout'      => 'accesspress_settings_layout_view',
 			'access'      => 'accesspress_settings_access_view',
+			'email'       => 'accesspress_settings_email_view',
+			'security'    => 'accesspress_settings_security_view',
 			'plugins'     => 'accesspress_settings_plugins_view',
 			'third-party' => 'accesspress_settings_plugins_ext_view',
 		)[ $tab ] ?? 'accesspress_settings_general_view';

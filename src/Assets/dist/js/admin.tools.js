@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll(".accesspress-tools-form, .accesspress-tool-panel").forEach(e=>{e.setAttribute("data-accesspress-tools-ready","true")})});

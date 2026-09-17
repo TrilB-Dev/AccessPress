@@ -1,100 +1,148 @@
 .accesspress-admin {
-    --accesspress-blue: #2563eb;        /* WordPress-inspired primary */
-	--accesspress-light-blue: #3b82f6;  /* Lighter accent for hovers */
-	--accesspress-deep-blue: #1e3a8a;   /* Darker accent for headers */
-	--accesspress-microsoft-red: #d83b01;
-	--accesspress-microsoft-green: #107c10;
-	--accesspress-microsoft-yellow: #ffb900;
+    /* Primary brand colours (from logo gradient) */
+    --accesspress-blue: #2563eb;          /* Main blue */
+    --accesspress-light-blue: #3dd5f3;    /* Aqua highlight from logo */
+    --accesspress-deep-blue: #1e3a8a;     /* Shield blue */
 
-	--accesspress-ink: #152238;         /* Deep text / dark mode anchor */
-	--accesspress-navy: #102a43;        /* Sidebar / panel background */
-	--accesspress-paper: #f6f8fb;       /* Main background */
-	--accesspress-card: #ffffff;        /* Card surfaces */
-	--accesspress-line: #dce4ed;        /* Borders, dividers */
-	--accesspress-header: #eaf3f7;      /* Header + toolbar background */
+    /* Accent colours (taken from logo elements) */
+    --accesspress-gold: #f4c542;          /* Crown gold */
+    --accesspress-skin-light: #f2c7a0;    /* User icon skin tone */
+    --accesspress-skin-dark: #d9a679;     /* Secondary skin tone */
 
-	--accesspress-success: #0f9d58;     /* Google/Microsoft hybrid green */
-	--accesspress-warning: #f4b400;     /* Warm amber */
-	--accesspress-danger: #d93025;      /* Strong red */
-	--accesspress-info: #1a73e8;        /* Informational blue */
+    /* Neutral UI colours */
+    --accesspress-ink: #152238;           /* Deep text */
+    --accesspress-navy: #102a43;          /* Sidebar background */
+    --accesspress-paper: #f7f9fc;         /* Main background (logo‑accurate) */
+    --accesspress-card: #ffffff;          /* Cards */
+    --accesspress-line: #d7e0ea;          /* Borders */
+    --accesspress-header: #eaf3f7;        /* Header background */
 
-	--accesspress-text: #1f2937;        /* Primary text */
-	--accesspress-text-muted: #6b7280;  /* Secondary text */
-	--accesspress-link: #2563eb;        /* Links */
-	--accesspress-link-hover: #1d4ed8;  /* Hover links */
-	--accesspress-focus-ring: #3b82f6;  /* Focus outlines */
+    /* Status colours (harmonised with logo palette) */
+    --accesspress-success: #0f9d58;
+    --accesspress-warning: #f4c542;       /* Use crown gold for warnings */
+    --accesspress-danger: #d93025;
+    --accesspress-info: #1a73e8;
 
-	--accesspress-dark-bg: #0d1117;
-	--accesspress-dark-card: #161b22;
-	--accesspress-dark-line: #30363d;
-	--accesspress-dark-text: #c9d1d9;
-	--accesspress-dark-text-muted: #8b949e;
+    /* Text colours */
+    --accesspress-text: #1f2937;
+    --accesspress-text-muted: #6b7280;
+    --accesspress-link: #2563eb;
+    --accesspress-link-hover: #1d4ed8;
+    --accesspress-focus-ring: #3dd5f3;    /* Aqua highlight */
 
-	--bs-blue: var(--accesspress-blue);
-	--bs-primary: var(--accesspress-blue);
-	--bs-primary-rgb: 37, 99, 235;
-	--bs-secondary: var(--accesspress-text-muted);
-	--bs-secondary-rgb: 107, 114, 128;
-	--bs-success: var(--accesspress-success);
-	--bs-success-rgb: 15, 157, 88;
-	--bs-warning: var(--accesspress-warning);
-	--bs-warning-rgb: 244, 180, 0;
-	--bs-danger: var(--accesspress-danger);
-	--bs-danger-rgb: 217, 48, 37;
-	--bs-info: var(--accesspress-info);
-	--bs-info-rgb: 26, 115, 232;
-	--bs-light: var(--accesspress-paper);
-	--bs-light-rgb: 246, 248, 251;
-	--bs-dark: var(--accesspress-ink);
-	--bs-dark-rgb: 21, 34, 56;
-	--bs-body-color: var(--accesspress-text);
-	--bs-body-color-rgb: 31, 41, 55;
-	--bs-body-bg: var(--accesspress-paper);
-	--bs-body-bg-rgb: 246, 248, 251;
-	--bs-emphasis-color: var(--accesspress-ink);
-	--bs-emphasis-color-rgb: 21, 34, 56;
-	--bs-secondary-color: var(--accesspress-text-muted);
-	--bs-secondary-color-rgb: 107, 114, 128;
-	--bs-tertiary-color: var(--accesspress-text-muted);
-	--bs-tertiary-color-rgb: 107, 114, 128;
-	--bs-secondary-bg: var(--accesspress-card);
-	--bs-secondary-bg-rgb: 255, 255, 255;
-	--bs-tertiary-bg: var(--accesspress-header);
-	--bs-tertiary-bg-rgb: 234, 243, 247;
-	--bs-heading-color: var(--accesspress-ink);
-	--bs-link-color: var(--accesspress-link);
-	--bs-link-color-rgb: 37, 99, 235;
-	--bs-link-hover-color: var(--accesspress-link-hover);
-	--bs-link-hover-color-rgb: 29, 78, 216;
-	--bs-border-color: var(--accesspress-line);
-	--bs-border-color-translucent: rgba(220, 228, 237, 0.75);
-	--bs-focus-ring-color: rgba(59, 130, 246, 0.25);
+    /* Dark mode */
+    --accesspress-dark-bg: #0d1117;
+    --accesspress-dark-card: #161b22;
+    --accesspress-dark-line: #30363d;
+    --accesspress-dark-text: #c9d1d9;
+    --accesspress-dark-text-muted: #8b949e;
 
-	&[data-bs-theme='dark'],
-	[data-bs-theme='dark'] & {
+    /* Bootstrap core brand colours */
+    --bs-blue: var(--accesspress-blue);
+    --bs-primary: var(--accesspress-blue);
+    --bs-primary-rgb: 37, 99, 235;
+
+    --bs-secondary: var(--accesspress-text-muted);
+    --bs-secondary-rgb: 107, 114, 128;
+
+    --bs-success: var(--accesspress-success);
+    --bs-success-rgb: 15, 157, 88;
+
+    --bs-warning: var(--accesspress-warning);
+    --bs-warning-rgb: 244, 197, 66; /* updated to crown gold */
+
+    --bs-danger: var(--accesspress-danger);
+    --bs-danger-rgb: 217, 48, 37;
+
+    --bs-info: var(--accesspress-info);
+    --bs-info-rgb: 26, 115, 232;
+
+    /* Light / dark surfaces */
+    --bs-light: var(--accesspress-paper);
+    --bs-light-rgb: 247, 249, 252; /* updated to match new paper */
+
+    --bs-dark: var(--accesspress-ink);
+    --bs-dark-rgb: 21, 34, 56;
+
+    /* Body + text */
+    --bs-body-color: var(--accesspress-text);
+    --bs-body-color-rgb: 31, 41, 55;
+
+    --bs-body-bg: var(--accesspress-paper);
+    --bs-body-bg-rgb: 247, 249, 252;
+
+    --bs-emphasis-color: var(--accesspress-ink);
+    --bs-emphasis-color-rgb: 21, 34, 56;
+
+    --bs-tertiary-color: var(--accesspress-text-muted);
+    --bs-tertiary-color-rgb: 107, 114, 128;
+
+    /* Surfaces */
+    --bs-secondary-bg: var(--accesspress-card);
+    --bs-secondary-bg-rgb: 255, 255, 255;
+
+    --bs-tertiary-bg: var(--accesspress-header);
+    --bs-tertiary-bg-rgb: 234, 243, 247;
+
+    /* Typography */
+    --bs-heading-color: var(--accesspress-ink);
+
+    /* Links */
+    --bs-link-color: var(--accesspress-link);
+    --bs-link-color-rgb: 37, 99, 235;
+
+    --bs-link-hover-color: var(--accesspress-link-hover);
+    --bs-link-hover-color-rgb: 29, 78, 216;
+
+    /* Borders */
+    --bs-border-color: var(--accesspress-line);
+    --bs-border-color-translucent: rgba(215, 224, 234, 0.75); /* updated */
+
+    /* Focus */
+    --bs-focus-ring-color: rgba(61, 213, 243, 0.25); /* aqua highlight */
+
+/* -------------------------------------------------- */
+/* DARK MODE */
+/* -------------------------------------------------- */
+
+	[data-bs-theme='dark'],
+	&[data-bs-theme='dark'] {
 		--bs-primary: var(--accesspress-light-blue);
-		--bs-primary-rgb: 59, 130, 246;
+		--bs-primary-rgb: 61, 213, 243; /* aqua highlight */
+
 		--bs-body-color: var(--accesspress-dark-text);
 		--bs-body-color-rgb: 201, 209, 217;
+
 		--bs-body-bg: var(--accesspress-dark-bg);
 		--bs-body-bg-rgb: 13, 17, 23;
+
 		--bs-emphasis-color: #f0f6fc;
 		--bs-emphasis-color-rgb: 240, 246, 252;
+
 		--bs-secondary-color: var(--accesspress-dark-text-muted);
 		--bs-secondary-color-rgb: 139, 148, 158;
+
 		--bs-tertiary-color: var(--accesspress-dark-text-muted);
 		--bs-tertiary-color-rgb: 139, 148, 158;
+
 		--bs-secondary-bg: var(--accesspress-dark-card);
 		--bs-secondary-bg-rgb: 22, 27, 34;
+
 		--bs-tertiary-bg: var(--accesspress-dark-line);
 		--bs-tertiary-bg-rgb: 48, 54, 61;
+
 		--bs-heading-color: var(--bs-emphasis-color);
+
 		--bs-link-color: var(--accesspress-light-blue);
-		--bs-link-color-rgb: 59, 130, 246;
+		--bs-link-color-rgb: 61, 213, 243;
+
 		--bs-link-hover-color: #93c5fd;
 		--bs-link-hover-color-rgb: 147, 197, 253;
+
 		--bs-border-color: var(--accesspress-dark-line);
 		--bs-border-color-translucent: rgba(48, 54, 61, 0.75);
-		--bs-focus-ring-color: rgba(59, 130, 246, 0.35);
+
+		--bs-focus-ring-color: rgba(61, 213, 243, 0.35);
 	}
+	
 }
