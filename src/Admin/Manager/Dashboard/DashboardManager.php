@@ -8,196 +8,88 @@ namespace AccessPress\Admin\Manager\Dashboard;
 
 use AccessPress\Admin\Manager\Manager;
 use AccessPress\Assets\Assets;
-use AccessPress\Includes\Licence\LicenceManager;
-use AccessPress\Includes\Plugins\DashboardProviderInterface;
-use AccessPress\Includes\Plugins\Plugins;
-use AccessPress\Includes\Settings\Settings;
+use AccessPress\Includes\UserManagement\Groups\Groups;
+use AccessPress\Includes\UserManagement\Roles\Roles;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 final class DashboardManager extends Manager {
-
 	/**
 	 * The slug for the dashboard page.
 	 *
 	 * @var string
 	 */
 	protected $page;
+
 	/**
 	 * Constructor for the DashboardManager class.
 	 *
 	 * @since 1.0.0
 	 */
 	public function __construct() {
-		$this->page = 'dashboard';
+		$this->page = 'accesspress';
 	}
+
 	/**
 	 * Render the dashboard page.
 	 *
 	 * @since 1.0.0
 	 */
 	public function render(): void {
-		$this->header( __( 'Licence Dashboard', 'accesspress' ) );
-
-		if ( ! Settings::get_bool( 'first_install_complete', false ) ) {
-			$this->render_onboarding_modal();
-		}
-
+		$this->header( __( 'AccessPress Dashboard', 'accesspress' ) );
 		$this->render_summary();
 		$this->render_cards();
 		$this->footer();
 	}
+
 	/**
-	 * Render the onboarding modal for first-time setup.
+	 * Render the key AccessPress overview metrics for users, groups, and roles.
 	 *
-	 * @since 1.0.0
-	 */
-	private function render_onboarding_modal(): void {
-		Settings::register_group(
-			'setup',
-			array(
-				'first_install_complete'    => false,
-				'onboarding_steps_complete' => 0,
-			)
-		);
-		?>
-		<div class="modal fade accesspress-onboarding-modal" id="accesspress-onboarding-modal" tabindex="-1" aria-labelledby="accesspress-onboarding-title" aria-hidden="true">
-			<div class="modal-dialog modal-lg modal-dialog-centered">
-				<div class="modal-content border-0 shadow">
-					<div class="modal-header border-0 pb-0">
-						<div>
-							<span class="badge text-bg-primary-subtle text-primary mb-2"><?php esc_html_e( 'First-time setup', 'accesspress' ); ?></span>
-							<h2 class="h3 mb-0" id="accesspress-onboarding-title"><?php esc_html_e( 'Welcome to AccessPress', 'accesspress' ); ?></h2>
-						</div>
-						<?php echo FormFieldHelper::button(
-							'',
-							array(
-								'class'          => 'btn-close',
-								'type'           => 'button',
-								'data-bs-dismiss' => 'modal',
-								'aria-label'     => __( 'Close onboarding', 'accesspress' ),
-							)
-						); ?>
-					</div>
-					<div class="modal-body py-4">
-						<div class="accesspress-onboarding-step" data-step="1">
-							<p class="text-secondary mb-3"><?php esc_html_e( 'Let’s configure the essentials for your first licence workflow.', 'accesspress' ); ?></p>
-							<div class="row g-3">
-								<div class="col-md-4">
-									<div class="card h-100 border-0 bg-light">
-										<div class="card-body d-flex flex-column">
-											<div class="text-primary mb-2"><span class="dashicons dashicons-admin-generic"></span></div>
-											<h3 class="h6"><?php esc_html_e( 'General settings', 'accesspress' ); ?></h3>
-											<p class="small text-secondary flex-grow-1 mb-3"><?php esc_html_e( 'Review product defaults, validation rules, and licence behaviour.', 'accesspress' ); ?></p>
-											<a class="btn btn-sm btn-outline-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=accesspress-settings&tab=general' ) ); ?>"><?php esc_html_e( 'Open settings', 'accesspress' ); ?></a>
-										</div>
-									</div>
-								</div>
-								<div class="col-md-4">
-									<div class="card h-100 border-0 bg-light">
-										<div class="card-body d-flex flex-column">
-											<div class="text-primary mb-2"><span class="dashicons dashicons-cart"></span></div>
-											<h3 class="h6"><?php esc_html_e( 'Payments', 'accesspress' ); ?></h3>
-											<p class="small text-secondary flex-grow-1 mb-3"><?php esc_html_e( 'Connect PayPal to unlock checkout, subscriptions, and payment flows.', 'accesspress' ); ?></p>
-											<a class="btn btn-sm btn-outline-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=accesspress-paypal' ) ); ?>"><?php esc_html_e( 'Connect PayPal', 'accesspress' ); ?></a>
-										</div>
-									</div>
-								</div>
-								<div class="col-md-4">
-									<div class="card h-100 border-0 bg-light">
-										<div class="card-body d-flex flex-column">
-											<div class="text-primary mb-2"><span class="dashicons dashicons-shield"></span></div>
-											<h3 class="h6"><?php esc_html_e( 'Access control', 'accesspress' ); ?></h3>
-											<p class="small text-secondary flex-grow-1 mb-3"><?php esc_html_e( 'Define who can issue, manage, and review licences and customer permissions.', 'accesspress' ); ?></p>
-											<a class="btn btn-sm btn-outline-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=accesspress-settings&tab=access' ) ); ?>"><?php esc_html_e( 'Manage access', 'accesspress' ); ?></a>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="accesspress-onboarding-step d-none" data-step="2">
-							<h3 class="h5 mb-3"><?php esc_html_e( 'Recommended setup checklist', 'accesspress' ); ?></h3>
-							<ul class="list-group list-group-flush">
-								<li class="list-group-item px-0 d-flex justify-content-between align-items-center gap-3">
-									<span><?php esc_html_e( 'Set the default licence and validation settings for your product catalog.', 'accesspress' ); ?></span>
-									<a class="btn btn-sm btn-outline-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=accesspress-settings&tab=general' ) ); ?>"><?php esc_html_e( 'Open', 'accesspress' ); ?></a>
-								</li>
-								<li class="list-group-item px-0 d-flex justify-content-between align-items-center gap-3">
-									<span><?php esc_html_e( 'Review access roles and who can manage licences, tools, and settings.', 'accesspress' ); ?></span>
-									<a class="btn btn-sm btn-outline-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=accesspress-settings&tab=access' ) ); ?>"><?php esc_html_e( 'Open', 'accesspress' ); ?></a>
-								</li>
-								<li class="list-group-item px-0 d-flex justify-content-between align-items-center gap-3">
-									<span><?php esc_html_e( 'Connect your PayPal app to enable checkout and subscription purchase flows.', 'accesspress' ); ?></span>
-									<a class="btn btn-sm btn-outline-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=accesspress-paypal' ) ); ?>"><?php esc_html_e( 'Connect', 'accesspress' ); ?></a>
-								</li>
-							</ul>
-						</div>
-						<div class="accesspress-onboarding-step d-none" data-step="3">
-							<h3 class="h5 mb-3"><?php esc_html_e( 'You are ready to launch', 'accesspress' ); ?></h3>
-							<div class="alert alert-success border-0 bg-success-subtle text-success-emphasis mb-3">
-								<?php esc_html_e( 'Your licence platform is now configured for first issue, customer validation, and secure product access.', 'accesspress' ); ?>
-							</div>
-							<div class="d-flex flex-wrap gap-2">
-								<a class="btn btn-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=accesspress-licences' ) ); ?>"><?php esc_html_e( 'Issue a licence', 'accesspress' ); ?></a>
-								<a class="btn btn-outline-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=accesspress-settings&tab=general' ) ); ?>"><?php esc_html_e( 'Review settings', 'accesspress' ); ?></a>
-							</div>
-						</div>
-					</div>
-					<div class="modal-footer border-0 pt-0">
-						<?php echo FormFieldHelper::button( __( 'Skip for now', 'accesspress' ), array( 'class' => 'btn-link text-secondary', 'type' => 'button', 'data-role' => 'skip' ) ); ?>
-						<?php echo FormFieldHelper::button( __( 'Back', 'accesspress' ), array( 'class' => 'btn-outline-secondary', 'type' => 'button', 'data-role' => 'prev' ) ); ?>
-						<?php echo FormFieldHelper::button( __( 'Next', 'accesspress' ), array( 'class' => 'btn-primary', 'type' => 'button', 'data-role' => 'next' ) ); ?>
-						<?php echo FormFieldHelper::button( __( 'Finish setup', 'accesspress' ), array( 'class' => 'btn-success d-none', 'type' => 'button', 'data-role' => 'finish' ) ); ?>
-					</div>
-				</div>
-			</div>
-		</div>
-		<?php
-	}
-	/**
-	 * Render the summary section of the dashboard.
-	 *
-	 * @since 1.0.0
+	 * @return void
 	 */
 	private function render_summary(): void {
-		$summary = LicenceManager::summary();
-		$cards   = array(
+		$total_users = count_users();
+		$user_count  = (int) ( $total_users['total_users'] ?? 0 );
+		$group_count = count( Groups::register_default_groups() );
+		$role_count  = count( Roles::get_available_roles() );
+		$max_roles   = Roles::get_max_roles();
+		$cards       = array(
 			array(
-				'label'       => __( 'Active licences', 'accesspress' ),
-				'value'       => $summary['active'] ?? 0,
-				'url'         => admin_url( 'admin.php?page=accesspress-licences' ),
-				'description' => __( 'Currently valid and live licences.', 'accesspress' ),
-				'icon'        => 'dashicons-yes-alt',
+				'label'       => __( 'Users', 'accesspress' ),
+				'value'       => $user_count,
+				'url'         => admin_url( 'users.php' ),
+				'description' => __( 'Total WordPress users managed by the site.', 'accesspress' ),
+				'icon'        => 'dashicons-admin-users',
 			),
 			array(
-				'label'       => __( 'Expiring soon', 'accesspress' ),
-				'value'       => $summary['expiring_soon'] ?? 0,
-				'url'         => admin_url( 'admin.php?page=accesspress-tools&tool=export' ),
-				'description' => __( 'Licences due for review in the next 30 days.', 'accesspress' ),
-				'icon'        => 'dashicons-clock',
-			),
-			array(
-				'label'       => __( 'Revoked', 'accesspress' ),
-				'value'       => $summary['revoked'] ?? 0,
-				'url'         => admin_url( 'admin.php?page=accesspress-tools&tool=debug' ),
-				'description' => __( 'Licence records that have been disabled.', 'accesspress' ),
-				'icon'        => 'dashicons-no-alt',
-			),
-			array(
-				'label'       => __( 'Customers', 'accesspress' ),
-				'value'       => $summary['customers'] ?? 0,
-				'url'         => admin_url( 'admin.php?page=accesspress-settings&tab=access' ),
-				'description' => __( 'Unique licence holders and managed customers.', 'accesspress' ),
+				'label'       => __( 'Groups', 'accesspress' ),
+				'value'       => $group_count,
+				'url'         => admin_url( 'admin.php?page=accesspress&group=user-management&tab=user-groups' ),
+				'description' => __( 'Configured AccessPress membership groups.', 'accesspress' ),
 				'icon'        => 'dashicons-groups',
+			),
+			array(
+				'label'       => __( 'Roles', 'accesspress' ),
+				'value'       => $role_count,
+				'url'         => admin_url( 'admin.php?page=accesspress&group=user-management&tab=user-roles' ),
+				'description' => __( 'Available WordPress roles in the AccessPress role layer.', 'accesspress' ),
+				'icon'        => 'dashicons-shield',
+			),
+			array(
+				'label'       => __( 'Max per user', 'accesspress' ),
+				'value'       => $max_roles,
+				'url'         => admin_url( 'admin.php?page=accesspress&group=settings&tab=access' ),
+				'description' => __( 'Maximum linked roles allowed on one account.', 'accesspress' ),
+				'icon'        => 'dashicons-admin-network',
 			),
 		);
 		?>
 		<section class="mb-4" aria-labelledby="accesspress-dashboard-summary">
 			<div class="d-flex justify-content-between align-items-center mb-3">
-				<h2 id="accesspress-dashboard-summary" class="h5 mb-0"><?php esc_html_e( 'Licence overview', 'accesspress' ); ?></h2>
-				<span class="small text-secondary"><?php esc_html_e( 'Live revenue and access health', 'accesspress' ); ?></span>
+				<h2 id="accesspress-dashboard-summary" class="h5 mb-0"><?php esc_html_e( 'AccessPress overview', 'accesspress' ); ?></h2>
+				<span class="small text-secondary"><?php esc_html_e( 'Frontend user management health', 'accesspress' ); ?></span>
 			</div>
 			<div class="row g-3">
 				<?php foreach ( $cards as $card ) : ?>
@@ -214,58 +106,67 @@ final class DashboardManager extends Manager {
 		</section>
 		<?php
 	}
+
 	/**
-	 * Render the dashboard cards section.
+	 * Render quick actions for the AccessPress portal configuration.
 	 *
-	 * @since 1.0.0
+	 * @return void
 	 */
 	private function render_cards(): void {
-		$cards = apply_filters(
-			'accesspress_dashboard_cards',
+		$cards = array(
 			array(
-				array(
-					'title'       => __( 'Issue a licence', 'accesspress' ),
-					'description' => __( 'Create a product key for a customer, site, and feature set.', 'accesspress' ),
-					'icon'        => 'dashicons-plus-alt',
-					'url'         => admin_url( 'admin.php?page=accesspress-licences' ),
-					'priority'    => 10,
-				),
-				array(
-					'title'       => __( 'Security settings', 'accesspress' ),
-					'description' => __( 'Review validation, key storage, and export protection.', 'accesspress' ),
-					'icon'        => 'dashicons-shield',
-					'url'         => admin_url( 'admin.php?page=accesspress-settings&tab=general' ),
-					'priority'    => 20,
-				),
-				array(
-					'title'       => __( 'Access control', 'accesspress' ),
-					'description' => __( 'Set who can issue, revoke, export, and review licences.', 'accesspress' ),
-					'icon'        => 'dashicons-admin-users',
-					'url'         => admin_url( 'admin.php?page=accesspress-settings&tab=access' ),
-					'priority'    => 30,
-				),
-			)
+				'title'       => __( 'User groups', 'accesspress' ),
+				'description' => __( 'Create and manage membership groups for access control and portal segmentation.', 'accesspress' ),
+				'icon'        => 'dashicons-groups',
+				'url'         => admin_url( 'admin.php?page=accesspress&group=user-management&tab=user-groups' ),
+				'priority'    => 10,
+			),
+			array(
+				'title'       => __( 'User roles', 'accesspress' ),
+				'description' => __( 'Adjust role combinations and ensure users stay within the configured maximum role count.', 'accesspress' ),
+				'icon'        => 'dashicons-shield',
+				'url'         => admin_url( 'admin.php?page=accesspress&group=user-management&tab=user-roles' ),
+				'priority'    => 20,
+			),
+			array(
+				'title'       => __( 'Login', 'accesspress' ),
+				'description' => __( 'Review and manage the frontend login experience and authentication flow.', 'accesspress' ),
+				'icon'        => 'dashicons-admin-network',
+				'url'         => admin_url( 'admin.php?page=accesspress&group=user-management&tab=user-login' ),
+				'priority'    => 30,
+			),
+			array(
+				'title'       => __( 'Registration', 'accesspress' ),
+				'description' => __( 'Configure the custom AccessPress registration and activation workflow.', 'accesspress' ),
+				'icon'        => 'dashicons-plus-alt',
+				'url'         => admin_url( 'admin.php?page=accesspress&group=user-management&tab=user-registration' ),
+				'priority'    => 40,
+			),
+			array(
+				'title'       => __( 'Profile', 'accesspress' ),
+				'description' => __( 'Review the frontend account profile experience and user details management.', 'accesspress' ),
+				'icon'        => 'dashicons-id',
+				'url'         => admin_url( 'admin.php?page=accesspress&group=user-management&tab=user-profile' ),
+				'priority'    => 50,
+			),
+			array(
+				'title'       => __( 'Access settings', 'accesspress' ),
+				'description' => __( 'Update portal-wide security, access restrictions, and default member controls.', 'accesspress' ),
+				'icon'        => 'dashicons-lock',
+				'url'         => admin_url( 'admin.php?page=accesspress&group=settings&tab=access' ),
+				'priority'    => 60,
+			),
 		);
 
-		if ( is_array( $cards ) ) {
-			$cards = array_filter( $cards, array( $this, 'can_render' ) );
-			usort( $cards, static fn( $left, $right ) => (int) ( $left['priority'] ?? 100 ) <=> (int) ( $right['priority'] ?? 100 ) );
-		}
-
-		foreach ( Plugins::get_instance()->get_registered_plugins() as $plugin ) {
-			if ( $plugin instanceof DashboardProviderInterface && Plugins::get_instance()->is_plugin_enabled( $plugin->get_slug() ) ) {
-				foreach ( $plugin->get_dashboard_cards() as $card ) {
-					if ( is_array( $card ) && $this->can_render( $card ) ) {
-						$cards[] = $card;
-					}
-				}
-			}
-		}
+		usort(
+			$cards,
+			static fn( array $left, array $right ): int => (int) ( $left['priority'] ?? 100 ) <=> (int) ( $right['priority'] ?? 100 )
+		);
 		?>
 		<section aria-labelledby="accesspress-dashboard-cards">
 			<div class="d-flex justify-content-between align-items-center mb-3">
 				<h2 id="accesspress-dashboard-cards" class="h5 mb-0"><?php esc_html_e( 'Quick actions', 'accesspress' ); ?></h2>
-				<span class="small text-secondary"><?php esc_html_e( 'Licence operations and controls', 'accesspress' ); ?></span>
+				<span class="small text-secondary"><?php esc_html_e( 'Manage the core access experience', 'accesspress' ); ?></span>
 			</div>
 			<div class="row g-3">
 				<?php foreach ( $cards as $card ) : ?>
@@ -281,16 +182,7 @@ final class DashboardManager extends Manager {
 		</section>
 		<?php
 	}
-	/**
-	 * Determine if a dashboard card can be rendered for the current user.
-	 *
-	 * @param array $item The dashboard card item.
-	 * @return bool True if the card can be rendered, false otherwise.
-	 * @since 1.0.0
-	 */
-	private function can_render( $item ): bool {
-		return is_array( $item ) && ( empty( $item['capability'] ) || current_user_can( $item['capability'] ) );
-	}
+
 	/**
 	 * Register the assets required for the dashboard page.
 	 *
