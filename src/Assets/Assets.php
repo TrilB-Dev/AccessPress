@@ -286,13 +286,13 @@ final class Assets {
 				}
 			}
 		}
-		if ( 'accesspress-manage' === $current_page && wp_script_is( 'accesspress-admin-wiki', 'enqueued' ) ) {
+		if ( 'accesspress-manage' === $current_page && wp_script_is( 'accesspress-admin', 'enqueued' ) ) {
 			LoaderHelper::localize_script(
-				'accesspress-admin-wiki',
+				'accesspress-admin',
 				'accesspressWikiManager',
 				array(
 					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-					'nonce'   => wp_create_nonce( 'accesspress_manage_wiki' ),
+					'nonce'   => wp_create_nonce( 'accesspress_manage' ),
 				)
 			);
 		}

@@ -73,7 +73,13 @@ final class SettingsGeneral {
 			$value = $values[ $key ] ?? $field['default'] ?? '';
 			?>
 			<tr>
-				<th scope="row"><?php echo FormFieldHelper::label( $id, $field['label'], $field ); ?></th>
+				<th scope="row">
+					<?php echo FormFieldHelper::label( 
+						$id, 
+						$field['label'], 
+						$field 
+					); ?>
+				</th>
 				<td>
 					<?php
 					if ( 'switch' === ( $field['type'] ?? '' ) ) {
@@ -90,7 +96,16 @@ final class SettingsGeneral {
 						$page_options = $this->page_options( $field['page_key'] ?? $key );
 						$selected     = is_scalar( $value ) ? (string) $value : ( $page_options[0]['value'] ?? '' );
 						echo '<div class="input-group">';
-						echo FormFieldHelper::select( $name, $page_options, $selected, array( 'id' => $id, 'class' => 'form-select selectpicker', 'data-live-search' => 'true' ) );
+						echo FormFieldHelper::select( 
+							$name, 
+							$page_options, 
+							$selected, 
+							array( 
+								'id' => $id, 
+								'class' => 'form-select selectpicker', 
+								'data-live-search' => 'true' 
+							) 
+						);
 						echo FormFieldHelper::button(
 							'Create page',
 							array(
@@ -149,6 +164,3 @@ final class SettingsGeneral {
 		return $options;
 	}
 }
-
-
-

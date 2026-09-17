@@ -13,6 +13,9 @@ use AccessPress\Assets\Assets;
 use AccessPress\Admin\Manager\Settings\SettingsAccess;
 use AccessPress\Admin\Manager\Settings\SettingsGeneral;
 use AccessPress\Admin\Manager\Settings\SettingsPlugins;
+use AccessPress\Admin\Manager\Settings\SettingsSecurity;
+use AccessPress\Admin\Manager\Settings\SettingsLayout;
+use AccessPress\Admin\Manager\Settings\SettingsEmail;
 use AccessPress\Includes\Functions\Helpers\RequestHelper;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -97,7 +100,7 @@ final class SettingsManager extends Manager {
 				<div class="card shadow-sm">
 					<div class="card-body">
 						<div class="mb-3">
-							<h2 class="h5 mb-1"><?php esc_html_e( 'Frontend user management', 'accesspress' ); ?></h2>
+							<h5 class="h5 mb-1"><?php esc_html_e( 'Frontend user management', 'accesspress' ); ?></h5>
 							<p class="text-secondary mb-0"><?php esc_html_e( 'Configure the user portal pages, roles, and membership behaviour for the AccessPress frontend experience.', 'accesspress' ); ?></p>
 						</div>
 						<table class="form-table" role="presentation"><tbody>
@@ -109,7 +112,7 @@ final class SettingsManager extends Manager {
 				<div class="card shadow-sm">
 					<div class="card-body">
 						<div class="mb-3">
-							<h2 class="h5 mb-1"><?php esc_html_e( 'Access control', 'accesspress' ); ?></h2>
+							<h5 class="h5 mb-1"><?php esc_html_e( 'Access control', 'accesspress' ); ?></h5>
 							<p class="text-secondary mb-0"><?php esc_html_e( 'Define who can issue, revoke, export, review, and manage licences.', 'accesspress' ); ?></p>
 						</div>
 						<table class="form-table" role="presentation"><tbody>
@@ -121,7 +124,7 @@ final class SettingsManager extends Manager {
 				<div class="card shadow-sm">
 					<div class="card-body">
 						<div class="mb-3">
-							<h2 class="h5 mb-1"><?php esc_html_e( 'Security settings', 'accesspress' ); ?></h2>
+							<h5 class="h5 mb-1"><?php esc_html_e( 'Security settings', 'accesspress' ); ?></h5>
 							<p class="text-secondary mb-0"><?php esc_html_e( 'Control frontend protection, toolbar visibility, and admin restrictions by role.', 'accesspress' ); ?></p>
 						</div>
 						<table class="form-table" role="presentation"><tbody>
@@ -133,7 +136,7 @@ final class SettingsManager extends Manager {
 				<div class="card shadow-sm">
 					<div class="card-body">
 						<div class="mb-3">
-							<h2 class="h5 mb-1"><?php esc_html_e( 'Layout settings', 'accesspress' ); ?></h2>
+							<h5 class="h5 mb-1"><?php esc_html_e( 'Layout settings', 'accesspress' ); ?></h5>
 							<p class="text-secondary mb-0"><?php esc_html_e( 'Shape the frontend user portal branding, layout, and interaction behaviour.', 'accesspress' ); ?></p>
 						</div>
 						<table class="form-table" role="presentation"><tbody>
@@ -171,7 +174,7 @@ final class SettingsManager extends Manager {
 		$settings_assets              = $this->assets( 'settings' );
 		$settings_assets['scripts'][] = array(
 			'handle'    => 'accesspress-admin-plugins',
-			'src'       => ACCESSPRESS_URL . 'src/Assets/dist/js/plugins.admin.js',
+			'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/plugins.admin.js',
 			'deps'      => array( 'accesspress-bootstrap' ),
 			'in_footer' => true,
 		);

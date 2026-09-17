@@ -17,9 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Renders the sidebar from the centralized FunctionsSidebar menu model.
- */
 final class Sidebar {
 	/**
 	 * Render the admin sidebar.
@@ -33,7 +30,9 @@ final class Sidebar {
 		<aside class="col-12 col-lg-auto accesspress-sidebar-column">
 			<div class="accesspress-sidebar position-sticky" style="top: 32px;">
 				<div class="d-flex align-items-center justify-content-between mb-3 px-2">
-					<span class="small text-uppercase fw-semibold text-secondary"><?php esc_html_e( 'Navigate', 'accesspress' ); ?></span>
+					<span class="small text-uppercase fw-semibold text-secondary">
+						<?php esc_html_e( 'Navigate', 'accesspress' ); ?>
+					</span>
 					<span class="badge rounded-pill text-bg-light">WP</span>
 				</div>
 				<nav aria-label="<?php esc_attr_e( 'AccessPress admin navigation', 'accesspress' ); ?>">
