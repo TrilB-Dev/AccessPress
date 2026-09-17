@@ -279,7 +279,7 @@ final class FunctionsSidebar {
 			),
 		);
 	}
-	/**
+/**
 	 * Register a WordPress menu.
 	 *
 	 * @param array<string, mixed> $menu The menu definition.
@@ -315,7 +315,7 @@ final class FunctionsSidebar {
 		} catch ( \Throwable $e ) {
 			LoggerHelper::write_log( sprintf( 'AccessPress menu registration failed for %s (%s): %s', $name, $slug, $e->getMessage() ) );
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				wp_die( esc_html( $e->getMessage() ), __( 'AccessPress menu registration error', 'accesspress' ), array( 'back_link' => true ) );
+				wp_die( esc_html( $e->getMessage() ), __( 'AccessPress menu registration error', 'licencepress' ), array( 'back_link' => true ) );
 			}
 		}
 	}

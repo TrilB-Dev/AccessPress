@@ -15,9 +15,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class AMHelper {
 	/**
-	 * Filter name for the plugin admin menus.
+	 * The filter hook for modifying the admin menus.
 	 *
-	 * @since 1.0.0
+	 * @var string
 	 */
 	public const FILTER = 'accesspress_admin_menus';
 
@@ -31,12 +31,38 @@ class AMHelper {
 	 * @return array<string, mixed>
 	 */
 	public static function define( string $name, string $slug, string $icon = 'dashicons-admin-generic', string $parent = '' ): array {
+		$clean_slug = self::normalize_slug( $slug );
+		$clean_name = trim( (string) $name );
+
 		return array(
-			'parent' => sanitize_key( $parent ),
-			'name'   => $name,
-			'slug'   => sanitize_key( $slug ),
+			'parent' => sanitize_key( (string) $parent ),
+			'name'   => $clean_name,
+			'slug'   => $clean_slug,
 			'icon'   => sanitize_text_field( $icon ),
 		);
+	}
+
+	/**
+	 * Normalize a menu slug and reject numeric-only values that would turn into page=0 links.
+	 *
+	 * @param string $slug Slug candidate.
+	 * @return string Normalized slug or empty string when invalid.
+	 */
+	private static function normalize_slug( string $slug ): string {
+		$slug = trim( (string) $slug );
+		if ( '' === $slug || preg_match( '/^\d+$/', $slug ) ) {
+			return '';
+		}
+
+		if ( false !== strpos( $slug, '&' ) ) {
+			$base = trim( (string) strtok( $slug, '&' ) );
+			if ( '' === $base || preg_match( '/^\d+$/', $base ) ) {
+				return '';
+			}
+			return $base . substr( $slug, strlen( $base ) );
+		}
+
+		return sanitize_key( $slug );
 	}
 
 	/**
@@ -60,6 +86,3 @@ class AMHelper {
 		return admin_url( 'admin.php?page=' . $slug );
 	}
 }
-
-
-
