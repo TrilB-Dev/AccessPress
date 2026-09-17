@@ -11,12 +11,13 @@ namespace AccessPress\Admin\Manager\Settings;
 use AccessPress\Admin\Manager\Manager;
 use AccessPress\Assets\Assets;
 use AccessPress\Admin\Manager\Settings\SettingsAccess;
+use AccessPress\Admin\Manager\Settings\SettingsEmail;
 use AccessPress\Admin\Manager\Settings\SettingsGeneral;
 use AccessPress\Admin\Manager\Settings\SettingsPlugins;
-use AccessPress\Admin\Manager\Settings\SettingsSecurity;
 use AccessPress\Admin\Manager\Settings\SettingsLayout;
-use AccessPress\Admin\Manager\Settings\SettingsEmail;
+use AccessPress\Admin\Manager\Settings\SettingsSecurity;
 use AccessPress\Includes\Functions\Helpers\RequestHelper;
+use AccessPress\Includes\Settings\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -37,17 +38,15 @@ final class SettingsManager extends Manager {
 	protected $page;
 	/**
 	 * Constructor for the settings manager.
-	 *
-	 * @since 1.0.0
 	 */
 	public function __construct() {
 		$this->page         = 'settings';
 		$this->plugins_page = new SettingsPlugins();
 	}
 	/**
-	 * Render the settings page.
+	 * Renders the settings page.
 	 *
-	 * @since 1.0.0
+	 * @return void
 	 */
 	public function render(): void {
 		$tab = sanitize_key( RequestHelper::get_key( 'tab', 'general' ) );
@@ -61,20 +60,20 @@ final class SettingsManager extends Manager {
 		<?php
 		$this->footer();
 	}
-
 	/**
-	 * Render the content for a specific settings tab.
+	 * Renders the content for a specific settings tab.
 	 *
-	 * @param string $tab The current tab slug.
-	 * @since 1.0.0
+	 * @param string $tab The tab to render.
+	 * @return void
 	 */
 	public function render_tab_content( string $tab ): void {
 		$tab               = $this->normalize_tab( $tab );
 		$view_capabilities = array(
 			'general'     => array( 'accesspress_settings_general_view' ),
+			'email'     => array( 'accesspress_settings_email_view' ),
 			'access'      => array( 'accesspress_settings_access_view' ),
-			'security'    => array( 'accesspress_settings_security_view' ),
 			'layout'      => array( 'accesspress_settings_layout_view' ),
+			'security'    => array( 'accesspress_settings_security_view' ),
 			'plugins'     => array( 'accesspress_settings_plugins_view' ),
 			'third-party' => array( 'accesspress_settings_plugins_view', 'accesspress_settings_plugins_ext_view' ),
 		);
@@ -100,48 +99,68 @@ final class SettingsManager extends Manager {
 				<div class="card shadow-sm">
 					<div class="card-body">
 						<div class="mb-3">
-							<h5 class="h5 mb-1"><?php esc_html_e( 'Frontend user management', 'accesspress' ); ?></h5>
-							<p class="text-secondary mb-0"><?php esc_html_e( 'Configure the user portal pages, roles, and membership behaviour for the AccessPress frontend experience.', 'accesspress' ); ?></p>
+							<h5 class="h5 mb-1">
+								<?php esc_html_e( 'Licence configuration', 'accesspress' ); ?>
+							</h5>
+							<p class="text-secondary mb-0">
+								<?php esc_html_e( 'Set the default commercial rules for generated licences, expiry, and validation.', 'accesspress' ); ?>
+							</p>
 						</div>
-						<table class="form-table" role="presentation"><tbody>
-							<?php ( new SettingsGeneral() )->render( array() ); ?>
-						</tbody></table>
+						<table class="form-table" role="presentation">
+							<tbody>
+								<?php ( new SettingsGeneral() )->render( Settings::get_group( 'general', array() ) ?? array() ); ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			<?php elseif ( 'email' === $tab ) : ?>
+				<div class="card shadow-sm">
+					<div class="card-body">
+						<div class="mb-3">
+							<h5 class="h5 mb-1">
+								<?php esc_html_e( 'Email settings', 'accesspress' ); ?>
+							</h5>
+							<p class="text-secondary mb-0">
+								<?php esc_html_e( 'Configure the default email settings for generated customer notifications.', 'accesspress' ); ?>
+							</p>
+						</div>
+							<?php ( new SettingsEmail() )->render( Settings::get_group( 'email', array() ) ?? array() ); ?>
 					</div>
 				</div>
 			<?php elseif ( 'access' === $tab ) : ?>
 				<div class="card shadow-sm">
 					<div class="card-body">
 						<div class="mb-3">
-							<h5 class="h5 mb-1"><?php esc_html_e( 'Access control', 'accesspress' ); ?></h5>
-							<p class="text-secondary mb-0"><?php esc_html_e( 'Define who can issue, revoke, export, review, and manage licences.', 'accesspress' ); ?></p>
+							<h5 class="h5 mb-1">
+								<?php esc_html_e( 'Access control', 'accesspress' ); ?>
+							</h5>
+							<p class="text-secondary mb-0">
+								<?php esc_html_e( 'Define who can issue, revoke, export, review, and manage licences.', 'accesspress' ); ?>
+							</p>
 						</div>
-						<table class="form-table" role="presentation"><tbody>
-							<?php ( new SettingsAccess() )->render( array() ); ?>
-						</tbody></table>
+						<table class="form-table" role="presentation">
+							<tbody>
+								<?php ( new SettingsAccess() )->render( Settings::get_group( 'access', array() ) ?? array() ); ?>
+							</tbody>
+						</table>
 					</div>
 				</div>
 			<?php elseif ( 'security' === $tab ) : ?>
 				<div class="card shadow-sm">
 					<div class="card-body">
 						<div class="mb-3">
-							<h5 class="h5 mb-1"><?php esc_html_e( 'Security settings', 'accesspress' ); ?></h5>
-							<p class="text-secondary mb-0"><?php esc_html_e( 'Control frontend protection, toolbar visibility, and admin restrictions by role.', 'accesspress' ); ?></p>
+							<h5 class="h5 mb-1">
+								<?php esc_html_e( 'Security', 'accesspress' ); ?>
+							</h5>
+							<p class="text-secondary mb-0">
+								<?php esc_html_e( 'Define the security settings for managing licences.', 'accesspress' ); ?>
+							</p>
 						</div>
-						<table class="form-table" role="presentation"><tbody>
-							<?php ( new SettingsSecurity() )->render( array() ); ?>
-						</tbody></table>
-					</div>
-				</div>
-			<?php elseif ( 'layout' === $tab ) : ?>
-				<div class="card shadow-sm">
-					<div class="card-body">
-						<div class="mb-3">
-							<h5 class="h5 mb-1"><?php esc_html_e( 'Layout settings', 'accesspress' ); ?></h5>
-							<p class="text-secondary mb-0"><?php esc_html_e( 'Shape the frontend user portal branding, layout, and interaction behaviour.', 'accesspress' ); ?></p>
-						</div>
-						<table class="form-table" role="presentation"><tbody>
-							<?php ( new SettingsLayout() )->render( array() ); ?>
-						</tbody></table>
+						<table class="form-table" role="presentation">
+							<tbody>
+								<?php ( new SettingsSecurity() )->render( Settings::get_group( 'security', array() ) ?? array() ); ?>
+							</tbody>
+						</table>
 					</div>
 				</div>
 			<?php else : ?>
@@ -151,36 +170,32 @@ final class SettingsManager extends Manager {
 		<?php
 	}
 	/**
-	 * Normalize the tab slug to ensure it is valid.
+	 * Normalizes the tab value to ensure it is valid.
 	 *
-	 * @param string $tab The tab slug to normalize.
-	 * @return string The normalized tab slug.
-	 * @since 1.0.0
+	 * @param string $tab The tab to normalize.
+	 * @return string The normalized tab.
 	 */
 	private function normalize_tab( string $tab ): string {
-		$allowed = array( 'general', 'access', 'security', 'layout', 'plugins', 'third-party' );
+		$allowed = array( 'general', 'layout', 'email', 'access', 'security', 'plugins', 'third-party' );
 		if ( in_array( $tab, $allowed, true ) || $this->plugins_page->has_settings_page( $tab ) ) {
 			return $tab;
 		}
 		return 'general';
 	}
 	/**
-	 * Register the assets for the settings page.
+	 * Registers the assets for the settings page.
 	 *
 	 * @param Assets $assets The assets manager instance.
-	 * @since 1.0.0
+	 * @return void
 	 */
 	public function register_assets( Assets $assets ): void {
 		$settings_assets              = $this->assets( 'settings' );
 		$settings_assets['scripts'][] = array(
 			'handle'    => 'accesspress-admin-plugins',
-			'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/plugins.admin.js',
+			'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/admin.plugins.js',
 			'deps'      => array( 'accesspress-bootstrap' ),
 			'in_footer' => true,
 		);
 		$assets->register_page( 'accesspress-settings', $settings_assets );
 	}
 }
-
-
-
