@@ -127,6 +127,36 @@ class Capabilities {
 					'label' => __( 'Delete User Roles', 'accesspress' ), 
 					'description' => __( 'Allows deleting user roles.', 'accesspress' ) 
 				],
+				'accesspress_user_management_dashboard' => array(
+					'group'       => 'AccessPress User Management',
+					'label'       => __( 'View User Management Dashboard', 'accesspress' ),
+					'description' => __( 'Allows viewing the AccessPress User Management Dashboard.', 'accesspress' ),
+				),
+				'accesspress_user_management_user_roles' => array(
+					'group'       => 'AccessPress User Management',
+					'label'       => __( 'Manage User Roles', 'accesspress' ),
+					'description' => __( 'Allows managing user roles within AccessPress User Management.', 'accesspress' ),
+				),
+				'accesspress_user_management_user_groups' => array(
+					'group'       => 'AccessPress User Management',
+					'label'       => __( 'Manage User Groups', 'accesspress' ),
+					'description' => __( 'Allows managing user groups within AccessPress User Management.', 'accesspress' ),
+				),
+				'accesspress_user_management_user_login' => array(
+					'group'       => 'AccessPress User Management',
+					'label'       => __( 'Manage User Login', 'accesspress' ),
+					'description' => __( 'Allows managing user login within AccessPress User Management.', 'accesspress' ),
+				),
+				'accesspress_user_management_user_registration' => array(
+					'group'       => 'AccessPress User Management',
+					'label'       => __( 'Manage User Registration', 'accesspress' ),
+					'description' => __( 'Allows managing user registration within AccessPress User Management.', 'accesspress' ),
+				),
+				'accesspress_user_management_user_profile' => array(
+					'group'       => 'AccessPress User Management',
+					'label'       => __( 'Manage User Profile', 'accesspress' ),
+					'description' => __( 'Allows managing user profile within AccessPress User Management.', 'accesspress' ),
+				),
 			),
 			self::$extensions
 		);

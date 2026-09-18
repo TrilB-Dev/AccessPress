@@ -7,50 +7,29 @@
 namespace AccessPress\Admin\Manager\Reports;
 
 use AccessPress\Admin\Manager\Manager;
+use AccessPress\Assets\Assets;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 final class ReportsManager extends Manager {
+	/**
+	 * Render the reports page through the section dashboard UI class.
+	 *
+	 * @return void
+	 */
 	public function render(): void {
-		$this->header( __( 'Reports', 'accesspress' ) );
-		?>
-		<div class="row g-4">
-			<div class="col-md-6 col-xl-3">
-				<div class="card shadow-sm h-100">
-					<div class="card-body">
-						<h2 class="h6 text-muted"><?php esc_html_e( 'Revenue', 'accesspress' ); ?></h2>
-						<p class="display-6 mb-0"><?php esc_html_e( '$0.00', 'accesspress' ); ?></p>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-6 col-xl-3">
-				<div class="card shadow-sm h-100">
-					<div class="card-body">
-						<h2 class="h6 text-muted"><?php esc_html_e( 'New members', 'accesspress' ); ?></h2>
-						<p class="display-6 mb-0"><?php esc_html_e( '0', 'accesspress' ); ?></p>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-6 col-xl-3">
-				<div class="card shadow-sm h-100">
-					<div class="card-body">
-						<h2 class="h6 text-muted"><?php esc_html_e( 'Cancelled', 'accesspress' ); ?></h2>
-						<p class="display-6 mb-0"><?php esc_html_e( '0', 'accesspress' ); ?></p>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-6 col-xl-3">
-				<div class="card shadow-sm h-100">
-					<div class="card-body">
-						<h2 class="h6 text-muted"><?php esc_html_e( 'Conversion rate', 'accesspress' ); ?></h2>
-						<p class="display-6 mb-0"><?php esc_html_e( '0%', 'accesspress' ); ?></p>
-					</div>
-				</div>
-			</div>
-		</div>
-		<?php
-		$this->footer();
+		( new ReportsDashboard() )->render_page_content();
+	}
+
+	/**
+	 * Register the assets required for the reports page.
+	 *
+	 * @param Assets $assets The assets manager instance.
+	 * @return void
+	 */
+	public function register_assets( Assets $assets ): void {
+		$this->register_page_assets( $assets, array( 'accesspress-reports' ), 'reports' );
 	}
 }

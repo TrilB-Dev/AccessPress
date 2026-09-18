@@ -35,17 +35,17 @@ final class Schema {
             static function ( string $table_name, string $charset ) {
                 return "CREATE TABLE {$table_name} (
                 id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-                setting_key varchar(120) NOT NULL,
+                setting_group varchar(120) NOT NULL,
                 setting_value longtext DEFAULT NULL,
-                created_at datetime DEFAULT NULL,
+                autoload varchar(20) DEFAULT 'yes',
                 updated_at datetime DEFAULT NULL,
                 PRIMARY KEY  (id),
-                UNIQUE KEY setting_key (setting_key)
+                UNIQUE KEY setting_group (setting_group)
             ) {$charset};";
             }
         );
 
-        return "settings";
+        return 'settings';
     }
     /**
      * Register the analytics table schema.
@@ -58,17 +58,21 @@ final class Schema {
             static function ( string $table_name, string $charset ) {
                 return "CREATE TABLE {$table_name} (
                 id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-                event_key varchar(120) NOT NULL,
+                event_key varchar(128) NOT NULL,
                 event_value longtext DEFAULT NULL,
-                created_at datetime DEFAULT NULL,
-                updated_at datetime DEFAULT NULL,
+                user_id bigint(20) unsigned DEFAULT NULL,
+                event_source varchar(64) DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                updated_at datetime DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY  (id),
-                UNIQUE KEY event_key (event_key)
+                KEY event_key (event_key),
+                KEY created_at (created_at),
+                KEY user_id (user_id)
             ) {$charset};";
             }
         );
 
-        return "analytics";
+        return 'analytics';
     }
     /**
      * Register the logs table schema.
@@ -84,15 +88,17 @@ final class Schema {
                 log_level varchar(32) NOT NULL,
                 message longtext NOT NULL,
                 context longtext DEFAULT NULL,
-                created_at datetime DEFAULT NULL,
-                updated_at datetime DEFAULT NULL,
+                source varchar(64) DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                updated_at datetime DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY  (id),
                 KEY log_level (log_level),
+                KEY source (source),
                 KEY created_at (created_at)
             ) {$charset};";
             }
         );
 
-        return "logs";
+        return 'logs';
     }
 }

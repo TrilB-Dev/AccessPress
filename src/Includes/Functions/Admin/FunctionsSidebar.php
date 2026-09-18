@@ -77,7 +77,9 @@ final class FunctionsSidebar {
 			$groups[ $group_key ]['items'] = $filtered_items;
 		}
 
-		return array_filter( $groups, static fn ( array $group ): bool => ! empty( $group['items'] ) );
+		$groups = array_filter( $groups, static fn ( array $group ): bool => ! empty( $group['items'] ) );
+
+		return $groups;
 	}
 
 	/**
@@ -118,7 +120,7 @@ final class FunctionsSidebar {
 				'name'       => __( 'User Management', 'accesspress' ),
 				'slug'       => 'accesspress&group=user-management&tab=overview',
 				'parent'     => 'accesspress',
-				'callback'   => array( $admin, 'render_customers' ),
+				'callback'   => array( $admin, 'render_users' ),
 				'capability' => 'accesspress_customer_manage',
 			),
 			array(

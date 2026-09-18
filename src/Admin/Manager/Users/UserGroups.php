@@ -2,7 +2,10 @@
 /**
  * User groups manager admin screen for AccessPress.
  *
- * @package AccessPress\Admin\Manager\Users
+ * @package AccessPress
+ * @subpackage Admin/Manager/Users
+ * 
+ * @since 1.0.0
  */
 namespace AccessPress\Admin\Manager\Users;
 
@@ -23,7 +26,11 @@ final class UserGroups extends UserManager {
 	 *
 	 * @var string
 	 */
-	private const PAGE = 'accesspress-tools';
+	private const PAGE = 'user-management';
+
+	public function __construct() {
+		parent::__construct( false );
+	}
 
 	/**
 	 * Register group admin hooks.

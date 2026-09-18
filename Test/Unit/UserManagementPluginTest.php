@@ -21,9 +21,9 @@ final class UserManagementPluginTest extends TestCase {
 	public function test_pmpro_style_admin_pages_exist_and_are_registered(): void {
 		$this->assertTrue( class_exists( DashboardManager::class ) );
 		$this->assertTrue( class_exists( ReportsManager::class ) );
-		$this->assertTrue( method_exists( Admin::class, 'render_members' ) );
-		$this->assertTrue( method_exists( Admin::class, 'render_reports' ) );
-		$this->assertArrayHasKey( 'members', FunctionsSidebar::get_sidebar_groups() );
+		$this->assertTrue( method_exists( Admin::class, 'route_manager' ) );
+		$this->assertTrue( method_exists( Admin::class, 'render_users' ) );
+		$this->assertArrayHasKey( 'user-management', FunctionsSidebar::get_sidebar_groups() );
 		$this->assertArrayHasKey( 'reports', FunctionsSidebar::get_sidebar_groups() );
 	}
 
@@ -37,5 +37,16 @@ final class UserManagementPluginTest extends TestCase {
 
 		$helper = MenuHelper::register_location( 'footer', 'Footer navigation' );
 		$this->assertArrayHasKey( 'footer', $helper->get_locations() );
+	}
+
+	public function test_user_management_tab_aliases_are_normalized(): void {
+		$manager = new \AccessPress\Admin\Manager\Users\UserManager( false );
+		$method = new \ReflectionMethod( $manager, 'normalize_tab' );
+		$method->setAccessible( true );
+
+		$this->assertSame( 'dashboard', $method->invoke( $manager, 'overview' ) );
+		$this->assertSame( 'groups', $method->invoke( $manager, 'user-groups' ) );
+		$this->assertSame( 'roles', $method->invoke( $manager, 'user-roles' ) );
+		$this->assertSame( 'login', $method->invoke( $manager, 'user-login' ) );
 	}
 }

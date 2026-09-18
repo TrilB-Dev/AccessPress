@@ -14,14 +14,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class SettingsAccess {
+final class SettingsAccess extends SettingsManager {
 	/**
 	 * Render the access restriction settings fields.
 	 *
 	 * @param array $values The current values for the access restriction settings fields.
 	 * @since 1.0.0
 	 */
-	public function render( array $values ): void {
+	public function render_page_content( array $values ): void {
+		$this->render_fields( $values );
+	}
+
+	/**
+	 * Render the access restriction settings fields.
+	 *
+	 * @param array $values The current values for the access restriction settings fields.
+	 * @since 1.0.0
+	 */
+	public function render_fields( array $values ): void {
 		$fields = array(
 			'issue_licences'  => array(
 				'label'       => __( 'Who can issue licences?', 'accesspress' ),

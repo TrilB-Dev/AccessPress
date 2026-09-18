@@ -15,14 +15,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class SettingsGeneral {
+final class SettingsGeneral extends SettingsManager {
 	/**
 	 * Render the general settings fields.
 	 *
 	 * @param array $values The current values for the settings fields.
 	 * @since 1.0.0
 	 */
-	public function render( array $values ): void {
+	public function render_page_content( array $values ): void {
+		$this->render_fields( $values );
+	}
+
+	/**
+	 * Render the general settings fields.
+	 *
+	 * @param array $values The current values for the settings fields.
+	 * @since 1.0.0
+	 */
+	public function render_fields( array $values ): void {
 		$fields = array(
 			'registration_page'          => array(
 				'label'       => __( 'Registration Page', 'accesspress' ),

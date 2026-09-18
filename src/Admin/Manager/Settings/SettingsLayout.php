@@ -15,14 +15,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class SettingsLayout {
+final class SettingsLayout extends SettingsManager {
 	/**
 	 * Render the layout settings fields.
 	 *
 	 * @param array $values The current values for the layout settings fields.
 	 * @since 1.0.0
 	 */
-	public function render( array $values ): void {
+	public function render_page_content( array $values ): void {
+		$this->render_fields( $values );
+	}
+
+	/**
+	 * Render the layout settings fields.
+	 *
+	 * @param array $values The current values for the layout settings fields.
+	 * @since 1.0.0
+	 */
+	public function render_fields( array $values ): void {
 		$fields = array(
 			'login_registration_title' => array(
 				'label'       => __( 'Login & Registration Title', 'accesspress' ),

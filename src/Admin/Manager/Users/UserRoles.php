@@ -8,7 +8,7 @@
  */
 namespace AccessPress\Admin\Manager\Users;
 
-use AccessPress\Admin\Manager\UserManager;
+use AccessPress\Admin\Manager\Users\UserManager;
 use AccessPress\Includes\Functions\Helpers\FormFieldHelper;
 use AccessPress\Includes\Functions\Helpers\AjaxHelper;
 use AccessPress\Includes\Functions\Helpers\PermissionHelper;
@@ -27,6 +27,15 @@ final class UserRoles extends UserManager {
      * The slug for the Roles Manager admin page.
      */
 	private const PAGE = 'accesspress-roles-manager';
+	/**
+	 * Render the role-management page content.
+	 *
+	 * @return void
+	 */
+	public function render_page_content(): void {
+		$this->render();
+	}
+
 	/**
 	 * Registers post actions for the Roles Manager.
 	 */

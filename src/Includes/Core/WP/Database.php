@@ -6,6 +6,8 @@
  */
 namespace AccessPress\Includes\Core\WP;
 
+use AccessPress\Includes\Core\Schema;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -122,9 +124,11 @@ final class Database {
 			return false;
 		}
 
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		if ( file_exists( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		}
 
-		$statement = call_user_func( $schema, self::table_name( $table ), $wpdb->get_charset_collate() );
+		$statement = call_user_func( $schema, self::table_name( $table ), method_exists( $wpdb, 'get_charset_collate' ) ? $wpdb->get_charset_collate() : '' );
 		if ( ! is_string( $statement ) || '' === trim( $statement ) ) {
 			return false;
 		}
@@ -191,6 +195,8 @@ final class Database {
 	 * @return void
 	 */
 	public static function install(): void {
+		Schema::register_tables();
+
 		foreach ( self::$registered_core_tables as $table => $schema ) {
 			self::create_table( $table );
 		}
@@ -199,7 +205,9 @@ final class Database {
 			self::create_table( $table );
 		}
 
-		update_option( 'accesspress_db_version', defined( 'ACCESSPRESS_VERSION' ) ? ACCESSPRESS_VERSION : '1.0.0' );
+		if ( function_exists( 'update_option' ) ) {
+			update_option( 'accesspress_db_version', defined( 'ACCESSPRESS_VERSION' ) ? ACCESSPRESS_VERSION : '1.0.0' );
+		}
 	}
 
 	/**

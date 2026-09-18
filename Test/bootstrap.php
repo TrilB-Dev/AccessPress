@@ -187,6 +187,39 @@ if ( ! class_exists( 'wpdb' ) ) {
 				return array();
 			}
 
+			if ( stripos( $query, 'WHERE' ) !== false && stripos( $query, 'event_key' ) !== false ) {
+				preg_match( "/event_key\s*=\s*'([^']+)'/i", $query, $matches );
+				$expected = $matches[1] ?? '';
+				$filtered = array();
+				foreach ( $rows as $row ) {
+					if ( ( $row['event_key'] ?? '' ) === $expected ) {
+						$filtered[] = $row;
+					}
+				}
+				return $filtered;
+			}
+
+			if ( stripos( $query, 'COUNT(*)' ) !== false && stripos( $query, 'GROUP BY' ) !== false ) {
+				$grouped = array();
+				foreach ( $rows as $row ) {
+					$key = (string) ( $row['event_key'] ?? '' );
+					if ( '' === $key ) {
+						continue;
+					}
+					$grouped[ $key ][] = $row;
+				}
+
+				$result = array();
+				foreach ( $grouped as $event_key => $event_rows ) {
+					$result[] = array(
+						'event_key' => $event_key,
+						'count' => count( $event_rows ),
+						'last_seen' => max( array_column( $event_rows, 'created_at' ) ),
+					);
+				}
+				return $result;
+			}
+
 			if ( stripos( $query, 'WHERE' ) !== false && stripos( $query, 'token_hash' ) !== false ) {
 				preg_match( "/token_hash\s*=\s*'([^']+)'/i", $query, $matches );
 				$expected = $matches[1] ?? '';

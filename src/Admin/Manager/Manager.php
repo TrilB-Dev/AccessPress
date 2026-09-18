@@ -19,6 +19,51 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 abstract class Manager {
 	/**
+	 * The current manager section key.
+	 *
+	 * @var string
+	 */
+	protected string $page = '';
+
+	/**
+	 * Get the manager section key.
+	 *
+	 * @return string
+	 */
+	public function get_page(): string {
+		return $this->page;
+	}
+
+	/**
+	 * Register page assets for this manager.
+	 *
+	 * Subclasses should override this with their own asset registration.
+	 *
+	 * @param Assets $assets Asset registry.
+	 * @return void
+	 */
+	public function register_assets( Assets $assets ): void {
+		// Intentionally left empty; section managers override this when needed.
+	}
+
+	/**
+	 * Normalize a manager route alias to a canonical key.
+	 *
+	 * @param string $value Raw group or tab value.
+	 * @param array<string, string> $aliases Supported aliases.
+	 * @param string $fallback Default value.
+	 * @return string
+	 */
+	protected function normalize_route( string $value, array $aliases, string $fallback = '' ): string {
+		$key = sanitize_key( $value );
+		if ( '' === $key ) {
+			return $fallback;
+		}
+
+		return $aliases[ $key ] ?? $fallback;
+	}
+
+	/**
 	 * Register one asset bundle for a group of admin pages.
 	 *
 	 * @param Assets             $assets Asset registry.
@@ -53,7 +98,7 @@ abstract class Manager {
 			'scripts' => array(
 				array(
 					'handle'    => 'accesspress-admin-' . $bundle,
-					'src'       => ACCESSPRESS_URL . '/dist/js/' . $bundle_name . '.js',
+					'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/' . $bundle_name . '.js',
 					'deps'      => array( 'accesspress-bootstrap', 'accesspress-admin-ui' ),
 					'in_footer' => true,
 				),
@@ -78,10 +123,11 @@ abstract class Manager {
 
 		$mapping = array(
 			'dashboard' => 'admin.dashboard',
-			'debug'     => 'admin.page',
-			'tools'     => 'admin.tools',
+			'reports'     => 'admin.page',
 			'settings'  => 'admin.settings',
+			'tools'     => 'admin.tools',
 			'plugins'   => 'admin.plugins',
+			'user-management'     => 'admin.user-management',
 			'ui'        => 'admin.ui',
 		);
 

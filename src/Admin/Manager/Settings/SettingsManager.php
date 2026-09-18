@@ -16,6 +16,7 @@ use AccessPress\Admin\Manager\Settings\SettingsGeneral;
 use AccessPress\Admin\Manager\Settings\SettingsPlugins;
 use AccessPress\Admin\Manager\Settings\SettingsLayout;
 use AccessPress\Admin\Manager\Settings\SettingsSecurity;
+use AccessPress\Includes\Functions\Helpers\AjaxHelper;
 use AccessPress\Includes\Functions\Helpers\RequestHelper;
 use AccessPress\Includes\Settings\Settings;
 
@@ -23,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class SettingsManager extends Manager {
+class SettingsManager extends Manager {
 	/**
 	 * Plugin settings page manager instance.
 	 *
@@ -35,7 +36,7 @@ final class SettingsManager extends Manager {
 	 *
 	 * @var string
 	 */
-	protected $page;
+	protected string $page;
 	/**
 	 * Constructor for the settings manager.
 	 */
@@ -70,7 +71,7 @@ final class SettingsManager extends Manager {
 		$tab               = $this->normalize_tab( $tab );
 		$view_capabilities = array(
 			'general'     => array( 'accesspress_settings_general_view' ),
-			'email'     => array( 'accesspress_settings_email_view' ),
+			'email'       => array( 'accesspress_settings_email_view' ),
 			'access'      => array( 'accesspress_settings_access_view' ),
 			'layout'      => array( 'accesspress_settings_layout_view' ),
 			'security'    => array( 'accesspress_settings_security_view' ),
@@ -93,79 +94,98 @@ final class SettingsManager extends Manager {
 		if ( ! $can_view ) {
 			wp_die( esc_html__( 'You are not authorized to view these AccessPress settings.', 'accesspress' ) );
 		}
+
+		$values = Settings::get_group( $tab, array() ) ?? array();
+		$pages  = array(
+			'general'     => array(
+				'title'    => __( 'Licence configuration', 'accesspress' ),
+				'copy'     => __( 'Set the default commercial rules for generated licences, expiry, and validation.', 'accesspress' ),
+				'instance' => new SettingsGeneral(),
+			),
+			'email'       => array(
+				'title'    => __( 'Email settings', 'accesspress' ),
+				'copy'     => __( 'Configure the default email settings for generated customer notifications.', 'accesspress' ),
+				'instance' => new SettingsEmail(),
+			),
+			'access'      => array(
+				'title'    => __( 'Access control', 'accesspress' ),
+				'copy'     => __( 'Define who can issue, revoke, export, review, and manage licences.', 'accesspress' ),
+				'instance' => new SettingsAccess(),
+			),
+			'layout'      => array(
+				'title'    => __( 'Layout settings', 'accesspress' ),
+				'copy'     => __( 'Control the default frontend account and member experience.', 'accesspress' ),
+				'instance' => new SettingsLayout(),
+			),
+			'security'    => array(
+				'title'    => __( 'Security', 'accesspress' ),
+				'copy'     => __( 'Define the security settings for managing licences.', 'accesspress' ),
+				'instance' => new SettingsSecurity(),
+			),
+		);
 		?>
 		<div class="accesspress-settings-tab-content" role="tabpanel">
-			<?php if ( 'general' === $tab ) : ?>
-				<div class="card shadow-sm">
-					<div class="card-body">
-						<div class="mb-3">
-							<h5 class="h5 mb-1">
-								<?php esc_html_e( 'Licence configuration', 'accesspress' ); ?>
-							</h5>
-							<p class="text-secondary mb-0">
-								<?php esc_html_e( 'Set the default commercial rules for generated licences, expiry, and validation.', 'accesspress' ); ?>
-							</p>
-						</div>
-						<table class="form-table" role="presentation">
-							<tbody>
-								<?php ( new SettingsGeneral() )->render( Settings::get_group( 'general', array() ) ?? array() ); ?>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			<?php elseif ( 'email' === $tab ) : ?>
-				<div class="card shadow-sm">
-					<div class="card-body">
-						<div class="mb-3">
-							<h5 class="h5 mb-1">
-								<?php esc_html_e( 'Email settings', 'accesspress' ); ?>
-							</h5>
-							<p class="text-secondary mb-0">
-								<?php esc_html_e( 'Configure the default email settings for generated customer notifications.', 'accesspress' ); ?>
-							</p>
-						</div>
-							<?php ( new SettingsEmail() )->render( Settings::get_group( 'email', array() ) ?? array() ); ?>
-					</div>
-				</div>
-			<?php elseif ( 'access' === $tab ) : ?>
-				<div class="card shadow-sm">
-					<div class="card-body">
-						<div class="mb-3">
-							<h5 class="h5 mb-1">
-								<?php esc_html_e( 'Access control', 'accesspress' ); ?>
-							</h5>
-							<p class="text-secondary mb-0">
-								<?php esc_html_e( 'Define who can issue, revoke, export, review, and manage licences.', 'accesspress' ); ?>
-							</p>
-						</div>
-						<table class="form-table" role="presentation">
-							<tbody>
-								<?php ( new SettingsAccess() )->render( Settings::get_group( 'access', array() ) ?? array() ); ?>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			<?php elseif ( 'security' === $tab ) : ?>
-				<div class="card shadow-sm">
-					<div class="card-body">
-						<div class="mb-3">
-							<h5 class="h5 mb-1">
-								<?php esc_html_e( 'Security', 'accesspress' ); ?>
-							</h5>
-							<p class="text-secondary mb-0">
-								<?php esc_html_e( 'Define the security settings for managing licences.', 'accesspress' ); ?>
-							</p>
-						</div>
-						<table class="form-table" role="presentation">
-							<tbody>
-								<?php ( new SettingsSecurity() )->render( Settings::get_group( 'security', array() ) ?? array() ); ?>
-							</tbody>
-						</table>
-					</div>
-				</div>
+			<?php if ( isset( $pages[ $tab ] ) ) : ?>
+				<?php $this->render_tab_panel( $pages[ $tab ]['title'], $pages[ $tab ]['copy'], $pages[ $tab ]['instance'], $values ); ?>
 			<?php else : ?>
 				<?php $this->plugins_page->render( $tab ); ?>
 			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Load a settings tab payload for an AJAX request.
+	 *
+	 * @return void
+	 */
+	public function load_tab(): void {
+		$tab             = sanitize_key( RequestHelper::get_key( 'tab', 'general' ) );
+		$view_capability = array(
+			'general'     => 'accesspress_settings_general_view',
+			'access'      => 'accesspress_settings_access_view',
+			'plugins'     => 'accesspress_settings_plugins_view',
+			'third-party' => 'accesspress_settings_plugins_ext_view',
+		)[ $tab ] ?? 'accesspress_settings_general_view';
+
+		if ( ! AjaxHelper::authorized( 'accesspress_settings_tabs', $view_capability ) ) {
+			AjaxHelper::unauthorized( __( 'You are not authorized to load AccessPress settings.', 'accesspress' ) );
+		}
+
+		ob_start();
+		$this->render_tab_content( $tab );
+		$html = (string) ob_get_clean();
+		AjaxHelper::success(
+			array(
+				'html' => $html,
+				'tab'  => $tab,
+			)
+		);
+	}
+
+	/**
+	 * Render a settings tab panel using the manager/page component pattern.
+	 *
+	 * @param string $title The panel title.
+	 * @param string $copy The helper copy.
+	 * @param object $instance The settings page instance.
+	 * @param array  $values The values for the tab.
+	 * @return void
+	 */
+	private function render_tab_panel( string $title, string $copy, object $instance, array $values ): void {
+		?>
+		<div class="card shadow-sm">
+			<div class="card-body">
+				<div class="mb-3">
+					<h5 class="h5 mb-1"><?php echo esc_html( $title ); ?></h5>
+					<p class="text-secondary mb-0"><?php echo esc_html( $copy ); ?></p>
+				</div>
+				<?php if ( method_exists( $instance, 'render_page_content' ) ) : ?>
+					<?php $instance->render_page_content( $values ); ?>
+				<?php elseif ( method_exists( $instance, 'render' ) ) : ?>
+					<?php $instance->render( $values ); ?>
+				<?php endif; ?>
+			</div>
 		</div>
 		<?php
 	}

@@ -1,1 +1,1 @@
-document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll(".accesspress-tools-form, .accesspress-tool-panel").forEach(e=>{e.setAttribute("data-accesspress-tools-ready","true")})});
+document.addEventListener("DOMContentLoaded",()=>{const e=document,s=e.querySelector("#accesspress-reset-scope"),t=e.querySelector("#accesspress-reset-plugins");if(!s||!t)return;const c=()=>{const e="plugins"===s.value;t.hidden=!e,t.querySelectorAll('input[type="checkbox"]').forEach(s=>{s.disabled=!e})};s.addEventListener("change",c),c()});

@@ -1,15 +1,30 @@
 <?php
+/**
+ * User login screen UI for AccessPress.
+ *
+ * @package AccessPress
+ * @subpackage Admin\Manager\Users
+ */
 namespace AccessPress\Admin\Manager\Users;
 
-use AccessPress\Helpers\RequestHelper;
-use AccessPress\Helpers\PermissionHelper;
-use AccessPress\Admin\Assets\Assets;
-use AccessPress\Admin\Manager\Users\UserManager;
-
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+	exit;
 }
 
 final class UserLogin extends UserManager {
-	// Class implementation goes here.
+	/**
+	 * Render the login management screen.
+	 *
+	 * @return void
+	 */
+	public function render_page_content(): void {
+		?>
+		<div class="card shadow-sm">
+			<div class="card-body">
+				<h2 class="h5 mb-3"><?php esc_html_e( 'Login settings', 'accesspress' ); ?></h2>
+				<p class="text-secondary mb-0"><?php esc_html_e( 'Configure the frontend login experience, redirect rules, and default login behavior.', 'accesspress' ); ?></p>
+			</div>
+		</div>
+		<?php
+	}
 }

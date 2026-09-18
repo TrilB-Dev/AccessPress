@@ -13,13 +13,16 @@ use AccessPress\Includes\Functions\Admin\FunctionsPlugins;
 use AccessPress\Includes\Functions\Helpers\AjaxHelper;
 use AccessPress\Includes\Core\Capabilities;
 use AccessPress\Includes\Functions\Helpers\LoaderHelper;
+use AccessPress\Includes\Functions\Helpers\LoggerHelper;
 use AccessPress\Includes\Functions\Helpers\RequestHelper;
 use AccessPress\Includes\Functions\Helpers\SanitizationHelper;
 use AccessPress\Includes\Functions\Admin\FunctionsSidebar;
 use AccessPress\Assets\Assets;
+use AccessPress\Admin\Manager\Manager;
 use AccessPress\Admin\Manager\Tools\ToolsManager;
 use AccessPress\Admin\Manager\Dashboard\DashboardManager;
 use AccessPress\Admin\Manager\Reports\ReportsManager;
+use AccessPress\Admin\Manager\Users\UserManager;
 use AccessPress\Admin\Manager\Settings\SettingsManager;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -40,17 +43,29 @@ final class Admin {
 	 */
 	private SettingsManager $settings_manager;
 	/**
+	 * ReportsManager instance for managing customer reports and account data.
+	 *
+	 * @var ReportsManager
+	 */
+	private ReportsManager $reports_manager;
+	/**
+	 * LicencesManager instance for managing licence-type and issued licence pages.
+	 *
+	 * @var UserManager
+	 */
+	private UserManager $user_manager;
+	/**
 	 * ToolsManager instance for managing tools-related admin pages.
 	 *
 	 * @var ToolsManager
 	 */
 	private ToolsManager $tools_manager;
 	/**
-	 * ReportsManager instance for managing reports-related admin pages.
+	 * Registry of the admin managers.
 	 *
-	 * @var ReportsManager
+	 * @var array<string, Manager>
 	 */
-	private ReportsManager $reports_manager;
+	private array $managers;
 	/**
 	 * LoaderHelper instance for managing action and filter hooks.
 	 *
@@ -77,83 +92,101 @@ final class Admin {
 	 * @param Assets $assets The Assets instance for managing admin assets.
 	 */
 	public function __construct( Assets $assets ) {
+		$this->managers = array(
+			'dashboard' => new DashboardManager(),
+			'settings'  => new SettingsManager(),
+			'reports'   => new ReportsManager(),
+			'user'      => new UserManager(),
+			'tools'     => new ToolsManager(),
+		);
 		/**
-		 * Initialize the admin managers and register their assets.
-		 * 
-		 * @since 1.0.0
+		 * Initialize the individual manager instances from the registry.
 		 */
-		$this->dashboard_manager = new DashboardManager();
+		$this->dashboard_manager = $this->managers['dashboard'];
 		/**
-		 * Initialize the settings manager.
-		 *
-		 * @since 1.0.0
+		 * Initialize the settings manager instance from the registry.
 		 */
-		$this->settings_manager = new SettingsManager();
+		$this->settings_manager  = $this->managers['settings'];
 		/**
-		 * Initialize the tools manager.
-		 *
-		 * @since 1.0.0
+		 * Initialize the reports manager instance from the registry.
 		 */
-		$this->tools_manager = new ToolsManager();
+		$this->reports_manager   = $this->managers['reports'];
 		/**
-		 * Initialize the reports manager.
-		 *
-		 * @since 1.0.0
+		 * Initialize the user manager instance from the registry.
 		 */
-		$this->reports_manager = new ReportsManager();
+		$this->user_manager      = $this->managers['user'];
+		/**
+		 * Initialize the tools manager instance from the registry.
+		 */
+		$this->tools_manager     = $this->managers['tools'];
 		/**
 		 * Initialize the plugin functions manager.
-		 *
-		 * @since 1.0.0
 		 */
 		$this->plugin_functions = new FunctionsPlugins();
 		/**
 		 * Initialize the loader helper.
-		 *
-		 * @since 1.0.0
 		 */
 		$this->loader = new LoaderHelper();
 		/**
 		 * Initialize the assets manager.
-		 *
-		 * @since 1.0.0
 		 */
 		$this->assets = $assets;
 		/**
 		 * Register assets for the admin managers.
-		 *
-		 * @since 1.0.0
 		 */
-		$this->dashboard_manager->register_assets( $assets );
-		/**
-		 * Register assets for the settings manager.
-		 *
-		 * @since 1.0.0
-		 */
-		$this->settings_manager->register_assets( $assets );
-		/**
-		 * Register assets for the tools manager.
-		 *
-		 * @since 1.0.0
-		 */
-		$this->tools_manager->register_assets( $assets );
+		foreach ( $this->managers as $manager ) {
+			$manager->register_assets( $assets );
+		}
 		/**
 		 * Register assets for the plugin functions manager.
-		 *
-		 * @since 1.0.0
 		 */
 		$this->loader->register_component(
 			$this,
 			array(
 				array(
 					'type'     => 'action',
-					'hook'     => 'wp_ajax_accesspress_load_settings_tab',
-					'callback' => 'load_settings_tab',
+					'hook'     => 'wp_ajax_accesspress_save_billing_logo',
+					'callback' => 'save_billing_logo',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'wp_ajax_accesspress_preview_licence_type',
+					'callback' => 'preview_licence_type',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'wp_ajax_accesspress_load_licence_type',
+					'callback' => 'load_licence_type',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'wp_ajax_accesspress_save_licence_type',
+					'callback' => 'save_licence_type',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'wp_ajax_accesspress_toggle_licence_type_retired',
+					'callback' => 'toggle_licence_type_retired',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'wp_ajax_accesspress_delete_licence_type',
+					'callback' => 'delete_licence_type',
 				),
 				array(
 					'type'     => 'action',
 					'hook'     => 'wp_ajax_accesspress_dismiss_onboarding',
 					'callback' => 'dismiss_onboarding',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'wp_ajax_accesspress_issue_customer_licence',
+					'callback' => 'issue_customer_licence',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'wp_ajax_accesspress_revoke_customer_licence',
+					'callback' => 'revoke_customer_licence',
 				),
 			)
 		);
@@ -179,7 +212,17 @@ final class Admin {
 	 * @since 1.0.0
 	 */
 	public function register_admin_menu(): void {
-		FunctionsSidebar::register_admin_menu( $this );
+		LoggerHelper::write_log( 'AccessPress admin menu registration started.' );
+
+		try {
+			FunctionsSidebar::register_admin_menu( $this );
+			LoggerHelper::write_log( 'AccessPress admin menu registration complete.' );
+		} catch ( \Throwable $e ) {
+			LoggerHelper::write_log( 'AccessPress admin menu registration failed: ' . $e->getMessage() );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				wp_die( esc_html( $e->getMessage() ), __( 'AccessPress admin menu error', 'accesspress' ), array( 'back_link' => true ) );
+			}
+		}
 	}
 	/**
 	 * Render the dashboard page.
@@ -188,7 +231,59 @@ final class Admin {
 	 * It delegates the rendering to the DashboardManager instance.
 	 */
 	public function render_dashboard(): void {
-		$this->dashboard_manager->render();
+		$group = RequestHelper::get_key( 'group', '' );
+		$tab   = RequestHelper::get_key( 'tab', '' );
+		$this->route_manager( $group, $tab );
+	}
+
+	/**
+	 * Dispatch the admin request to the correct manager.
+	 *
+	 * @param string $group Requested group slug.
+	 * @param string $tab Requested tab slug.
+	 * @return void
+	 */
+	public function route_manager( string $group, string $tab = '' ): void {
+		$group = sanitize_key( $group );
+		$normalized_group = array(
+			'accesspress'     => 'dashboard',
+			'dashboard'       => 'dashboard',
+			'user-management' => 'users',
+			'settings'        => 'settings',
+			'tools'           => 'tools',
+			'reports'         => 'reports',
+		)[ $group ] ?? 'dashboard';
+
+		LoggerHelper::write_log( sprintf( 'AccessPress dashboard render triggered. Group=%s Tab=%s', $group, $tab ) );
+
+		try {
+			switch ( $normalized_group ) {
+				case 'users':
+					LoggerHelper::write_log( 'AccessPress dashboard routed to users page.' );
+					$this->render_users();
+					return;
+				case 'reports':
+					LoggerHelper::write_log( 'AccessPress dashboard routed to reports page.' );
+					$this->render_reports();
+					return;
+				case 'settings':
+					LoggerHelper::write_log( 'AccessPress dashboard routed to settings page.' );
+					$this->render_settings();
+					return;
+				case 'tools':
+					LoggerHelper::write_log( 'AccessPress dashboard routed to tools page.' );
+					$this->render_tools();
+					return;
+				default:
+					LoggerHelper::write_log( 'AccessPress dashboard default render path selected.' );
+					$this->dashboard_manager->render();
+			}
+		} catch ( \Throwable $e ) {
+			LoggerHelper::write_log( 'AccessPress dashboard render failed: ' . $e->getMessage() );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				wp_die( esc_html( $e->getMessage() ), __( 'AccessPress dashboard error', 'accesspress' ), array( 'back_link' => true ) );
+			}
+		}
 	}
 	/**
 	 * Dismiss the onboarding modal.
@@ -207,13 +302,37 @@ final class Admin {
 		AjaxHelper::success( array( 'dismissed' => true ) );
 	}
 	/**
+	 * Render AccessPress users page.
+	 *
+	 * This method is responsible for rendering the users page of the AccessPress plugin.
+	 * It delegates the rendering to the CustomerManager instance.
+	 */
+	public function render_users(): void {
+		LoggerHelper::write_log( 'AccessPress users render started.' );
+		$this->user_manager->render();
+		LoggerHelper::write_log( 'AccessPress users render complete.' );
+	}
+	/**
+	 * Render AccessPress reports page.
+	 *
+	 * This method is responsible for rendering the reports page of the AccessPress plugin.
+	 * It delegates the rendering to the ReportsManager instance.
+	 */
+	public function render_reports(): void {
+		LoggerHelper::write_log( 'AccessPress reports render started.' );
+		$this->reports_manager->render();
+		LoggerHelper::write_log( 'AccessPress reports render complete.' );
+	}
+	/**
 	 * Render the settings page.
 	 *
 	 * This method is responsible for rendering the settings page of the AccessPress plugin.
 	 * It delegates the rendering to the SettingsManager instance.
 	 */
 	public function render_settings(): void {
+		LoggerHelper::write_log( 'AccessPress settings page render started.' );
 		$this->settings_manager->render();
+		LoggerHelper::write_log( 'AccessPress settings page render complete.' );
 	}
 	/**
 	 * Render the tools page.
@@ -221,15 +340,9 @@ final class Admin {
 	 * @return void
 	 */
 	public function render_tools(): void {
+		LoggerHelper::write_log( 'AccessPress tools page render started.' );
 		$this->tools_manager->render();
-	}
-	/**
-	 * Render the reports page.
-	 *
-	 * @return void
-	 */
-	public function render_reports(): void {
-		$this->reports_manager->render();
+		LoggerHelper::write_log( 'AccessPress tools page render complete.' );
 	}
 	/**
 	 * Render the analytics page.
@@ -237,33 +350,6 @@ final class Admin {
 	 * This method is responsible for rendering the analytics page of the AccessPress plugin.
 	 * It delegates the rendering to the AnalyticsManager instance.
 	 */
-	public function load_settings_tab(): void {
-		$tab             = RequestHelper::get_key( 'tab', 'general' );
-		$view_capability = array(
-			'general'     => 'accesspress_settings_general_view',
-			'layout'      => 'accesspress_settings_layout_view',
-			'access'      => 'accesspress_settings_access_view',
-			'email'       => 'accesspress_settings_email_view',
-			'security'    => 'accesspress_settings_security_view',
-			'plugins'     => 'accesspress_settings_plugins_view',
-			'third-party' => 'accesspress_settings_plugins_ext_view',
-		)[ $tab ] ?? 'accesspress_settings_general_view';
-		if ( ! AjaxHelper::authorized( 'accesspress_settings_tabs', $view_capability ) ) {
-			AjaxHelper::unauthorized( __( 'You are not authorized to load AccessPress settings.', 'accesspress' ) );
-		}
-
-		$layout_section = RequestHelper::get_key( 'layout_section', 'general' );
-		ob_start();
-		$this->settings_manager->render_tab_content( $tab, $layout_section );
-		$html = (string) ob_get_clean();
-		AjaxHelper::success(
-			array(
-				'html'           => $html,
-				'tab'            => $tab,
-				'layout_section' => $layout_section,
-			)
-		);
-	}
 	/**
 	 * Get the capability for a given key, with a fallback.
 	 *
@@ -284,6 +370,3 @@ final class Admin {
 		return $fallback;
 	}
 }
-
-
-

@@ -15,14 +15,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class SettingsSecurity {
+final class SettingsSecurity extends SettingsManager {
 	/**
 	 * Render the security settings fields.
 	 *
 	 * @param array $values The current values for the security settings fields.
 	 * @since 1.0.0
 	 */
-	public function render( array $values ): void {
+	public function render_page_content( array $values ): void {
+		$this->render_fields( $values );
+	}
+
+	/**
+	 * Render the security settings fields.
+	 *
+	 * @param array $values The current values for the security settings fields.
+	 * @since 1.0.0
+	 */
+	public function render_fields( array $values ): void {
 		$fields = array(
 			'disable_wp_admin_access' => array(
 				'label'       => __( 'Disable wp-admin access to:', 'accesspress' ),
