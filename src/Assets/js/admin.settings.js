@@ -27,6 +27,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  const updateProtectionVisibility = () => {
+    const protection = root.querySelector('#accesspress-security-form-protection');
+    if (!protection) return;
+
+    const value = protection.value || '';
+    const recaptchaRows = [
+      'accesspress-security-recaptcha-recaptcha-version-row',
+      'accesspress-security-recaptcha-site-key-row',
+      'accesspress-security-recaptcha-secret-key-row',
+    ];
+    const turnstileRows = [
+      'accesspress-security-turnstile-site-key-row',
+      'accesspress-security-turnstile-secret-key-row',
+    ];
+
+    const setRowsVisible = (rowIds, visible) => {
+      rowIds.forEach((rowId) => {
+        const row = root.getElementById(rowId);
+        if (!row) return;
+        row.hidden = !visible;
+        row.style.display = visible ? '' : 'none';
+      });
+    };
+
+    setRowsVisible(recaptchaRows, value === 'recaptcha');
+    setRowsVisible(turnstileRows, value === 'turnstile');
+  };
+
   const activateLayoutTab = (button) => {
     const target = root.querySelector(button.dataset.bsTarget);
     if (!target) return;
@@ -104,6 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   window.addEventListener('popstate', navigateFromHash);
   window.addEventListener('hashchange', navigateFromHash);
+
+  const protectionSelect = root.querySelector('#accesspress-security-form-protection');
+  if (protectionSelect) {
+    protectionSelect.addEventListener('change', updateProtectionVisibility);
+    protectionSelect.addEventListener('input', updateProtectionVisibility);
+    updateProtectionVisibility();
+  }
 
   const initial = stateFromHash();
   setActive(initial.tab, initial.section);

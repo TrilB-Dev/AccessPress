@@ -48,7 +48,6 @@ final class SettingsGeneral extends SettingsManager {
 						); ?>
 					</th>
 					<td>
-						<div class="input-group">
 						<?php echo FormFieldHelper::bootstrap_select(
 							'accesspress_general[registration_page]',
 							array(
@@ -57,16 +56,7 @@ final class SettingsGeneral extends SettingsManager {
 								'id' => 'accesspress-general-registration-page',
 								'live_search' => true,
 							)
-							); ?>
-							<?php echo FormFieldHelper::button( 
-								'Create page', 
-								array( 
-									'type' => 'button', 
-									'class' => 'btn btn-outline-secondary accesspress-create-page', 
-									'data-page-key' => 'register' 
-								) 
-							); ?>
-						</div>
+						); ?>
 					</td>
 				</tr>
 				<tr>
@@ -81,7 +71,6 @@ final class SettingsGeneral extends SettingsManager {
 						); ?>
 					</th>
 					<td>
-						<div class="input-group">
 						<?php echo FormFieldHelper::bootstrap_select(
 							'accesspress_general[login_page]',
 							array(
@@ -89,17 +78,8 @@ final class SettingsGeneral extends SettingsManager {
 								'selected' => $login_page,
 								'id' => 'accesspress-general-login-page',
 								'live_search' => true,
-								)
-							); ?>
-							<?php echo FormFieldHelper::button(
-								'Create page',
-								array(
-									'type' => 'button',
-									'class' => 'btn btn-outline-secondary accesspress-create-page',
-									'data-page-key' => 'login',
-								)
-							); ?>
-						</div>
+							)
+						); ?>
 					</td>
 				</tr>
 				<tr>
@@ -114,7 +94,6 @@ final class SettingsGeneral extends SettingsManager {
 						); ?>
 					</th>
 					<td>
-						<div class="input-group">
 						<?php echo FormFieldHelper::bootstrap_select(
 							'accesspress_general[my_account_page]',
 							array(
@@ -122,17 +101,8 @@ final class SettingsGeneral extends SettingsManager {
 								'selected' => $my_account_page,
 								'id' => 'accesspress-general-my-account-page',
 								'live_search' => true,
-								)
-							); ?>
-							<?php echo FormFieldHelper::button(
-								'Create page',
-								array(
-									'type' => 'button',
-									'class' => 'btn btn-outline-secondary accesspress-create-page',
-									'data-page-key' => 'profile',
-								)
-							); ?>
-						</div>
+							)
+						); ?>
 					</td>
 				</tr>
 				<tr>
@@ -147,7 +117,6 @@ final class SettingsGeneral extends SettingsManager {
 						); ?>
 					</th>
 					<td>
-						<div class="input-group">
 						<?php echo FormFieldHelper::bootstrap_select(
 							'accesspress_general[lost_password_page]',
 							array(
@@ -155,17 +124,8 @@ final class SettingsGeneral extends SettingsManager {
 								'selected' => $lost_password_page,
 								'id' => 'accesspress-general-lost-password-page',
 								'live_search' => true,
-								)
-							); ?>
-							<?php echo FormFieldHelper::button(
-								'Create page',
-								array(
-									'type' => 'button',
-									'class' => 'btn btn-outline-secondary accesspress-create-page',
-									'data-page-key' => 'lost-password',
-								)
-							); ?>
-						</div>
+							)
+						); ?>
 					</td>
 				</tr>
 				<tr>

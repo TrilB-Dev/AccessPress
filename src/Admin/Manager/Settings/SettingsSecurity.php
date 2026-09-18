@@ -109,7 +109,7 @@ final class SettingsSecurity extends SettingsManager {
 						); ?>
 					</td>
 				</tr>
-				<tr>
+				<tr  id="accesspress-security-recaptcha-recaptcha-version-row">
 					<th scope="row">
 						<?php echo FormFieldHelper::label(
 							'accesspress-security-recaptcha-version',
@@ -131,7 +131,7 @@ final class SettingsSecurity extends SettingsManager {
 						); ?>
 					</td>
 				</tr>
-				<tr>
+				<tr id="accesspress-security-recaptcha-site-key-row">
 					<th scope="row">
 						<?php echo FormFieldHelper::label(
 							'accesspress-security-recaptcha-site-key',
@@ -151,7 +151,7 @@ final class SettingsSecurity extends SettingsManager {
 						); ?>
 					</td>
 				</tr>
-				<tr>
+				<tr id="accesspress-security-recaptcha-secret-key-row">
 					<th scope="row">
 						<?php echo FormFieldHelper::label(
 							'accesspress-security-recaptcha-secret-key',
@@ -173,7 +173,7 @@ final class SettingsSecurity extends SettingsManager {
 						); ?>
 					</td>
 				</tr>
-				<tr>
+				<tr id="accesspress-security-turnstile-site-key-row">
 					<th scope="row">
 						<?php echo FormFieldHelper::label(
 							'accesspress-security-turnstile-site-key',
@@ -193,7 +193,7 @@ final class SettingsSecurity extends SettingsManager {
 						); ?>
 					</td>
 				</tr>
-				<tr>
+				<tr id="accesspress-security-turnstile-secret-key-row">
 					<th scope="row">
 						<?php echo FormFieldHelper::label(
 							'accesspress-security-turnstile-secret-key',
