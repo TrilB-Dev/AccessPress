@@ -116,12 +116,13 @@ final class Assets {
 					'deps'      => array( 'accesspress-bootstrap' ),
 					'in_footer' => true,
 				),
+				/*
 				array(
 					'handle'    => 'accesspress-bootstrap-select-control',
 					'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/bootstrap-select-control.js',
 					'version'   => '1.0.0',
 					'in_footer' => true,
-				),
+				),*/
 				array(
 					'handle'	=> 'accesspress-bs-country-data',
 					'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/bs-country-data.min.js',
