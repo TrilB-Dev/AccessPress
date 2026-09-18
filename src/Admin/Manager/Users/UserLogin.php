@@ -13,6 +13,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class UserLogin extends UserManager {
 	/**
+	 * Prevent recursive parent initialization when the login page is instantiated.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		parent::__construct( false );
+	}
+
+	/**
 	 * Render the login management screen.
 	 *
 	 * @return void

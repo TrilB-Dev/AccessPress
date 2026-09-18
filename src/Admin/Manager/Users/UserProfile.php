@@ -13,6 +13,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class UserProfile extends UserManager {
 	/**
+	 * Prevent recursive parent initialization when the profile page is instantiated.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		parent::__construct( false );
+	}
+
+	/**
 	 * Render the profile management screen.
 	 *
 	 * @return void

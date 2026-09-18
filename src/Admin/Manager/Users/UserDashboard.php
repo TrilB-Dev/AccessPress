@@ -13,6 +13,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class UserDashboard extends UserManager {
 	/**
+	 * Prevent recursive parent initialization when the dashboard page is instantiated.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		parent::__construct( false );
+	}
+
+	/**
 	 * Render the user dashboard page content.
 	 *
 	 * @return void

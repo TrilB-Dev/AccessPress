@@ -13,6 +13,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class UserRegistration extends UserManager {
 	/**
+	 * Prevent recursive parent initialization when the registration page is instantiated.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		parent::__construct( false );
+	}
+
+	/**
 	 * Render the registration management screen.
 	 *
 	 * @return void

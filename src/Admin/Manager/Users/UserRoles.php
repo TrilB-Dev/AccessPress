@@ -27,6 +27,15 @@ final class UserRoles extends UserManager {
      * The slug for the Roles Manager admin page.
      */
 	private const PAGE = 'accesspress-roles-manager';
+
+	/**
+	 * Prevent recursive parent initialization when the roles page is instantiated.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		parent::__construct( false );
+	}
 	/**
 	 * Render the role-management page content.
 	 *
