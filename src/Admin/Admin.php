@@ -145,48 +145,8 @@ final class Admin {
 			array(
 				array(
 					'type'     => 'action',
-					'hook'     => 'wp_ajax_accesspress_save_billing_logo',
-					'callback' => 'save_billing_logo',
-				),
-				array(
-					'type'     => 'action',
-					'hook'     => 'wp_ajax_accesspress_preview_licence_type',
-					'callback' => 'preview_licence_type',
-				),
-				array(
-					'type'     => 'action',
-					'hook'     => 'wp_ajax_accesspress_load_licence_type',
-					'callback' => 'load_licence_type',
-				),
-				array(
-					'type'     => 'action',
-					'hook'     => 'wp_ajax_accesspress_save_licence_type',
-					'callback' => 'save_licence_type',
-				),
-				array(
-					'type'     => 'action',
-					'hook'     => 'wp_ajax_accesspress_toggle_licence_type_retired',
-					'callback' => 'toggle_licence_type_retired',
-				),
-				array(
-					'type'     => 'action',
-					'hook'     => 'wp_ajax_accesspress_delete_licence_type',
-					'callback' => 'delete_licence_type',
-				),
-				array(
-					'type'     => 'action',
 					'hook'     => 'wp_ajax_accesspress_dismiss_onboarding',
 					'callback' => 'dismiss_onboarding',
-				),
-				array(
-					'type'     => 'action',
-					'hook'     => 'wp_ajax_accesspress_issue_customer_licence',
-					'callback' => 'issue_customer_licence',
-				),
-				array(
-					'type'     => 'action',
-					'hook'     => 'wp_ajax_accesspress_revoke_customer_licence',
-					'callback' => 'revoke_customer_licence',
 				),
 			)
 		);
