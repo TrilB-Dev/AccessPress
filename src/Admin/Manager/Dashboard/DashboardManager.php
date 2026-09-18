@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class DashboardManager extends Manager {
+class DashboardManager extends Manager {
 	/**
 	 * The slug for the dashboard page.
 	 *

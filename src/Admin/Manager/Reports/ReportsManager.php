@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class ReportsManager extends Manager {
+class ReportsManager extends Manager {
 	/**
 	 * Render the reports page through the section dashboard UI class.
 	 *
