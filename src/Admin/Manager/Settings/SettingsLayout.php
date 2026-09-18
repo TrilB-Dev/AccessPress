@@ -35,25 +35,99 @@ final class SettingsLayout extends SettingsManager {
 		<table class="form-table" role="presentation">
 			<tbody>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-layout-login-registration-title', __( 'Login & Registration Title', 'accesspress' ), array( 'description' => __( 'Set the title displayed across the frontend login and registration experience.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::text_input( 'accesspress_layout[login_registration_title]', $login_title, array( 'id' => 'accesspress-layout-login-registration-title' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-layout-login-registration-title',
+							__( 'Login & Registration Title', 'accesspress' ),
+							array(
+								'description' => __( 'Set the title displayed across the frontend login and registration experience.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::text_input(
+							'accesspress_layout[login_registration_title]',
+							$login_title,
+							array(
+								'id' => 'accesspress-layout-login-registration-title',
+							)
+						); ?>
+					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-layout-site-logo', __( 'Site Logo', 'accesspress' ), array( 'description' => __( 'Choose a logo for the frontend member UI.', 'accesspress' ) ) ); ?></th>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-layout-site-logo',
+							__( 'Site Logo', 'accesspress' ),
+							array(
+								'description' => __( 'Choose a logo for the frontend member UI.', 'accesspress' ),
+							)
+						); ?>
+					</th>
 					<td>
 						<div class="input-group">
-							<?php echo FormFieldHelper::text_input( 'accesspress_layout[site_logo]', $site_logo, array( 'id' => 'accesspress-layout-site-logo', 'placeholder' => __( 'Select a logo image', 'accesspress' ) ) ); ?>
-							<?php echo FormFieldHelper::button( __( 'Select image', 'accesspress' ), array( 'type' => 'button', 'class' => 'btn btn-outline-secondary accesspress-media-button', 'data-target' => 'accesspress-layout-site-logo' ) ); ?>
+							<?php echo FormFieldHelper::text_input(
+								'accesspress_layout[site_logo]',
+								$site_logo,
+								array(
+									'id' => 'accesspress-layout-site-logo',
+									'placeholder' => __( 'Select a logo image', 'accesspress' ),
+								)
+							); ?>
+							<?php echo FormFieldHelper::button(
+								__( 'Select image', 'accesspress' ),
+								array(
+									'type' => 'button',
+									'class' => 'btn btn-outline-secondary accesspress-media-button',
+									'data-target' => 'accesspress-layout-site-logo',
+								)
+							); ?>
 						</div>
 					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-layout-frontend-user-menu', __( 'Frontend user UI menu', 'accesspress' ), array( 'description' => __( 'Choose whether the user menu is displayed horizontally or vertically.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::select( 'accesspress_layout[frontend_user_menu]', $user_menu_options, $user_menu, array( 'id' => 'accesspress-layout-frontend-user-menu', 'class' => 'form-select selectpicker', 'data-live-search' => 'true' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-layout-frontend-user-menu',
+							__( 'Frontend user UI menu', 'accesspress' ),
+							array(
+								'description' => __( 'Choose whether the user menu is displayed horizontally or vertically.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::bootstrap_select(
+							'accesspress_layout[frontend_user_menu]',
+							array(
+								'data' => $user_menu_options,
+								'selected' => $user_menu,
+								'id' => 'accesspress-layout-frontend-user-menu',
+								'live_search' => true,
+							)
+						); ?>
+					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-layout-ajax-submission-user-profile', __( 'Ajax Submission user profile', 'accesspress' ), array( 'description' => __( 'Submit profile updates via AJAX without a full page reload.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::switch( 'accesspress_layout[ajax_submission_user_profile]', '1', __( 'Ajax Submission user profile', 'accesspress' ), array( 'id' => 'accesspress-layout-ajax-submission-user-profile', 'checked' => $ajax_profile ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-layout-ajax-submission-user-profile',
+							__( 'Ajax Submission user profile', 'accesspress' ),
+							array(
+								'description' => __( 'Submit profile updates via AJAX without a full page reload.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::switch(
+							'accesspress_layout[ajax_submission_user_profile]',
+							'1',
+							__( 'Ajax Submission user profile', 'accesspress' ),
+							array(
+								'id' => 'accesspress-layout-ajax-submission-user-profile',
+								'checked' => $ajax_profile,
+							)
+						); ?>
+					</td>
 				</tr>
 			</tbody>
 		</table>

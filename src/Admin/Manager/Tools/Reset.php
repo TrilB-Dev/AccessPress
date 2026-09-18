@@ -73,7 +73,15 @@ final class Reset extends ToolsManager {
 					<?php echo FormFieldHelper::input( 'action', 'accesspress_reset', array( 'type' => 'hidden' ) ); ?>
 					<?php wp_nonce_field( 'accesspress_reset', 'accesspress_reset_nonce' ); ?>
 					<?php echo FormFieldHelper::label( 'accesspress-reset-scope', __( 'Reset scope', 'accesspress' ) ); ?>
-					<?php echo FormFieldHelper::select( 'scope', $this->scope_options(), 'core', array( 'id' => 'accesspress-reset-scope' ) ); ?>
+					<?php echo FormFieldHelper::bootstrap_select(
+						'scope',
+						array(
+							'data' => $this->scope_options(),
+							'selected' => 'core',
+							'id' => 'accesspress-reset-scope',
+							'live_search' => true,
+						)
+					); ?>
 					<fieldset class="mt-4" id="accesspress-reset-plugins" data-accesspress-reset-plugins hidden>
 						<legend><?php esc_html_e( 'Plugin data', 'accesspress' ); ?></legend>
 						<?php

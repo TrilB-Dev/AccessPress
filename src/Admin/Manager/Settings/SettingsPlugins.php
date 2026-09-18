@@ -84,11 +84,14 @@ final class SettingsPlugins {
 							)
 						); ?>
 						<?php if ( 'select' === $type ) : ?>
-							<?php echo FormFieldHelper::select(
+							<?php echo FormFieldHelper::bootstrap_select(
 								$name,
-								(array) ( $field['options'] ?? array() ),
-								$value,
-								array( 'id' => 'accesspress-' . $key )
+								array(
+									'data' => (array) ( $field['options'] ?? array() ),
+									'selected' => $value,
+									'id' => 'accesspress-' . $key,
+									'live_search' => true,
+								)
 							); ?>
 						<?php elseif ( 'text' === $type ) : ?>
 							<?php echo FormFieldHelper::input(

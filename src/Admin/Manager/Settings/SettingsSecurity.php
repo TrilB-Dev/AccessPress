@@ -44,36 +44,176 @@ final class SettingsSecurity extends SettingsManager {
 		<table class="form-table" role="presentation">
 			<tbody>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-security-disable-wp-admin-access', __( 'Disable wp-admin access to:', 'accesspress' ), array( 'description' => __( 'Restrict WordPress admin access for selected roles.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::select( 'accesspress_security[disable_wp_admin_access][]', $this->role_options(), $disable_wp_admin, array( 'id' => 'accesspress-security-disable-wp-admin-access', 'multiple' => true, 'class' => 'form-select selectpicker', 'data-live-search' => 'true' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-security-disable-wp-admin-access',
+							__( 'Disable wp-admin access to:', 'accesspress' ),
+							array(
+								'description' => __( 'Restrict WordPress admin access for selected roles.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::bootstrap_multiselect(
+							'accesspress_security[disable_wp_admin_access]',
+							array(
+								'data' => $this->role_options(),
+								'selected' => $disable_wp_admin,
+								'id' => 'accesspress-security-disable-wp-admin-access',
+								'live_search' => true,
+							)
+						); ?>
+					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-security-disable-admin-toolbar', __( 'Disable admin toolbar for:', 'accesspress' ), array( 'description' => __( 'Hide the WordPress toolbar for selected roles.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::select( 'accesspress_security[disable_admin_toolbar][]', $this->role_options(), $disable_toolbar, array( 'id' => 'accesspress-security-disable-admin-toolbar', 'multiple' => true, 'class' => 'form-select selectpicker', 'data-live-search' => 'true' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-security-disable-admin-toolbar',
+							__( 'Disable admin toolbar for:', 'accesspress' ),
+							array(
+								'description' => __( 'Hide the WordPress toolbar for selected roles.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::bootstrap_multiselect(
+							'accesspress_security[disable_admin_toolbar]',
+							array(
+								'data' => $this->role_options(),
+								'selected' => $disable_toolbar,
+								'id' => 'accesspress-security-disable-admin-toolbar',
+								'live_search' => true,
+							)
+						); ?>
+					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-security-form-protection', __( 'Form protection', 'accesspress' ), array( 'description' => __( 'Choose the anti-bot protection used on frontend forms.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::select( 'accesspress_security[form_protection]', $protection_options, $form_protection, array( 'id' => 'accesspress-security-form-protection', 'class' => 'form-select selectpicker', 'data-live-search' => 'true' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-security-form-protection',
+							__( 'Form protection', 'accesspress' ),
+							array(
+								'description' => __( 'Choose the anti-bot protection used on frontend forms.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::bootstrap_select(
+							'accesspress_security[form_protection]',
+							array(
+								'data' => $protection_options,
+								'selected' => $form_protection,
+								'id' => 'accesspress-security-form-protection',
+								'live_search' => true,
+							)
+						); ?>
+					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-security-recaptcha-version', __( 'reCAPTCHA version', 'accesspress' ), array( 'description' => __( 'Choose the version of Google reCAPTCHA to enforce.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::select( 'accesspress_security[recaptcha_version]', $recaptcha_options, $recaptcha_version, array( 'id' => 'accesspress-security-recaptcha-version', 'class' => 'form-select selectpicker', 'data-live-search' => 'true' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-security-recaptcha-version',
+							__( 'reCAPTCHA version', 'accesspress' ),
+							array(
+								'description' => __( 'Choose the version of Google reCAPTCHA to enforce.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::bootstrap_select(
+							'accesspress_security[recaptcha_version]',
+							array(
+								'data' => $recaptcha_options,
+								'selected' => $recaptcha_version,
+								'id' => 'accesspress-security-recaptcha-version',
+								'live_search' => true,
+							)
+						); ?>
+					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-security-recaptcha-site-key', __( 'reCAPTCHA Site Key', 'accesspress' ), array( 'description' => __( 'Paste the reCAPTCHA site key generated in Google Admin.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::text_input( 'accesspress_security[recaptcha_site_key]', $recaptcha_site_key, array( 'id' => 'accesspress-security-recaptcha-site-key' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-security-recaptcha-site-key',
+							__( 'reCAPTCHA Site Key', 'accesspress' ),
+							array(
+								'description' => __( 'Paste the reCAPTCHA site key generated in Google Admin.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::text_input(
+							'accesspress_security[recaptcha_site_key]',
+							$recaptcha_site_key,
+							array(
+								'id' => 'accesspress-security-recaptcha-site-key',
+							)
+						); ?>
+					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-security-recaptcha-secret-key', __( 'reCAPTCHA Secret Key', 'accesspress' ), array( 'description' => __( 'This value is encrypted before being stored.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::input( 'accesspress_security[recaptcha_secret_key]', $recaptcha_secret_key, array( 'id' => 'accesspress-security-recaptcha-secret-key', 'type' => 'password', 'autocomplete' => 'new-password' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-security-recaptcha-secret-key',
+							__( 'reCAPTCHA Secret Key', 'accesspress' ),
+							array(
+								'description' => __( 'This value is encrypted before being stored.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::input(
+							'accesspress_security[recaptcha_secret_key]',
+							$recaptcha_secret_key,
+							array(
+								'id' => 'accesspress-security-recaptcha-secret-key',
+								'type' => 'password',
+								'autocomplete' => 'new-password',
+							)
+						); ?>
+					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-security-turnstile-site-key', __( 'Turnstile Site Key', 'accesspress' ), array( 'description' => __( 'Paste the Cloudflare Turnstile site key.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::text_input( 'accesspress_security[turnstile_site_key]', $turnstile_site_key, array( 'id' => 'accesspress-security-turnstile-site-key' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-security-turnstile-site-key',
+							__( 'Turnstile Site Key', 'accesspress' ),
+							array(
+								'description' => __( 'Paste the Cloudflare Turnstile site key.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::text_input(
+							'accesspress_security[turnstile_site_key]',
+							$turnstile_site_key,
+							array(
+								'id' => 'accesspress-security-turnstile-site-key',
+							)
+						); ?>
+					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-security-turnstile-secret-key', __( 'Turnstile Secret Key', 'accesspress' ), array( 'description' => __( 'This value is encrypted before being stored.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::input( 'accesspress_security[turnstile_secret_key]', $turnstile_secret_key, array( 'id' => 'accesspress-security-turnstile-secret-key', 'type' => 'password', 'autocomplete' => 'new-password' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-security-turnstile-secret-key',
+							__( 'Turnstile Secret Key', 'accesspress' ),
+							array(
+								'description' => __( 'This value is encrypted before being stored.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::input(
+							'accesspress_security[turnstile_secret_key]',
+							$turnstile_secret_key,
+							array(
+								'id' => 'accesspress-security-turnstile-secret-key',
+								'type' => 'password',
+								'autocomplete' => 'new-password',
+							)
+						); ?>
+					</td>
 				</tr>
 			</tbody>
 		</table>

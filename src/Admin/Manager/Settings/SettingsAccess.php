@@ -35,20 +35,96 @@ final class SettingsAccess extends SettingsManager {
 		<table class="form-table" role="presentation">
 			<tbody>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-access-issue-licences', __( 'Who can issue licences?', 'accesspress' ), array( 'description' => __( 'Minimum capability required to issue new licence records.', 'accesspress' ), 'tooltip' => __( 'Only trusted administrators or licence managers should issue keys.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::select( 'accesspress_access[issue_licences]', $role_options, sanitize_key( (string) ( $issue_licences[0] ?? 'manage_options' ) ), array( 'id' => 'accesspress-access-issue-licences' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-access-issue-licences',
+							__( 'Who can issue licences?', 'accesspress' ),
+							array(
+								'description' => __( 'Minimum capability required to issue new licence records.', 'accesspress' ),
+								'tooltip'     => __( 'Only trusted administrators or licence managers should issue keys.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::bootstrap_select(
+							'accesspress_access[issue_licences]',
+							array(
+								'data' => $role_options,
+								'selected' => sanitize_key( (string) ( $issue_licences[0] ?? 'manage_options' ) ),
+								'id' => 'accesspress-access-issue-licences',
+								'live_search' => true,
+							)
+						); ?>
+					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-access-revoke-licences', __( 'Who can revoke licences?', 'accesspress' ), array( 'description' => __( 'Minimum capability required to revoke or disable active licences.', 'accesspress' ), 'tooltip' => __( 'Revocations are security-sensitive and should be tightly controlled.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::select( 'accesspress_access[revoke_licences]', $role_options, sanitize_key( (string) ( $revoke_licences[0] ?? 'manage_options' ) ), array( 'id' => 'accesspress-access-revoke-licences' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-access-revoke-licences',
+							__( 'Who can revoke licences?', 'accesspress' ),
+							array(
+								'description' => __( 'Minimum capability required to revoke or disable active licences.', 'accesspress' ),
+								'tooltip'     => __( 'Revocations are security-sensitive and should be tightly controlled.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::bootstrap_select(
+							'accesspress_access[revoke_licences]',
+							array(
+								'data' => $role_options,
+								'selected' => sanitize_key( (string) ( $revoke_licences[0] ?? 'manage_options' ) ),
+								'id' => 'accesspress-access-revoke-licences',
+								'live_search' => true,
+							)
+						); ?>
+					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-access-export-data', __( 'Who can export licence data?', 'accesspress' ), array( 'description' => __( 'Minimum capability required to export licence records and backups.', 'accesspress' ), 'tooltip' => __( 'Exports should require password protection and strong security checks.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::select( 'accesspress_access[export_data]', $role_options, sanitize_key( (string) ( $export_data[0] ?? 'manage_options' ) ), array( 'id' => 'accesspress-access-export-data' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-access-export-data',
+							__( 'Who can export licence data?', 'accesspress' ),
+							array(
+								'description' => __( 'Minimum capability required to export licence records and backups.', 'accesspress' ),
+								'tooltip'     => __( 'Exports should require password protection and strong security checks.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::bootstrap_select(
+							'accesspress_access[export_data]',
+							array(
+								'data' => $role_options,
+								'selected' => sanitize_key( (string) ( $export_data[0] ?? 'manage_options' ) ),
+								'id' => 'accesspress-access-export-data',
+								'live_search' => true,
+							)
+						); ?>
+					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-access-review-security', __( 'Who can review security logs?', 'accesspress' ), array( 'description' => __( 'Minimum capability required to inspect validation and audit activity.', 'accesspress' ), 'tooltip' => __( 'Use an administrator-level role for security and compliance review.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::select( 'accesspress_access[review_security]', $role_options, sanitize_key( (string) ( $review_security[0] ?? 'manage_options' ) ), array( 'id' => 'accesspress-access-review-security' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-access-review-security',
+							__( 'Who can review security logs?', 'accesspress' ),
+							array(
+								'description' => __( 'Minimum capability required to inspect validation and audit activity.', 'accesspress' ),
+								'tooltip'     => __( 'Use an administrator-level role for security and compliance review.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::bootstrap_select(
+							'accesspress_access[review_security]',
+							array(
+								'data' => $role_options,
+								'selected' => sanitize_key( (string) ( $review_security[0] ?? 'manage_options' ) ),
+								'id' => 'accesspress-access-review-security',
+								'live_search' => true,
+							)
+						); ?>
+					</td>
 				</tr>
 			</tbody>
 		</table>

@@ -30,16 +30,69 @@ final class SettingsEmail extends SettingsManager {
 		<table class="form-table" role="presentation">
 			<tbody>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-email-from-name', __( 'From name', 'accesspress' ), array( 'description' => __( 'Name used in outbound AccessPress email messages.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::text_input( 'accesspress_email[from_name]', $from_name, array( 'id' => 'accesspress-email-from-name', 'autocomplete' => 'off' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-email-from-name',
+							__( 'From name', 'accesspress' ),
+							array(
+								'description' => __( 'Name used in outbound AccessPress email messages.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::text_input(
+							'accesspress_email[from_name]',
+							$from_name,
+							array(
+								'id' => 'accesspress-email-from-name',
+								'autocomplete' => 'off',
+							)
+						); ?>
+					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-email-from-email', __( 'From email', 'accesspress' ), array( 'description' => __( 'Reply-to address used for AccessPress notifications.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::input( 'accesspress_email[from_email]', $from_email, array( 'id' => 'accesspress-email-from-email', 'type' => 'email', 'autocomplete' => 'off' ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-email-from-email',
+							__( 'From email', 'accesspress' ),
+							array(
+								'description' => __( 'Reply-to address used for AccessPress notifications.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::input(
+							'accesspress_email[from_email]',
+							$from_email,
+							array(
+								'id' => 'accesspress-email-from-email',
+								'type' => 'email',
+								'autocomplete' => 'off',
+							)
+						); ?>
+					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-email-admin-notifications', __( 'Admin notifications', 'accesspress' ), array( 'description' => __( 'Send AccessPress admin alerts to site administrators.', 'accesspress' ) ) ); ?></th>
-					<td><?php echo FormFieldHelper::switch( 'accesspress_email[admin_email_notifications]', '1', __( 'Admin notifications', 'accesspress' ), array( 'id' => 'accesspress-email-admin-notifications', 'checked' => $notifications ) ); ?></td>
+					<th scope="row">
+						<?php echo FormFieldHelper::label(
+							'accesspress-email-admin-notifications',
+							__( 'Admin notifications', 'accesspress' ),
+							array(
+								'description' => __( 'Send AccessPress admin alerts to site administrators.', 'accesspress' ),
+							)
+						); ?>
+					</th>
+					<td>
+						<?php echo FormFieldHelper::switch(
+							'accesspress_email[admin_email_notifications]',
+							'1',
+							__( 'Admin notifications', 'accesspress' ),
+							array(
+								'id' => 'accesspress-email-admin-notifications',
+								'checked' => $notifications,
+							)
+						); ?>
+					</td>
 				</tr>
 			</tbody>
 		</table>
