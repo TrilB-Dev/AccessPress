@@ -17,15 +17,27 @@ final class Analytics {
 	/**
 	 * Record a page view against a post.
 	 *
-	 * @param int $post_id Optional post ID.
+	 * WordPress hooks can pass a mixed value to action callbacks, so we normalize
+	 * the value before using it as a post ID.
+	 *
+	 * @param mixed $post_id Optional post ID or hook payload.
 	 * @return void
 	 */
-	public static function track_view( int $post_id = 0 ): void {
+	public static function track_view( $post_id = 0 ): void {
+		if ( is_string( $post_id ) ) {
+			$post_id = trim( $post_id );
+			$post_id = is_numeric( $post_id ) ? (int) $post_id : 0;
+		} elseif ( ! is_int( $post_id ) && ! is_numeric( $post_id ) ) {
+			$post_id = 0;
+		}
+
+		$post_id = (int) $post_id;
+
 		if ( ! function_exists( 'is_admin' ) || ! function_exists( 'is_singular' ) ) {
 			return;
 		}
 
-		if ( ! is_admin() && ! empty( $post_id ) ) {
+		if ( ! is_admin() && $post_id > 0 ) {
 			self::track_event( 'page_view', array( 'post_id' => $post_id ) );
 			return;
 		}
@@ -35,7 +47,9 @@ final class Analytics {
 		}
 
 		$post_id = $post_id > 0 ? $post_id : ( function_exists( 'get_the_ID' ) ? (int) get_the_ID() : 0 );
-		self::track_event( 'page_view', array( 'post_id' => $post_id ) );
+		if ( $post_id > 0 ) {
+			self::track_event( 'page_view', array( 'post_id' => $post_id ) );
+		}
 	}
 
 	/**

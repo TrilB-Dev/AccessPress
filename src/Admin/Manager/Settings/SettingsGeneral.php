@@ -23,120 +23,74 @@ final class SettingsGeneral extends SettingsManager {
 	 * @since 1.0.0
 	 */
 	public function render_page_content( array $values ): void {
-		$this->render_fields( $values );
-	}
-
-	/**
-	 * Render the general settings fields.
-	 *
-	 * @param array $values The current values for the settings fields.
-	 * @since 1.0.0
-	 */
-	public function render_fields( array $values ): void {
-		$fields = array(
-			'registration_page'          => array(
-				'label'       => __( 'Registration Page', 'accesspress' ),
-				'description' => __( 'Choose the frontend registration page for new users.', 'accesspress' ),
-				'tooltip'     => __( 'Create a page if none exists and assign it here.', 'accesspress' ),
-				'type'        => 'page_select',
-				'page_key'    => 'register',
-			),
-			'login_page'                 => array(
-				'label'       => __( 'Login Page', 'accesspress' ),
-				'description' => __( 'Choose the frontend login page for member sign-in.', 'accesspress' ),
-				'tooltip'     => __( 'Create a dedicated login page if you have not already done so.', 'accesspress' ),
-				'type'        => 'page_select',
-				'page_key'    => 'login',
-			),
-			'my_account_page'            => array(
-				'label'       => __( 'My Account Page', 'accesspress' ),
-				'description' => __( 'Choose the frontend profile page used for member account management.', 'accesspress' ),
-				'tooltip'     => __( 'Create a profile page if one does not yet exist.', 'accesspress' ),
-				'type'        => 'page_select',
-				'page_key'    => 'profile',
-			),
-			'lost_password_page'         => array(
-				'label'       => __( 'Lost Password Page', 'accesspress' ),
-				'description' => __( 'Choose the frontend password recovery page.', 'accesspress' ),
-				'tooltip'     => __( 'Create a lost-password page if one does not yet exist.', 'accesspress' ),
-				'type'        => 'page_select',
-				'page_key'    => 'lost-password',
-			),
-			'enable_multi_roles'        => array(
-				'label'       => __( 'Enable multi roles', 'accesspress' ),
-				'description' => __( 'Allow each user to have more than one WordPress role.', 'accesspress' ),
-				'type'        => 'switch',
-				'default'     => false,
-			),
-			'enable_membership_groups'   => array(
-				'label'       => __( 'Enable Membership Groups', 'accesspress' ),
-				'description' => __( 'Enable the creation and assignment of membership groups to users.', 'accesspress' ),
-				'type'        => 'switch',
-				'default'     => false,
-			),
-		);
-
-		foreach ( $fields as $key => $field ) {
-			$key   = SanitizationHelper::key( $key );
-			$id    = 'accesspress-general-' . $key;
-			$name  = 'accesspress_general[' . $key . ']';
-			$value = $values[ $key ] ?? $field['default'] ?? '';
-			?>
-			<tr>
-				<th scope="row">
-					<?php echo FormFieldHelper::label( 
-						$id, 
-						$field['label'], 
-						$field 
-					); ?>
-				</th>
-				<td>
-					<?php
-					if ( 'switch' === ( $field['type'] ?? '' ) ) {
-						echo FormFieldHelper::switch(
-							$name,
-							'1',
-							$field['label'],
-							array(
-								'id'      => $id,
-								'checked' => ! empty( $value ),
-							)
-						);
-					} elseif ( 'page_select' === ( $field['type'] ?? '' ) ) {
-						$page_options = $this->page_options( $field['page_key'] ?? $key );
-						$selected     = is_scalar( $value ) ? (string) $value : ( $page_options[0]['value'] ?? '' );
-						echo '<div class="input-group">';
-						echo FormFieldHelper::select( 
-							$name, 
-							$page_options, 
-							$selected, 
-							array( 
-								'id' => $id, 
-								'class' => 'form-select selectpicker', 
-								'data-live-search' => 'true' 
-							) 
-						);
-						echo FormFieldHelper::button(
-							'Create page',
-							array(
-								'type'  => 'button',
-								'class' => 'btn btn-outline-secondary accesspress-create-page',
-								'data-page-key' => $field['page_key'] ?? $key,
-							)
-						);
-						echo '</div>';
-					} else {
-						echo FormFieldHelper::text_input(
-							$name,
-							is_scalar( $value ) ? (string) $value : '',
-							array( 'id' => $id )
-						);
-					}
-					?>
-				</td>
-			</tr>
-			<?php
-		}
+		$registration_page = (string) ( $values['registration_page'] ?? '' );
+		$login_page        = (string) ( $values['login_page'] ?? '' );
+		$my_account_page   = (string) ( $values['my_account_page'] ?? '' );
+		$lost_password_page = (string) ( $values['lost_password_page'] ?? '' );
+		$multi_roles       = ! empty( $values['enable_multi_roles'] );
+		$membership_groups = ! empty( $values['enable_membership_groups'] );
+		$register_options  = $this->page_options( 'register' );
+		$login_options     = $this->page_options( 'login' );
+		$profile_options   = $this->page_options( 'profile' );
+		$password_options  = $this->page_options( 'lost-password' );
+		?>
+		<table class="form-table" role="presentation">
+			<tbody>
+				<tr>
+					<th scope="row">
+						<?php echo FormFieldHelper::label( 'accesspress-general-registration-page', __( 'Registration Page', 'accesspress' ), array( 'description' => __( 'Choose the frontend registration page for new users.', 'accesspress' ), 'tooltip' => __( 'Create a page if none exists and assign it here.', 'accesspress' ) ) ); ?>
+					</th>
+					<td>
+						<div class="input-group">
+							<?php echo FormFieldHelper::select( 'accesspress_general[registration_page]', $register_options, $registration_page, array( 'id' => 'accesspress-general-registration-page', 'class' => 'form-select selectpicker', 'data-live-search' => 'true' ) ); ?>
+							<?php echo FormFieldHelper::button( 'Create page', array( 'type' => 'button', 'class' => 'btn btn-outline-secondary accesspress-create-page', 'data-page-key' => 'register' ) ); ?>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<?php echo FormFieldHelper::label( 'accesspress-general-login-page', __( 'Login Page', 'accesspress' ), array( 'description' => __( 'Choose the frontend login page for member sign-in.', 'accesspress' ), 'tooltip' => __( 'Create a dedicated login page if you have not already done so.', 'accesspress' ) ) ); ?>
+					</th>
+					<td>
+						<div class="input-group">
+							<?php echo FormFieldHelper::select( 'accesspress_general[login_page]', $login_options, $login_page, array( 'id' => 'accesspress-general-login-page', 'class' => 'form-select selectpicker', 'data-live-search' => 'true' ) ); ?>
+							<?php echo FormFieldHelper::button( 'Create page', array( 'type' => 'button', 'class' => 'btn btn-outline-secondary accesspress-create-page', 'data-page-key' => 'login' ) ); ?>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<?php echo FormFieldHelper::label( 'accesspress-general-my-account-page', __( 'My Account Page', 'accesspress' ), array( 'description' => __( 'Choose the frontend profile page used for member account management.', 'accesspress' ), 'tooltip' => __( 'Create a profile page if one does not yet exist.', 'accesspress' ) ) ); ?>
+					</th>
+					<td>
+						<div class="input-group">
+							<?php echo FormFieldHelper::select( 'accesspress_general[my_account_page]', $profile_options, $my_account_page, array( 'id' => 'accesspress-general-my-account-page', 'class' => 'form-select selectpicker', 'data-live-search' => 'true' ) ); ?>
+							<?php echo FormFieldHelper::button( 'Create page', array( 'type' => 'button', 'class' => 'btn btn-outline-secondary accesspress-create-page', 'data-page-key' => 'profile' ) ); ?>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<?php echo FormFieldHelper::label( 'accesspress-general-lost-password-page', __( 'Lost Password Page', 'accesspress' ), array( 'description' => __( 'Choose the frontend password recovery page.', 'accesspress' ), 'tooltip' => __( 'Create a lost-password page if one does not yet exist.', 'accesspress' ) ) ); ?>
+					</th>
+					<td>
+						<div class="input-group">
+							<?php echo FormFieldHelper::select( 'accesspress_general[lost_password_page]', $password_options, $lost_password_page, array( 'id' => 'accesspress-general-lost-password-page', 'class' => 'form-select selectpicker', 'data-live-search' => 'true' ) ); ?>
+							<?php echo FormFieldHelper::button( 'Create page', array( 'type' => 'button', 'class' => 'btn btn-outline-secondary accesspress-create-page', 'data-page-key' => 'lost-password' ) ); ?>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-general-enable-multi-roles', __( 'Enable multi roles', 'accesspress' ), array( 'description' => __( 'Allow each user to have more than one WordPress role.', 'accesspress' ) ) ); ?></th>
+					<td><?php echo FormFieldHelper::switch( 'accesspress_general[enable_multi_roles]', '1', __( 'Enable multi roles', 'accesspress' ), array( 'id' => 'accesspress-general-enable-multi-roles', 'checked' => $multi_roles ) ); ?></td>
+				</tr>
+				<tr>
+					<th scope="row"><?php echo FormFieldHelper::label( 'accesspress-general-enable-membership-groups', __( 'Enable Membership Groups', 'accesspress' ), array( 'description' => __( 'Enable the creation and assignment of membership groups to users.', 'accesspress' ) ) ); ?></th>
+					<td><?php echo FormFieldHelper::switch( 'accesspress_general[enable_membership_groups]', '1', __( 'Enable Membership Groups', 'accesspress' ), array( 'id' => 'accesspress-general-enable-membership-groups', 'checked' => $membership_groups ) ); ?></td>
+				</tr>
+			</tbody>
+		</table>
+		<?php
 	}
 
 	/**
