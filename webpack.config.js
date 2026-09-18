@@ -43,7 +43,7 @@ const entries = {
     './src/Assets/scss/admin.ui.scss',
   ],
   'wpoverride': './src/Assets/scss/wpoverride.scss',
-  'bootstrap-select-control': './src/Assets/js/bootstrap-select-control.js',
+  //'bootstrap-select-control': './src/Assets/js/bootstrap-select-control.js',
 };
 
 const fontAwesomeEntries = {
