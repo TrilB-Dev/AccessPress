@@ -62,8 +62,6 @@ final class UserRoles extends UserManager {
 
 		$roles = wp_roles()->roles;
 		$capability_groups = $this->capability_groups();
-
-		$this->header( __( 'Roles Manager', 'accesspress' ) );
 		?>
 		<?php if ( PermissionHelper::can( 'accesspress_roles_create' ) ) : ?><div class="d-flex justify-content-end mb-4">
 			<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#accesspress-add-role-modal"><?php esc_html_e( 'Add New', 'accesspress' ); ?></button>
@@ -85,7 +83,6 @@ final class UserRoles extends UserManager {
 		<?php if ( PermissionHelper::can( 'accesspress_roles_create' ) ) : $this->render_add_modal( $capability_groups ); endif; ?>
 		<?php if ( PermissionHelper::can( 'accesspress_roles_edit' ) ) : foreach ( $roles as $slug => $role ) : $this->render_edit_modal( $slug, $role, $capability_groups ); endforeach; endif; ?>
 		<?php
-		$this->footer();
 	}
     /**
      * Renders the header for the Roles Manager admin page.

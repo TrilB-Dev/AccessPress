@@ -281,7 +281,7 @@ final class FunctionsSidebar {
 			),
 		);
 	}
-/**
+	/**
 	 * Register a WordPress menu.
 	 *
 	 * @param array<string, mixed> $menu The menu definition.
