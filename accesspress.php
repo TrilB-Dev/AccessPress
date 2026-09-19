@@ -14,7 +14,7 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       accesspress
  * Version:           1.0.0
- * Domain Path:       src/languages
+ * Domain Path:       src/Languages
  */
 
 // If this file is called directly, abort.
@@ -41,7 +41,7 @@ define( 'ACCESSPRESS_ASSETS', ACCESSPRESS_DIR . 'src/Assets' );
 define( 'ACCESSPRESS_ASSETS_URL', ACCESSPRESS_URL . 'src/Assets' );
 define( 'ACCESSPRESS_ADMIN', ACCESSPRESS_DIR . 'src/Admin' );
 define( 'ACCESSPRESS_ADMIN_URL', ACCESSPRESS_URL . 'src/Admin' );
-define( 'ACCESSPRESS_LANGUAGES', ACCESSPRESS_DIR . 'src/languages' );
+define( 'ACCESSPRESS_LANGUAGES', ACCESSPRESS_DIR . 'src/Languages' );
 define( 'ACCESSPRESS_INCLUDES', ACCESSPRESS_DIR . 'src/Includes' );
 define( 'ACCESSPRESS_CORE', ACCESSPRESS_INCLUDES . '/Core' );
 define( 'ACCESSPRESS_SETTINGS', ACCESSPRESS_INCLUDES . '/Settings' );

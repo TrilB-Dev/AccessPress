@@ -139,13 +139,21 @@ module.exports = [
           to: 'src/Assets/dist/js/bootstrap-select.min.js',
         },
         {
-          from: 'node_modules/@trilbdev/boostrap-select-country-data/dist/js/bs-country-data.min.js',
+          from: 'node_modules/@trilbdev/bootstrap-select-country-data/dist/js/bs-country-data.min.js',
           to: 'src/Assets/dist/js/bs-country-data.min.js',
         },
         {
-          from: 'node_modules/@trilbdev/boostrap-select-country-data/dist/css/bs-country-data.min.css',
+          from: 'node_modules/@trilbdev/bootstrap-select-country-data/dist/css/bs-country-data.min.css',
           to: 'src/Assets/dist/css/bs-country-data.min.css',
         },
+        {
+          from: 'node_modules/@trilbdev/bootstrap-drag-and-drop/dist/css/bootstrap-drag-and-drop.min.css',
+          to: 'src/Assets/dist/css/bootstrap-drag-and-drop.min.css',
+        },
+        {
+          from: 'node_modules/@trilbdev/bootstrap-drag-and-drop/dist/js/bootstrap-drag-and-drop.min.js',
+          to: 'src/Assets/dist/js/bootstrap-drag-and-drop.min.js',
+        }
       ]),
     ],
   },
