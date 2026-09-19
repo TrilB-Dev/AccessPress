@@ -2,13 +2,13 @@
 /**
  * Settings access restriction fields.
  *
- * @package TrilBDev
+ * @package AccessPress
  * @subpackage Admin\Manager\Settings
+ * @since 1.0.0
  */
 namespace AccessPress\Admin\Manager\Settings;
 
 use AccessPress\Includes\Functions\Helpers\FormFieldHelper;
-use AccessPress\Includes\Functions\Helpers\SanitizationHelper;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,9 +22,9 @@ final class SettingsAccess extends SettingsManager {
 	 * @since 1.0.0
 	 */
 	public function render_page_content( array $values ): void {
-		$issue_licences  = is_array( $values['issue_licences'] ?? null ) ? $values['issue_licences'] : array( $values['issue_licences'] ?? 'manage_options' );
-		$revoke_licences = is_array( $values['revoke_licences'] ?? null ) ? $values['revoke_licences'] : array( $values['revoke_licences'] ?? 'manage_options' );
-		$export_data     = is_array( $values['export_data'] ?? null ) ? $values['export_data'] : array( $values['export_data'] ?? 'manage_options' );
+		$manage_users    = is_array( $values['issue_licences'] ?? null ) ? $values['issue_licences'] : array( $values['issue_licences'] ?? 'manage_options' );
+		$manage_roles    = is_array( $values['revoke_licences'] ?? null ) ? $values['revoke_licences'] : array( $values['revoke_licences'] ?? 'manage_options' );
+		$export_users    = is_array( $values['export_data'] ?? null ) ? $values['export_data'] : array( $values['export_data'] ?? 'manage_options' );
 		$review_security = is_array( $values['review_security'] ?? null ) ? $values['review_security'] : array( $values['review_security'] ?? 'manage_options' );
 		$role_options    = array(
 			array( 'value' => 'manage_options', 'label' => __( 'Administrators', 'accesspress' ) ),
@@ -37,11 +37,11 @@ final class SettingsAccess extends SettingsManager {
 				<tr>
 					<th scope="row">
 						<?php echo FormFieldHelper::label(
-							'accesspress-access-issue-licences',
-							__( 'Who can issue licences?', 'accesspress' ),
+							'accesspress-access-manage-users',
+							__( 'Who can manage users?', 'accesspress' ),
 							array(
-								'description' => __( 'Minimum capability required to issue new licence records.', 'accesspress' ),
-								'tooltip'     => __( 'Only trusted administrators or licence managers should issue keys.', 'accesspress' ),
+								'description' => __( 'Minimum capability required to create, edit, and deactivate user accounts.', 'accesspress' ),
+								'tooltip'     => __( 'Restrict user management to trusted roles only.', 'accesspress' ),
 							)
 						); ?>
 					</th>
@@ -50,8 +50,8 @@ final class SettingsAccess extends SettingsManager {
 							'accesspress_access[issue_licences]',
 							array(
 								'data' => $role_options,
-								'selected' => sanitize_key( (string) ( $issue_licences[0] ?? 'manage_options' ) ),
-								'id' => 'accesspress-access-issue-licences',
+								'selected' => sanitize_key( (string) ( $manage_users[0] ?? 'manage_options' ) ),
+								'id' => 'accesspress-access-manage-users',
 								'live_search' => true,
 							)
 						); ?>
@@ -60,11 +60,11 @@ final class SettingsAccess extends SettingsManager {
 				<tr>
 					<th scope="row">
 						<?php echo FormFieldHelper::label(
-							'accesspress-access-revoke-licences',
-							__( 'Who can revoke licences?', 'accesspress' ),
+							'accesspress-access-manage-roles',
+							__( 'Who can manage user roles?', 'accesspress' ),
 							array(
-								'description' => __( 'Minimum capability required to revoke or disable active licences.', 'accesspress' ),
-								'tooltip'     => __( 'Revocations are security-sensitive and should be tightly controlled.', 'accesspress' ),
+								'description' => __( 'Minimum capability required to assign or change WordPress roles for users.', 'accesspress' ),
+								'tooltip'     => __( 'Role changes are sensitive and should be restricted to site administrators.', 'accesspress' ),
 							)
 						); ?>
 					</th>
@@ -73,8 +73,8 @@ final class SettingsAccess extends SettingsManager {
 							'accesspress_access[revoke_licences]',
 							array(
 								'data' => $role_options,
-								'selected' => sanitize_key( (string) ( $revoke_licences[0] ?? 'manage_options' ) ),
-								'id' => 'accesspress-access-revoke-licences',
+								'selected' => sanitize_key( (string) ( $manage_roles[0] ?? 'manage_options' ) ),
+								'id' => 'accesspress-access-manage-roles',
 								'live_search' => true,
 							)
 						); ?>
@@ -83,11 +83,11 @@ final class SettingsAccess extends SettingsManager {
 				<tr>
 					<th scope="row">
 						<?php echo FormFieldHelper::label(
-							'accesspress-access-export-data',
-							__( 'Who can export licence data?', 'accesspress' ),
+							'accesspress-access-export-users',
+							__( 'Who can export user data?', 'accesspress' ),
 							array(
-								'description' => __( 'Minimum capability required to export licence records and backups.', 'accesspress' ),
-								'tooltip'     => __( 'Exports should require password protection and strong security checks.', 'accesspress' ),
+								'description' => __( 'Minimum capability required to export user records and account data.', 'accesspress' ),
+								'tooltip'     => __( 'Exports should be limited to trusted administrators and data managers.', 'accesspress' ),
 							)
 						); ?>
 					</th>
@@ -96,8 +96,8 @@ final class SettingsAccess extends SettingsManager {
 							'accesspress_access[export_data]',
 							array(
 								'data' => $role_options,
-								'selected' => sanitize_key( (string) ( $export_data[0] ?? 'manage_options' ) ),
-								'id' => 'accesspress-access-export-data',
+								'selected' => sanitize_key( (string) ( $export_users[0] ?? 'manage_options' ) ),
+								'id' => 'accesspress-access-export-users',
 								'live_search' => true,
 							)
 						); ?>
@@ -106,11 +106,11 @@ final class SettingsAccess extends SettingsManager {
 				<tr>
 					<th scope="row">
 						<?php echo FormFieldHelper::label(
-							'accesspress-access-review-security',
-							__( 'Who can review security logs?', 'accesspress' ),
+							'accesspress-access-review-activity',
+							__( 'Who can review activity logs?', 'accesspress' ),
 							array(
-								'description' => __( 'Minimum capability required to inspect validation and audit activity.', 'accesspress' ),
-								'tooltip'     => __( 'Use an administrator-level role for security and compliance review.', 'accesspress' ),
+								'description' => __( 'Minimum capability required to inspect account validation and security activity.', 'accesspress' ),
+								'tooltip'     => __( 'Security review should be restricted to administrators or trusted compliance roles.', 'accesspress' ),
 							)
 						); ?>
 					</th>
@@ -120,7 +120,7 @@ final class SettingsAccess extends SettingsManager {
 							array(
 								'data' => $role_options,
 								'selected' => sanitize_key( (string) ( $review_security[0] ?? 'manage_options' ) ),
-								'id' => 'accesspress-access-review-security',
+								'id' => 'accesspress-access-review-activity',
 								'live_search' => true,
 							)
 						); ?>

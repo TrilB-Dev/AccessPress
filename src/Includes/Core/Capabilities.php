@@ -132,27 +132,27 @@ class Capabilities {
 					'label'       => __( 'View User Management Dashboard', 'accesspress' ),
 					'description' => __( 'Allows viewing the AccessPress User Management Dashboard.', 'accesspress' ),
 				),
-				'accesspress_user_management_user_roles' => array(
+				'accesspress_user_management_roles' => array(
 					'group'       => 'AccessPress User Management',
 					'label'       => __( 'Manage User Roles', 'accesspress' ),
 					'description' => __( 'Allows managing user roles within AccessPress User Management.', 'accesspress' ),
 				),
-				'accesspress_user_management_user_groups' => array(
+				'accesspress_user_management_groups' => array(
 					'group'       => 'AccessPress User Management',
 					'label'       => __( 'Manage User Groups', 'accesspress' ),
 					'description' => __( 'Allows managing user groups within AccessPress User Management.', 'accesspress' ),
 				),
-				'accesspress_user_management_user_login' => array(
+				'accesspress_user_management_login' => array(
 					'group'       => 'AccessPress User Management',
 					'label'       => __( 'Manage User Login', 'accesspress' ),
 					'description' => __( 'Allows managing user login within AccessPress User Management.', 'accesspress' ),
 				),
-				'accesspress_user_management_user_registration' => array(
+				'accesspress_user_management_registration' => array(
 					'group'       => 'AccessPress User Management',
 					'label'       => __( 'Manage User Registration', 'accesspress' ),
 					'description' => __( 'Allows managing user registration within AccessPress User Management.', 'accesspress' ),
 				),
-				'accesspress_user_management_user_profile' => array(
+				'accesspress_user_management_profile' => array(
 					'group'       => 'AccessPress User Management',
 					'label'       => __( 'Manage User Profile', 'accesspress' ),
 					'description' => __( 'Allows managing user profile within AccessPress User Management.', 'accesspress' ),
