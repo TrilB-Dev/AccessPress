@@ -227,10 +227,25 @@ if ( ! class_exists( 'wpdb' ) ) {
 
 		public function get_var( $query ) {
 			$matches = array();
+			if ( preg_match( '/SHOW TABLES LIKE\s+[\'\"]?([A-Za-z0-9_]+)[\'\"]?/i', $query, $matches ) ) {
+				$table = $matches[1];
+				return isset( $this->tables[ $table ] ) ? $table : null;
+			}
+
 			if ( preg_match( '/FROM\s+`?([A-Za-z0-9_]+)`?/i', $query, $matches ) ) {
 				$table = $matches[1];
 				$rows  = $this->tables[ $table ] ?? array();
 				if ( empty( $rows ) ) {
+					return null;
+				}
+				if ( stripos( $query, 'WHERE' ) !== false && stripos( $query, 'setting_group' ) !== false ) {
+					preg_match( "/setting_group\s*=\s*'([^']+)'/i", $query, $matches );
+					$expected = $matches[1] ?? '';
+					foreach ( $rows as $row ) {
+						if ( ( $row['setting_group'] ?? '' ) === $expected ) {
+							return $row['setting_value'];
+						}
+					}
 					return null;
 				}
 				foreach ( $rows as $row ) {

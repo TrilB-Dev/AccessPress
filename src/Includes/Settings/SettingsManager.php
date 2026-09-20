@@ -175,9 +175,15 @@ final class SettingsManager {
 			return null;
 		}
 
-		$value    = $wpdb->get_var( $wpdb->prepare( 'SELECT setting_value FROM ' . self::table_name() . ' WHERE setting_group = %s', self::storage_group( $group ) ) );
-		$settings = $value === null ? null : maybe_unserialize( $value );
-		return is_array( $settings ) ? $settings : null;
+		foreach ( array( self::storage_group( $group ), 'accesspress_' . self::normalize_group( $group ) ) as $stored_group ) {
+			$value    = $wpdb->get_var( $wpdb->prepare( 'SELECT setting_value FROM ' . self::table_name() . ' WHERE setting_group = %s', $stored_group ) );
+			$settings = $value === null ? null : maybe_unserialize( $value );
+			if ( is_array( $settings ) ) {
+				return $settings;
+			}
+		}
+
+		return null;
 	}
 	/**
 	 * Set a group of settings in the database.
@@ -248,7 +254,7 @@ final class SettingsManager {
 	 */
 	private static function storage_group( string $group ): string {
 		$group = self::normalize_group( $group );
-		return str_starts_with( $group, 'wikipress_' ) ? $group : 'wikipress_' . $group;
+		return 'accesspress_' . $group;
 	}
 	/**
 	 * Retrieve the logical group name from the storage group name.
@@ -257,7 +263,13 @@ final class SettingsManager {
 	 * @return string The logical group name.
 	 */
 	private static function logical_group( string $group ): string {
-		return str_starts_with( $group, 'wikipress_' ) ? substr( $group, 10 ) : $group;
+		if ( str_starts_with( $group, 'accesspress_' ) ) {
+			return substr( $group, 12 );
+		}
+		if ( str_starts_with( $group, 'accesspress_' ) ) {
+			return substr( $group, 12 );
+		}
+		return $group;
 	}
 	/**
 	 * Retrieve the legacy settings group from the database.
@@ -272,8 +284,14 @@ final class SettingsManager {
 			return null;
 		}
 
-		$value = $wpdb->get_var( $wpdb->prepare( 'SELECT setting_value FROM ' . self::table_name() . ' WHERE setting_group = %s', sanitize_key( $group ) ) );
-		return $value === null ? null : maybe_unserialize( $value );
+		$group_names = array( sanitize_key( $group ), 'accesspress_' . sanitize_key( $group ), 'accesspress_' . sanitize_key( $group ) );
+		foreach ( $group_names as $group_name ) {
+			$value = $wpdb->get_var( $wpdb->prepare( 'SELECT setting_value FROM ' . self::table_name() . ' WHERE setting_group = %s', $group_name ) );
+			if ( $value !== null ) {
+				return maybe_unserialize( $value );
+			}
+		}
+		return null;
 	}
 	/**
 	 * Check if the settings table exists in the database.
@@ -303,7 +321,10 @@ final class SettingsManager {
 	 */
 	private static function delete_legacy_group( string $group ): void {
 		global $wpdb;
-		$wpdb->delete( self::table_name(), array( 'setting_group' => sanitize_key( $group ) ), array( '%s' ) );
+		$normalized = self::normalize_group( $group );
+		foreach ( array( sanitize_key( $normalized ), 'accesspress_' . sanitize_key( $normalized ) ) as $legacy_group ) {
+			$wpdb->delete( self::table_name(), array( 'setting_group' => $legacy_group ), array( '%s' ) );
+		}
 	}
 	/**
 	 * Determine the group associated with a specific key.
@@ -362,14 +383,20 @@ final class SettingsManager {
 		return $fallback;
 	}
 	/**
-	 * Normalize the group name by removing the 'wikipress_' prefix if present.
+	 * Normalize the group name by removing the 'accesspress_' prefix if present.
 	 *
 	 * @param string $group The group name to normalize.
 	 * @return string The normalized group name.
 	 */
 	private static function normalize_group( string $group ): string {
 		$group = sanitize_key( $group );
-		return str_starts_with( $group, 'wikipress_' ) ? substr( $group, 10 ) : $group;
+		if ( str_starts_with( $group, 'accesspress_' ) ) {
+			return substr( $group, 12 );
+		}
+		if ( str_starts_with( $group, 'accesspress_' ) ) {
+			return substr( $group, 10 );
+		}
+		return $group;
 	}
 	/**
 	 * Check if the settings table is ready for use.
