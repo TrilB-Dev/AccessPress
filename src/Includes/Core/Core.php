@@ -22,11 +22,11 @@ final class Core {
 	/**
 	 * @var PostType Post type registrar.
 	 */
-	private PostType $post_types;
+	//private PostType $post_types;
 	/**
 	 * @var Taxonomy Taxonomy registrar.
 	 */
-	private Taxonomy $taxonomy;
+	//private Taxonomy $taxonomy;
 	/**
 	 * @var Shortcodes Shortcode registrar.
 	 */
@@ -59,8 +59,8 @@ final class Core {
 	 * @param Schema|null $schema Schema service.
 	 */
 	public function __construct( ?PostType $post_types = null, ?Taxonomy $taxonomy = null, ?Shortcodes $shortcodes = null, ?Menus $menus = null, ?Editor $editor = null, ?Schema $schema = null ) {
-		$this->post_types = $post_types ?? new PostType();
-		$this->taxonomy   = $taxonomy ?? new Taxonomy();
+		//$this->post_types = $post_types ?? new PostType();
+		//$this->taxonomy   = $taxonomy ?? new Taxonomy();
 		$this->shortcodes = $shortcodes ?? new Shortcodes();
 		$this->menus      = $menus ?? new Menus();
 		$this->editor     = $editor ?? new Editor();
@@ -112,7 +112,7 @@ final class Core {
 	 * @return Taxonomy Taxonomy registrar.
 	 */
 	//public function taxonomies(): Taxonomy {
-	//	return $this->taxonomies;
+	//	return $this->taxonomy;
 	//}
 
 	public function shortcodes(): Shortcodes {
@@ -124,27 +124,27 @@ final class Core {
 	 *
 	 * @return PostType Post type registrar.
 	 */
-	public function post_types(): PostType {
-		return $this->post_types;
-	}
+	//public function post_types(): PostType {
+	//	return $this->post_types;
+	//}
 
 	/**
 	 * Get the taxonomy registrar.
 	 *
 	 * @return Taxonomy Taxonomy registrar.
 	 */
-	public function taxonomies(): Taxonomy {
-		return $this->taxonomy;
-	}
+	//public function taxonomies(): Taxonomy {
+	//	return $this->taxonomy;
+	//}
 
 	/**
 	 * Alias for the taxonomy registrar in singular form.
 	 *
 	 * @return Taxonomy Taxonomy registrar.
 	 */
-	public function taxonomy(): Taxonomy {
-		return $this->taxonomy;
-	}
+	//public function taxonomy(): Taxonomy {
+	//	return $this->taxonomy;
+	//}
 
 	/**
 	 * Get the core menu registry.
