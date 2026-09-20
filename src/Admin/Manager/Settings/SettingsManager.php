@@ -17,6 +17,7 @@ use AccessPress\Admin\Manager\Settings\SettingsPlugins;
 use AccessPress\Admin\Manager\Settings\SettingsLayout;
 use AccessPress\Admin\Manager\Settings\SettingsSecurity;
 use AccessPress\Includes\Functions\Helpers\AjaxHelper;
+use AccessPress\Includes\Functions\Helpers\FormFieldHelper;
 use AccessPress\Includes\Functions\Helpers\RequestHelper;
 use AccessPress\Includes\Settings\Settings;
 
@@ -126,7 +127,7 @@ class SettingsManager extends Manager {
 		?>
 		<div class="accesspress-settings-tab-content" role="tabpanel">
 			<?php if ( isset( $pages[ $tab ] ) ) : ?>
-				<?php $this->render_tab_panel( $pages[ $tab ]['title'], $pages[ $tab ]['copy'], $pages[ $tab ]['instance'], $values ); ?>
+				<?php $this->render_tab_panel( $tab, $pages[ $tab ]['title'], $pages[ $tab ]['copy'], $pages[ $tab ]['instance'], $values ); ?>
 			<?php else : ?>
 				<?php $this->plugins_page->render( $tab ); ?>
 			<?php endif; ?>
@@ -175,7 +176,7 @@ class SettingsManager extends Manager {
 	 * @param array  $values The values for the tab.
 	 * @return void
 	 */
-	private function render_tab_panel( string $title, string $copy, object $instance, array $values ): void {
+	private function render_tab_panel( string $tab, string $title, string $copy, object $instance, array $values ): void {
 		?>
 		<div class="card shadow-sm">
 			<div class="card-body">
@@ -183,11 +184,24 @@ class SettingsManager extends Manager {
 					<h5 class="h5 mb-1"><?php echo esc_html( $title ); ?></h5>
 					<p class="text-secondary mb-0"><?php echo esc_html( $copy ); ?></p>
 				</div>
-				<?php if ( method_exists( $instance, 'render_page_content' ) ) : ?>
-					<?php $instance->render_page_content( $values ); ?>
-				<?php elseif ( method_exists( $instance, 'render' ) ) : ?>
-					<?php $instance->render( $values ); ?>
-				<?php endif; ?>
+				<form method="post" action="">
+					<?php wp_nonce_field( 'accesspress_settings_' . $tab, '_wpnonce_accesspress_settings_' . $tab ); ?>
+					<?php if ( method_exists( $instance, 'render_page_content' ) ) : ?>
+						<?php $instance->render_page_content( $values ); ?>
+					<?php elseif ( method_exists( $instance, 'render' ) ) : ?>
+						<?php $instance->render( $values ); ?>
+					<?php endif; ?>
+					<div class="mt-3 d-flex justify-content-end">
+						<?php echo FormFieldHelper::button(
+							__( 'Save Settings', 'accesspress' ),
+							array(
+								'type'  => 'submit',
+								'class' => 'btn-primary',
+								'name'  => 'accesspress_save_settings',
+							)
+						); ?>
+					</div>
+				</form>
 			</div>
 		</div>
 		<?php
