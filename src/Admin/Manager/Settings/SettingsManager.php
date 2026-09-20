@@ -184,7 +184,7 @@ class SettingsManager extends Manager {
 					<h5 class="h5 mb-1"><?php echo esc_html( $title ); ?></h5>
 					<p class="text-secondary mb-0"><?php echo esc_html( $copy ); ?></p>
 				</div>
-				<form method="post" action="options.php">
+				<form method="post" action="">
 					<?php settings_fields( 'accesspress_settings' ); ?>
 					<?php wp_nonce_field( 'accesspress_settings_' . $tab, '_wpnonce_accesspress_settings_' . $tab ); ?>
 					<?php if ( method_exists( $instance, 'render_page_content' ) ) : ?>
