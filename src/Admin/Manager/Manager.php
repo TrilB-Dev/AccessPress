@@ -122,13 +122,13 @@ abstract class Manager {
 		}
 
 		$mapping = array(
-			'dashboard' => 'admin.dashboard',
-			'reports'     => 'admin.page',
-			'settings'  => 'admin.settings',
-			'tools'     => 'admin.tools',
-			'plugins'   => 'admin.plugins',
-			'user-management'     => 'admin.user-management',
-			'ui'        => 'admin.ui',
+			'dashboard' 		=> 'admin.dashboard',
+			'reports'     		=> 'admin.page',
+			'settings'  		=> 'admin.settings',
+			'tools'     		=> 'admin.tools',
+			'plugins'   		=> 'admin.plugins',
+			'user-management'   => 'admin.user-management',
+			'ui'        		=> 'admin.ui',
 		);
 
 		return $mapping[ $bundle ] ?? ( 'admin.' . $bundle );

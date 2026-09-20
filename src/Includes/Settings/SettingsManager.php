@@ -356,6 +356,7 @@ final class SettingsManager {
 	 * Return core and extension defaults for activation and fallback reads.
 	 *
 	 * @return array<string, array<string, mixed>>
+	 * @since 1.0.0
 	 */
 	private static function registered_defaults(): array {
 		$defaults = self::defaults();
