@@ -98,7 +98,7 @@ class SettingsManager extends Manager {
 		$values = Settings::get_group( $tab, array() ) ?? array();
 		$pages  = array(
 			'general'     => array(
-				'title'    => __( 'Licence configuration', 'accesspress' ),
+				'title'    => __( 'AccessPress configuration', 'accesspress' ),
 				'copy'     => __( 'Set the default commercial rules for generated licences, expiry, and validation.', 'accesspress' ),
 				'instance' => new SettingsGeneral(),
 			),
@@ -144,6 +144,9 @@ class SettingsManager extends Manager {
 		$view_capability = array(
 			'general'     => 'accesspress_settings_general_view',
 			'access'      => 'accesspress_settings_access_view',
+			'layout'      => 'accesspress_settings_layout_view',
+			'email'       => 'accesspress_settings_email_view',
+			'security'    => 'accesspress_settings_security_view',
 			'plugins'     => 'accesspress_settings_plugins_view',
 			'third-party' => 'accesspress_settings_plugins_ext_view',
 		)[ $tab ] ?? 'accesspress_settings_general_view';

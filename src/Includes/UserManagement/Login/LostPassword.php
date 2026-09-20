@@ -6,6 +6,7 @@
  */
 namespace AccessPress\Includes\UserManagement\Login;
 
+use AccessPress\Includes\Functions\Helpers\ShortcodeHelper;
 use AccessPress\Public\Templates\LostPassword as LostPasswordTemplate;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -13,6 +14,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class LostPassword {
+	/**
+	 * Register lost-password shortcodes.
+	 *
+	 * @return void
+	 */
+	public static function register_shortcodes(): void {
+		ShortcodeHelper::register_many(
+			array(
+				ShortcodeHelper::define( 'accesspress_lost_password', array( self::class, 'render_shortcode' ) ),
+			)
+		);
+	}
+
+	/**
+	 * Render the shortcode output for the lost-password form.
+	 *
+	 * @param array<string, mixed> $atts Shortcode attributes.
+	 * @param string|null $content Unused content.
+	 * @param string $tag Unused tag.
+	 * @return string
+	 */
+	public static function render_shortcode( array $atts = array(), ?string $content = null, string $tag = '' ): string {
+		return self::render_form( $atts );
+	}
+
 	/**
 	 * Render the lost password link text.
 	 *

@@ -60,7 +60,13 @@ final class FunctionsSettings {
 		if ( ! current_user_can( 'accesspress_settings_general_edit' ) ) {
 			return (array) Settings::get_group( Settings::GENERAL, array() );
 		}
-		$input           = is_array( $input ) ? $input : array();
+		$input = is_array( $input ) ? $input : array();
+
+		foreach ( array( 'registration_page', 'login_page', 'my_account_page', 'lost_password_page' ) as $key ) {
+			$input[ $key ] = $this->resolve_page_setting( $key, $input[ $key ] ?? '' );
+			Settings::set( $key, $input[ $key ] );
+		}
+
 		$rewrite_changed = false;
 		foreach ( array( 'root_name', 'root_description', 'archive_title', 'archive_description', 'root_slug', 'category_slug', 'tag_slug', 'permalink', 'enable_schema' ) as $key ) {
 			$value           = in_array( $key, array( 'root_slug', 'category_slug', 'tag_slug' ), true ) ? sanitize_title( $input[ $key ] ?? '' ) : ( 'permalink' === $key ? PermalinkHelper::sanitize_pattern( $input[ $key ] ?? '' ) : ( 'enable_schema' === $key ? ! empty( $input[ $key ] ) : sanitize_textarea_field( $input[ $key ] ?? '' ) ) );
@@ -72,6 +78,78 @@ final class FunctionsSettings {
 			flush_rewrite_rules();
 		}
 		return $input;
+	}
+
+	/**
+	 * Create a page for a selected page type when the user chooses the create-flow value.
+	 *
+	 * @param string $key The setting key.
+	 * @param mixed  $value The submitted value.
+	 * @return string The saved page ID or an empty string.
+	 */
+	private function resolve_page_setting( string $key, $value ): string {
+		$value = is_scalar( $value ) ? (string) $value : '';
+		if ( '' === $value || '0' === $value ) {
+			return '';
+		}
+		if ( 'create:' !== substr( $value, 0, 7 ) ) {
+			return sanitize_text_field( $value );
+		}
+
+		$page_key = substr( $value, 7 );
+		$definition = array(
+			'register' => array(
+				'title' => __( 'Register', 'accesspress' ),
+				'slug' => 'register',
+				'content' => '[accesspress_register]',
+			),
+			'login' => array(
+				'title' => __( 'Login', 'accesspress' ),
+				'slug' => 'login',
+				'content' => '[accesspress_login]',
+			),
+			'profile' => array(
+				'title' => __( 'My Account', 'accesspress' ),
+				'slug' => 'account',
+				'content' => '[accesspress_profile]',
+			),
+			'lost-password' => array(
+				'title' => __( 'Lost Password', 'accesspress' ),
+				'slug' => 'lost-password',
+				'content' => '[accesspress_lost_password]',
+			),
+		);
+
+		$target = $definition[ $page_key ] ?? null;
+		if ( ! is_array( $target ) ) {
+			return '';
+		}
+
+		$slug = sanitize_title( $target['slug'] );
+		if ( function_exists( 'get_page_by_path' ) ) {
+			$existing = get_page_by_path( $slug, defined( 'OBJECT' ) ? OBJECT : 1, 'page' );
+			if ( class_exists( '\WP_Post' ) && $existing instanceof \WP_Post ) {
+				return (string) $existing->ID;
+			}
+			if ( is_object( $existing ) ) {
+				return (string) ( $existing->ID ?? '' );
+			}
+			if ( is_numeric( $existing ) ) {
+				return (string) $existing;
+			}
+		}
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => $target['title'],
+				'post_name'    => $slug,
+				'post_status'  => 'publish',
+				'post_type'    => 'page',
+				'post_content' => $target['content'],
+			)
+		);
+
+		return is_numeric( $post_id ) ? (string) $post_id : '';
 	}
 
 	/**

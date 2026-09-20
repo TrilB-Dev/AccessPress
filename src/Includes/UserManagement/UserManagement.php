@@ -91,13 +91,10 @@ final class UserManagement {
 			)
 		)->run();
 
-		ShortcodeHelper::register_many(
-			array(
-				ShortcodeHelper::define( 'accesspress_login', array( $this, 'render_login_form' ) ),
-				ShortcodeHelper::define( 'accesspress_register', array( $this, 'render_register_form' ) ),
-				ShortcodeHelper::define( 'accesspress_profile', array( $this, 'render_profile_form' ) ),
-			)
-		);
+		Login::register_shortcodes();
+		Registration::register_shortcodes();
+		Profile::register_shortcodes();
+		\AccessPress\Includes\UserManagement\Login\LostPassword::register_shortcodes();
 	}
 
 	/**

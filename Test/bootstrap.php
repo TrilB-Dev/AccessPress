@@ -42,6 +42,22 @@ if ( ! function_exists( 'sanitize_text_field' ) ) {
 	}
 }
 
+if ( ! function_exists( 'sanitize_title' ) ) {
+	function sanitize_title( $title ) {
+		$title = strtolower( (string) $title );
+		$title = preg_replace( '/[^a-z0-9\-_]+/', '-', $title );
+		$title = preg_replace( '/-+/', '-', $title );
+		$title = trim( $title, '-' );
+		return $title;
+	}
+}
+
+if ( ! function_exists( 'sanitize_textarea_field' ) ) {
+	function sanitize_textarea_field( $value ) {
+		return sanitize_text_field( $value );
+	}
+}
+
 if ( ! function_exists( 'esc_url_raw' ) ) {
 	function esc_url_raw( $url ) {
 		return is_string( $url ) ? trim( $url ) : '';
@@ -51,6 +67,47 @@ if ( ! function_exists( 'esc_url_raw' ) ) {
 if ( ! function_exists( 'wp_unslash' ) ) {
 	function wp_unslash( $value ) {
 		return $value;
+	}
+}
+
+if ( ! function_exists( 'get_page_by_path' ) ) {
+	function get_page_by_path( $page_path, $output = OBJECT, $post_type = 'page' ) {
+		$page_path = sanitize_title( (string) $page_path );
+		if ( ! isset( $GLOBALS['__accesspress_pages'] ) || ! is_array( $GLOBALS['__accesspress_pages'] ) ) {
+			return null;
+		}
+		foreach ( $GLOBALS['__accesspress_pages'] as $page ) {
+			if ( ( (string) ( $page['post_name'] ?? '' ) ) === $page_path && ( (string) ( $page['post_type'] ?? 'page' ) ) === (string) $post_type ) {
+				if ( OBJECT === $output ) {
+					return (object) $page;
+				}
+				return $page['ID'];
+			}
+		}
+		return null;
+	}
+}
+
+if ( ! function_exists( 'wp_insert_post' ) ) {
+	function wp_insert_post( $postarr = array() ) {
+		if ( ! isset( $GLOBALS['__accesspress_pages'] ) || ! is_array( $GLOBALS['__accesspress_pages'] ) ) {
+			$GLOBALS['__accesspress_pages'] = array();
+		}
+		$post_name = sanitize_title( (string) ( $postarr['post_name'] ?? '' ) );
+		$existing = get_page_by_path( $post_name, OBJECT, $postarr['post_type'] ?? 'page' );
+		if ( $existing ) {
+			return is_object( $existing ) ? (int) $existing->ID : (int) $existing;
+		}
+		$id = count( $GLOBALS['__accesspress_pages'] ) + 1;
+		$GLOBALS['__accesspress_pages'][ $id ] = array(
+			'ID'         => $id,
+			'post_name'  => $post_name,
+			'post_title' => (string) ( $postarr['post_title'] ?? '' ),
+			'post_type'  => (string) ( $postarr['post_type'] ?? 'page' ),
+			'post_status' => (string) ( $postarr['post_status'] ?? 'publish' ),
+			'post_content' => (string) ( $postarr['post_content'] ?? '' ),
+		);
+		return $id;
 	}
 }
 
@@ -133,8 +190,18 @@ if ( ! function_exists( 'update_option' ) ) {
 	}
 }
 
+if ( ! function_exists( 'flush_rewrite_rules' ) ) {
+	function flush_rewrite_rules() {
+		return true;
+	}
+}
+
 if ( ! defined( 'ARRAY_A' ) ) {
 	define( 'ARRAY_A', 1 );
+}
+
+if ( ! defined( 'OBJECT' ) ) {
+	define( 'OBJECT', 1 );
 }
 
 // phpcs:ignore Generic.Files.OneObjectStructurePerFile

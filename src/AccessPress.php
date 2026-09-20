@@ -17,6 +17,7 @@ namespace AccessPress;
 use AccessPress\Admin\Admin;
 use AccessPress\Assets\Assets;
 use AccessPress\Includes\Includes;
+use AccessPress\Includes\Core\Core;
 use AccessPress\Includes\Core\WP\I18n;
 use AccessPress\Includes\Functions\Helpers\LoaderHelper;
 use AccessPress\API\Routes;
@@ -62,6 +63,15 @@ class AccessPress {
 	 * @var      string    $version    The current version of the plugin.
 	 */
 	protected $version;
+	/**
+	 * The core registry for AccessPress services and helpers.
+	 *
+	 * @var Core
+	 * @since 1.0.0
+	 * @access protected
+	 */
+	protected Core $core;
+
 	/**
 	 * The instance of the Includes class that handles the plugin's includes.
 	 *
@@ -171,6 +181,7 @@ class AccessPress {
 	 */
 	private function define_core_hooks() {
 		$this->includes = Includes::get_instance();
+		$this->core     = $this->includes->core();
 		$this->assets   = new Assets();
 		$this->assets->register();
 		$this->admin              = new Admin( $this->assets );
@@ -179,6 +190,7 @@ class AccessPress {
 		$user_management          = UserManagement::get_instance();
 
 		$this->loader->add_action( 'init', $this->includes, 'init' );
+		$this->loader->add_action( 'init', $this->core, 'register', 5 );
 		$this->loader->add_action( 'init', $this->plugins, 'init', -10 );
 		$this->loader->add_action( 'init', $user_management, 'register', 5 );
 		$this->loader->add_action( 'admin_menu', $this->admin, 'register_admin_menu' );
