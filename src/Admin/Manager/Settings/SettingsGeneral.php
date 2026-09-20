@@ -199,6 +199,16 @@ final class SettingsGeneral extends SettingsManager {
 					</tr>
 				</tbody>
 			</table>
+			<div class="mt-3 d-flex justify-content-end">
+				<?php echo FormFieldHelper::button(
+					__( 'Save Settings', 'accesspress' ),
+					array(
+						'type'  => 'submit',
+						'class' => 'btn-primary',
+						'name'  => 'accesspress_save_settings',
+					)
+				); ?>
+			</div>
 		</form>
 		<?php
 	}
