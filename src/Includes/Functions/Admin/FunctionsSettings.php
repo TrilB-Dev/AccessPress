@@ -40,6 +40,8 @@ final class FunctionsSettings {
 		register_setting( 'accesspress_settings', 'accesspress_general', array( 'sanitize_callback' => array( $this, 'sanitize_general' ) ) );
 		register_setting( 'accesspress_settings', 'accesspress_layout', array( 'sanitize_callback' => array( $this, 'sanitize_layout' ) ) );
 		register_setting( 'accesspress_settings', 'accesspress_access', array( 'sanitize_callback' => array( $this, 'sanitize_access' ) ) );
+		register_setting( 'accesspress_settings', 'accesspress_security', array( 'sanitize_callback' => array( $this, 'sanitize_security' ) ) );
+		register_setting( 'accesspress_settings', 'accesspress_email', array( 'sanitize_callback' => array( $this, 'sanitize_email' ) ) );
 		register_setting( 'accesspress_settings', 'accesspress_tools', array( 'sanitize_callback' => array( $this, 'sanitize_tools' ) ) );
 
 		foreach ( $this->plugin_functions->plugin_settings_pages() as $page ) {
@@ -62,21 +64,11 @@ final class FunctionsSettings {
 		}
 		$input = is_array( $input ) ? $input : array();
 
-		foreach ( array( 'registration_page', 'login_page', 'my_account_page', 'lost_password_page' ) as $key ) {
+		foreach ( array( 'registration_page', 'login_page', 'my_account_page', 'lost_password_page', 'enable_multi_roles', 'enable_membership_groups' ) as $key ) {
 			$input[ $key ] = $this->resolve_page_setting( $key, $input[ $key ] ?? '' );
 			Settings::set( $key, $input[ $key ] );
 		}
 
-		$rewrite_changed = false;
-		foreach ( array( 'root_name', 'root_description', 'archive_title', 'archive_description', 'root_slug', 'category_slug', 'tag_slug', 'permalink', 'enable_schema' ) as $key ) {
-			$value           = in_array( $key, array( 'root_slug', 'category_slug', 'tag_slug' ), true ) ? sanitize_title( $input[ $key ] ?? '' ) : ( 'permalink' === $key ? PermalinkHelper::sanitize_pattern( $input[ $key ] ?? '' ) : ( 'enable_schema' === $key ? ! empty( $input[ $key ] ) : sanitize_textarea_field( $input[ $key ] ?? '' ) ) );
-			$rewrite_changed = $rewrite_changed || $value !== (string) Settings::get( $key, '' );
-			$input[ $key ]   = $value;
-			Settings::set( $key, $input[ $key ] );
-		}
-		if ( $rewrite_changed ) {
-			flush_rewrite_rules();
-		}
 		return $input;
 	}
 
