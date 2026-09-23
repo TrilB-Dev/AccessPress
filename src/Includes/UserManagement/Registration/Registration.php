@@ -64,10 +64,16 @@ final class Registration {
 		$username = isset( $_POST['username'] ) ? sanitize_user( wp_unslash( $_POST['username'] ) ) : '';
 		$email    = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
 		$password = isset( $_POST['password'] ) ? wp_unslash( $_POST['password'] ) : '';
+		$confirm  = isset( $_POST['confirm_password'] ) ? wp_unslash( $_POST['confirm_password'] ) : '';
 		$redirect = $redirect_to ?: home_url( '/my-account/' );
 
 		if ( '' === $username || '' === $email || '' === $password ) {
 			wp_safe_redirect( add_query_arg( 'accesspress_error', 'registration', $redirect ) );
+			exit;
+		}
+
+		if ( $password !== $confirm ) {
+			wp_safe_redirect( add_query_arg( 'accesspress_error', 'password_mismatch', $redirect ) );
 			exit;
 		}
 

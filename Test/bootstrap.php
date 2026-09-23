@@ -21,6 +21,12 @@ if ( ! function_exists( 'sanitize_key' ) ) {
 	}
 }
 
+if ( ! function_exists( 'absint' ) ) {
+	function absint( $value ) {
+		return (int) filter_var( $value, FILTER_SANITIZE_NUMBER_INT );
+	}
+}
+
 if ( ! function_exists( '__' ) ) {
 	function __( $text, $domain = null ) {
 		return (string) $text;
@@ -184,9 +190,58 @@ if ( ! function_exists( 'dbDelta' ) ) {
 	}
 }
 
+if ( ! function_exists( 'get_option' ) ) {
+	function get_option( $option, $default = false ) {
+		if ( ! isset( $GLOBALS['__accesspress_options'] ) || ! is_array( $GLOBALS['__accesspress_options'] ) ) {
+			$GLOBALS['__accesspress_options'] = array();
+		}
+		return array_key_exists( $option, $GLOBALS['__accesspress_options'] ) ? $GLOBALS['__accesspress_options'][ $option ] : $default;
+	}
+}
+
 if ( ! function_exists( 'update_option' ) ) {
-	function update_option( $option, $value ) {
+	function update_option( $option, $value, $autoload = null ) {
+		if ( ! isset( $GLOBALS['__accesspress_options'] ) || ! is_array( $GLOBALS['__accesspress_options'] ) ) {
+			$GLOBALS['__accesspress_options'] = array();
+		}
+		$GLOBALS['__accesspress_options'][ $option ] = $value;
 		return true;
+	}
+}
+
+if ( ! function_exists( 'get_user_meta' ) ) {
+	function get_user_meta( $user_id, $key, $single = false ) {
+		if ( ! isset( $GLOBALS['__accesspress_user_meta'] ) || ! is_array( $GLOBALS['__accesspress_user_meta'] ) ) {
+			$GLOBALS['__accesspress_user_meta'] = array();
+		}
+		if ( ! isset( $GLOBALS['__accesspress_user_meta'][ $user_id ] ) ) {
+			return $single ? '' : array();
+		}
+		$value = $GLOBALS['__accesspress_user_meta'][ $user_id ][ $key ] ?? ( $single ? '' : array() );
+		return $value;
+	}
+}
+
+if ( ! function_exists( 'update_user_meta' ) ) {
+	function update_user_meta( $user_id, $key, $value ) {
+		if ( ! isset( $GLOBALS['__accesspress_user_meta'] ) || ! is_array( $GLOBALS['__accesspress_user_meta'] ) ) {
+			$GLOBALS['__accesspress_user_meta'] = array();
+		}
+		if ( ! isset( $GLOBALS['__accesspress_user_meta'][ $user_id ] ) ) {
+			$GLOBALS['__accesspress_user_meta'][ $user_id ] = array();
+		}
+		$GLOBALS['__accesspress_user_meta'][ $user_id ][ $key ] = $value;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'sanitize_hex_color' ) ) {
+	function sanitize_hex_color( $color ) {
+		$color = trim( (string) $color );
+		if ( preg_match( '/^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/', $color ) ) {
+			return $color;
+		}
+		return null;
 	}
 }
 

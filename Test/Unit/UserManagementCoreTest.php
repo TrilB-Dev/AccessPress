@@ -4,12 +4,12 @@ namespace AccessPress\Test\Unit;
 
 use AccessPress\Includes\UserManagement\Groups\Groups;
 use AccessPress\Includes\UserManagement\Login\Login;
-use AccessPress\Includes\UserManagement\Login\LoginTemplate;
 use AccessPress\Includes\UserManagement\Login\LostPassword;
 use AccessPress\Includes\UserManagement\Profile\Profile;
-use AccessPress\Includes\UserManagement\Profile\ProfileTemplate;
 use AccessPress\Includes\UserManagement\Registration\Registration;
-use AccessPress\Includes\UserManagement\Registration\RegistrationTemplate;
+use AccessPress\Public\Templates\Login as PublicLoginTemplate;
+use AccessPress\Public\Templates\Profile as PublicProfileTemplate;
+use AccessPress\Public\Templates\Registration as PublicRegistrationTemplate;
 use AccessPress\Includes\UserManagement\Registration\UserActivation;
 use AccessPress\Includes\UserManagement\Roles\Roles;
 use AccessPress\Includes\UserManagement\Security\Security;
@@ -38,7 +38,7 @@ final class UserManagementCoreTest extends TestCase {
 	public function test_login_components_expose_functional_api_surface(): void {
 		$this->assertTrue( method_exists( Login::class, 'render_form' ) );
 		$this->assertTrue( method_exists( Login::class, 'process_login' ) );
-		$this->assertTrue( method_exists( LoginTemplate::class, 'render' ) );
+		$this->assertTrue( method_exists( PublicLoginTemplate::class, 'render' ) );
 		$this->assertTrue( method_exists( LostPassword::class, 'render_link' ) );
 		$this->assertTrue( method_exists( LostPassword::class, 'render_form' ) );
 	}
@@ -46,13 +46,13 @@ final class UserManagementCoreTest extends TestCase {
 	public function test_profile_components_expose_functional_api_surface(): void {
 		$this->assertTrue( method_exists( Profile::class, 'render_form' ) );
 		$this->assertTrue( method_exists( Profile::class, 'process_profile_update' ) );
-		$this->assertTrue( method_exists( ProfileTemplate::class, 'render' ) );
+		$this->assertTrue( method_exists( PublicProfileTemplate::class, 'render' ) );
 	}
 
 	public function test_registration_and_activation_components_expose_functional_api_surface(): void {
 		$this->assertTrue( method_exists( Registration::class, 'render_form' ) );
 		$this->assertTrue( method_exists( Registration::class, 'process_registration' ) );
-		$this->assertTrue( method_exists( RegistrationTemplate::class, 'render' ) );
+		$this->assertTrue( method_exists( PublicRegistrationTemplate::class, 'render' ) );
 		$this->assertTrue( method_exists( UserActivation::class, 'register_user' ) );
 		$this->assertTrue( method_exists( UserActivation::class, 'activate_user' ) );
 		$this->assertTrue( method_exists( UserActivation::class, 'is_user_activated' ) );

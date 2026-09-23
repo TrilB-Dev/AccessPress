@@ -17,21 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class FunctionsSettings {
 	/**
-	 * Plugin functions used to collect provider-backed settings pages.
-	 *
-	 * @var FunctionsPlugins
-	 */
-	private FunctionsPlugins $plugin_functions;
-	/**
-	 * Constructor for FunctionsSettings.
-	 *
-	 * @param FunctionsPlugins $plugin_functions The plugin functions instance.
-	 */
-	public function __construct( FunctionsPlugins $plugin_functions ) {
-		$this->plugin_functions = $plugin_functions;
-	}
-
-	/**
 	 * Register AccessPress and provider-backed plugin settings.
 	 *
 	 * @return void
@@ -155,6 +140,33 @@ final class FunctionsSettings {
 			return (array) Settings::get_group( Settings::LAYOUT, array() );
 		}
 		$input   = is_array( $input ) ? $input : array();
+		foreach ( array(
+			'login_registration_title' => 'text',
+			'site_logo' => 'text',
+			'frontend_user_menu' => 'menu',
+			'ajax_submission_user_profile' => 'bool',
+			'elementor_integration' => 'bool',
+		) as $key => $type ) {
+			if ( ! array_key_exists( $key, $input ) ) {
+				continue;
+			}
+
+			switch ( $type ) {
+				case 'text':
+					$input[ $key ] = sanitize_text_field( wp_unslash( (string) $input[ $key ] ) );
+					break;
+				case 'menu':
+					$input[ $key ] = in_array( (string) $input[ $key ], array( 'horizontal', 'vertical' ), true ) ? (string) $input[ $key ] : 'horizontal';
+					break;
+				case 'bool':
+				 default:
+					$input[ $key ] = ! empty( $input[ $key ] );
+					break;
+			}
+
+			Settings::set( $key, $input[ $key ] );
+		}
+
 		$section = sanitize_key( $input['layout_section'] ?? 'general' );
 		unset( $input['layout_section'] );
 		$section_keys = array(

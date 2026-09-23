@@ -19,6 +19,7 @@ use AccessPress\Admin\Manager\Settings\SettingsSecurity;
 use AccessPress\Includes\Functions\Helpers\AjaxHelper;
 use AccessPress\Includes\Functions\Helpers\FormFieldHelper;
 use AccessPress\Includes\Functions\Helpers\RequestHelper;
+use AccessPress\Includes\Functions\Admin\FunctionsSettings;
 use AccessPress\Includes\Settings\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -33,6 +34,12 @@ class SettingsManager extends Manager {
 	 */
 	private SettingsPlugins $plugins_page;
 	/**
+	 * FunctionsSettings instance.
+	 *
+	 * @var FunctionsSettings
+	 */
+	private FunctionsSettings $functions_settings;
+	/**
 	 * Current settings page slug.
 	 *
 	 * @var string
@@ -42,8 +49,24 @@ class SettingsManager extends Manager {
 	 * Constructor for the settings manager.
 	 */
 	public function __construct() {
+		/*
+		 * Initialize the settings manager.
+		 * 
+		 * @since 1.0.0
+		 */
 		$this->page         = 'settings';
+		/*
+		 * Initialize the plugin pages and functions settings instances.
+		 * 
+		 * @since 1.0.0
+		 */
 		$this->plugins_page = new SettingsPlugins();
+		/*
+		 * Initialize the functions settings instance.
+		 * 
+		 * @since 1.0.0
+		 */
+		$this->functions_settings = new FunctionsSettings();
 	}
 	/**
 	 * Renders the settings page.

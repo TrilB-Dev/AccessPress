@@ -7,6 +7,7 @@
 namespace AccessPress\Includes\UserManagement\Profile;
 
 use AccessPress\Includes\Functions\Helpers\ShortcodeHelper;
+use AccessPress\Includes\UserManagement\Profile\ProfileTabs;
 use AccessPress\Public\Templates\Profile as PublicProfileTemplate;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -61,20 +62,64 @@ final class Profile {
 			return;
 		}
 
-		$display_name = isset( $_POST['display_name'] ) ? sanitize_text_field( wp_unslash( $_POST['display_name'] ) ) : $current_user->display_name;
-		$email        = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : $current_user->user_email;
-		$redirect     = $redirect_to;
+		$data = array(
+			'ID' => $current_user->ID,
+		);
+
+		$is_admin = current_user_can( 'manage_options' );
+		$tabs     = ProfileTabs::get_tabs();
+		$fields   = array();
+		foreach ( $tabs as $tab ) {
+			if ( isset( $tab['fields'] ) && is_array( $tab['fields'] ) ) {
+				$fields = array_merge( $fields, $tab['fields'] );
+			}
+		}
+
+		if ( empty( $fields ) ) {
+			$fields = ProfileFields::get_builtin_fields();
+		}
+
+		foreach ( $fields as $field ) {
+			if ( ! is_array( $field ) ) {
+				continue;
+			}
+
+			if ( ! ProfileFields::can_edit_field( $field, $is_admin ) ) {
+				continue;
+			}
+
+			$key = isset( $field['wp_field'] ) && '' !== $field['wp_field'] ? (string) $field['wp_field'] : (string) ( $field['key'] ?? '' );
+			if ( '' === $key || ! isset( $_POST[ $field['key'] ?? $key ] ) ) {
+				continue;
+			}
+
+			$value = wp_unslash( $_POST[ $field['key'] ?? $key ] );
+			if ( 'user_email' === $key || 'user_pass' === $key || 'user_login' === $key ) {
+				$data[ $key ] = 'user_email' === $key ? sanitize_email( $value ) : sanitize_text_field( $value );
+				continue;
+			}
+
+			$data[ $key ] = sanitize_text_field( (string) $value );
+		}
+
+		if ( isset( $_POST['display_name'] ) && ProfileFields::can_edit_field( array( 'key' => 'display_name', 'wp_field' => 'display_name', 'editable' => true ), $is_admin ) ) {
+			$data['display_name'] = sanitize_text_field( wp_unslash( $_POST['display_name'] ) );
+		}
+
+		if ( isset( $_POST['email'] ) && ProfileFields::can_edit_field( array( 'key' => 'user_email', 'wp_field' => 'user_email', 'editable' => true ), $is_admin ) ) {
+			$data['user_email'] = sanitize_email( wp_unslash( $_POST['email'] ) );
+		}
+
+		if ( 1 === count( $data ) ) {
+			return;
+		}
+
+		$redirect = $redirect_to;
 		if ( '' === $redirect ) {
 			$redirect = home_url( '/my-account/' );
 		}
 
-		wp_update_user(
-			array(
-				'ID'           => $current_user->ID,
-				'display_name' => $display_name,
-				'user_email'   => $email,
-			)
-		);
+		wp_update_user( $data );
 
 		wp_safe_redirect( $redirect );
 		exit;

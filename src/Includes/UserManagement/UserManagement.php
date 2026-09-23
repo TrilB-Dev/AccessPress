@@ -12,7 +12,9 @@ namespace AccessPress\Includes\UserManagement;
 
 use AccessPress\Includes\Functions\Helpers\LoaderHelper;
 use AccessPress\Includes\Functions\Helpers\ShortcodeHelper;
+use AccessPress\Includes\UserManagement\Groups\Groups;
 use AccessPress\Includes\UserManagement\Login\Login;
+use AccessPress\Includes\UserManagement\Login\LostPassword;
 use AccessPress\Includes\UserManagement\Profile\Profile;
 use AccessPress\Includes\UserManagement\Registration\Registration;
 
@@ -80,6 +82,11 @@ final class UserManagement {
 				),
 				array(
 					'type'     => 'action',
+					'hook'     => 'init',
+					'callback' => 'register_core_groups',
+				),
+				array(
+					'type'     => 'action',
 					'hook'     => 'admin_init',
 					'callback' => 'redirect_backend_profile',
 				),
@@ -94,7 +101,7 @@ final class UserManagement {
 		Login::register_shortcodes();
 		Registration::register_shortcodes();
 		Profile::register_shortcodes();
-		\AccessPress\Includes\UserManagement\Login\LostPassword::register_shortcodes();
+		LostPassword::register_shortcodes();
 	}
 
 	/**
@@ -107,6 +114,45 @@ final class UserManagement {
 		add_rewrite_rule( '^register/?$', 'index.php?accesspress_user_management=register', 'top' );
 		add_rewrite_rule( '^my-account/?$', 'index.php?accesspress_user_management=profile', 'top' );
 		add_rewrite_tag( '%accesspress_user_management%', '([^&]+)' );
+	}
+
+	/**
+	 * Ensure the AccessPress membership groups exist in the schema-backed table.
+	 *
+	 * @return void
+	 */
+	public function register_core_groups(): void {
+		Groups::register_default_groups();
+	}
+
+	/**
+	 * Return the current AccessPress membership groups.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	public function get_groups(): array {
+		return Groups::get_group_definitions();
+	}
+
+	/**
+	 * Return a single group by slug.
+	 *
+	 * @param string $slug Group slug.
+	 * @return array<string, mixed>|null
+	 */
+	public function get_group( string $slug ): ?array {
+		return Groups::get_group_by_slug( $slug );
+	}
+
+	/**
+	 * Sync a user's assigned AccessPress groups.
+	 *
+	 * @param int   $user_id WordPress user ID.
+	 * @param array $groups  Group slugs to assign.
+	 * @return array<int, string>
+	 */
+	public function sync_user_groups( int $user_id, array $groups ): array {
+		return Groups::sync_user_groups( $user_id, $groups );
 	}
 
 	/**
@@ -155,6 +201,10 @@ final class UserManagement {
 
 		if ( isset( $_POST['accesspress_login'] ) ) {
 			$this->process_login( $redirect_to );
+		}
+
+		if ( isset( $_POST['accesspress_lost_password'] ) ) {
+			$this->process_lost_password( $redirect_to );
 		}
 
 		if ( isset( $_POST['accesspress_register'] ) ) {
@@ -210,6 +260,16 @@ final class UserManagement {
 	 */
 	private function process_login( string $redirect_to ): void {
 		Login::process_login( $redirect_to );
+	}
+
+	/**
+	 * Process a lost-password request.
+	 *
+	 * @param string $redirect_to Redirect URL.
+	 * @return void
+	 */
+	private function process_lost_password( string $redirect_to ): void {
+		LostPassword::process_lost_password( $redirect_to );
 	}
 
 	/**

@@ -10,13 +10,13 @@ namespace AccessPress\Admin;
 
 use AccessPress\Includes\Settings\Settings;
 use AccessPress\Includes\Functions\Admin\FunctionsPlugins;
+use AccessPress\Includes\Functions\Admin\FunctionsSidebar;
 use AccessPress\Includes\Functions\Helpers\AjaxHelper;
 use AccessPress\Includes\Core\Capabilities;
 use AccessPress\Includes\Functions\Helpers\LoaderHelper;
 use AccessPress\Includes\Functions\Helpers\LoggerHelper;
 use AccessPress\Includes\Functions\Helpers\RequestHelper;
 use AccessPress\Includes\Functions\Helpers\SanitizationHelper;
-use AccessPress\Includes\Functions\Admin\FunctionsSidebar;
 use AccessPress\Assets\Assets;
 use AccessPress\Admin\Manager\Manager;
 use AccessPress\Admin\Manager\Tools\ToolsManager;

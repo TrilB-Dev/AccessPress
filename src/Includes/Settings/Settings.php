@@ -42,8 +42,8 @@ final class Settings {
 	 * 
 	 * @since 1.0.0
 	 */
-	public static function get( string $key, $default = null ) {
-		return SettingsManager::get( $key, $default );
+	public static function get( string $key, $default = null, ?string $table = null ) {
+		return SettingsManager::get( $key, $default, $table );
 	}
 	/**
 	 * Retrieve a specific setting key from the database.
@@ -127,8 +127,8 @@ final class Settings {
 	 * @param mixed  $value The value to set for the key.
 	 * @return bool True if the key was successfully set, false otherwise.
 	 */
-	public static function set( string $key, $value ): bool {
-		return SettingsManager::set( $key, $value );
+	public static function set( string $key, $value, ?string $table = null ): bool {
+		return SettingsManager::set( $key, $value, $table );
 	}
 
 	/**
@@ -139,8 +139,8 @@ final class Settings {
 	 * @param string $key The setting key to delete.
 	 * @return bool True if the key was successfully deleted, false otherwise.
 	 */
-	public static function delete( string $key ): bool {
-		return SettingsManager::delete( $key );
+	public static function delete( string $key, ?string $table = null ): bool {
+		return SettingsManager::delete( $key, $table );
 	}
 
 	/**
@@ -151,8 +151,8 @@ final class Settings {
 	 * @param string $key The setting key to check.
 	 * @return bool True if the key exists, false otherwise.
 	 */
-	public static function has( string $key ): bool {
-		return SettingsManager::has( $key );
+	public static function has( string $key, ?string $table = null ): bool {
+		return SettingsManager::has( $key, $table );
 	}
 
 	/**
@@ -164,8 +164,8 @@ final class Settings {
 	 * @param array|null $default The default value to return if the group is not found.
 	 * @return array|null The array of settings within the group if found, otherwise the default value.
 	 */
-	public static function get_group( string $group, ?array $default = null ): ?array {
-		return SettingsManager::get_group( $group ) ?? $default;
+	public static function get_group( string $group, ?array $default = null, ?string $table = null ): ?array {
+		return SettingsManager::get_group( $group, $table ) ?? $default;
 	}
 
 	/**
@@ -177,8 +177,8 @@ final class Settings {
 	 * @param array  $settings The array of settings to set for the group.
 	 * @return bool True if the group was successfully set, false otherwise.
 	 */
-	public static function set_group( string $group, array $settings ): bool {
-		return SettingsManager::set_group( $group, $settings );
+	public static function set_group( string $group, array $settings, ?string $table = null ): bool {
+		return SettingsManager::set_group( $group, $settings, $table );
 	}
 
 	/**
@@ -215,8 +215,18 @@ final class Settings {
 	 *
 	 * @return array An associative array of all settings.
 	 */
-	public static function get_all(): array {
-		return SettingsManager::get_all();
+	public static function get_all( ?string $table = null ): array {
+		return SettingsManager::get_all( $table );
+	}
+
+	/**
+	 * Get the database table name for a custom AccessPress table.
+	 *
+	 * @param string $table Optional table suffix. Defaults to settings.
+	 * @return string The full table name.
+	 */
+	public static function table_name( string $table = 'settings' ): string {
+		return SettingsManager::table_name( $table );
 	}
 }
 

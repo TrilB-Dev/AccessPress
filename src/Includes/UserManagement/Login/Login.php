@@ -8,6 +8,7 @@
 namespace AccessPress\Includes\UserManagement\Login;
 
 use AccessPress\Includes\Functions\Helpers\ShortcodeHelper;
+use AccessPress\Includes\Settings\Settings;
 use AccessPress\Public\Templates\Login as LoginTemplate;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -51,6 +52,20 @@ final class Login {
 	}
 
 	/**
+	 * Return the configured frontend login identifier mode.
+	 *
+	 * @return string
+	 */
+	private static function get_identifier_mode(): string {
+		$mode = Settings::get( 'login_identifier_mode', 'default' );
+		if ( ! in_array( (string) $mode, array( 'default', 'username', 'email' ), true ) ) {
+			return 'default';
+		}
+
+		return (string) $mode;
+	}
+
+	/**
 	 * Process a submitted login form.
 	 *
 	 * @param string $redirect_to URL to redirect to after success or failure.
@@ -69,13 +84,24 @@ final class Login {
 			exit;
 		}
 
+		$mode = self::get_identifier_mode();
+		if ( 'email' === $mode && ! is_email( $username ) ) {
+			wp_safe_redirect( add_query_arg( 'accesspress_error', 'login', $redirect ) );
+			exit;
+		}
+		if ( 'username' === $mode && false !== strpos( $username, '@' ) ) {
+			wp_safe_redirect( add_query_arg( 'accesspress_error', 'login', $redirect ) );
+			exit;
+		}
+
 		$credentials = array(
 			'user_login'    => $username,
 			'user_password' => $password,
-			'remember'      => true,
+			'remember'      => ! empty( $_POST['remember'] ),
 		);
 
-		$user = wp_signon( $credentials, is_ssl() ? 'https' : 'http' );
+		$credentials = apply_filters( 'accesspress_login_credentials', $credentials, $username, $password );
+		$user        = wp_signon( $credentials, is_ssl() ? 'https' : 'http' );
 		if ( is_wp_error( $user ) ) {
 			wp_safe_redirect( add_query_arg( 'accesspress_error', 'login', $redirect ) );
 			exit;

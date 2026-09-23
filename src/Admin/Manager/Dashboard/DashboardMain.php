@@ -34,7 +34,7 @@ final class DashboardMain extends DashboardManager {
 	protected function render_summary(): void {
 		$total_users = count_users();
 		$user_count  = (int) ( $total_users['total_users'] ?? 0 );
-		$group_count = count( Groups::register_default_groups() );
+		$group_count = count( Groups::get_group_definitions() );
 		$role_count  = count( Roles::get_available_roles() );
 		$max_roles   = Roles::get_max_roles();
 		$cards       = array(

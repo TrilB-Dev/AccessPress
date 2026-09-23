@@ -23,6 +23,8 @@ final class Schema {
         self::settings_table();
         self::analytics_table();
         self::logs_table();
+        self::groups_table();
+        self::forms_table();
     }
     /**
      * Register the settings table schema.
@@ -100,5 +102,61 @@ final class Schema {
         );
 
         return 'logs';
+    }
+    public static function groups_table(): string {
+        Database::register_core_table(
+            'groups',
+            static function ( string $table_name, string $charset ) {
+                return "CREATE TABLE {$table_name} (
+                id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                group_name varchar(120) NOT NULL,
+                group_slug varchar(120) NOT NULL,
+                group_description longtext DEFAULT NULL,
+                group_confirmation_message longtext DEFAULT NULL,
+                group_limit int(11) DEFAULT NULL,
+                group_owner bigint(20) unsigned DEFAULT NULL,
+                group_image varchar(255) DEFAULT NULL,
+                group_color varchar(32) DEFAULT NULL,
+                group_priority int(11) DEFAULT NULL,
+                group_type bigint(20) unsigned DEFAULT NULL,
+                group_parent bigint(20) unsigned DEFAULT NULL,
+                group_price decimal(10,2) DEFAULT NULL,
+                group_billing_cycle int(3) DEFAULT NULL,
+                group_status varchar(32) DEFAULT NULL,
+                group_created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                group_updated_at datetime DEFAULT CURRENT_TIMESTAMP,
+                group_expiration tinyint(1) DEFAULT '0',
+                group_expiration_date datetime DEFAULT NULL,
+                group_created_by bigint(20) unsigned DEFAULT NULL,
+                group_updated_by bigint(20) unsigned DEFAULT NULL,
+                group_roles varchar(255) DEFAULT NULL,
+                group_pages bigint(20) unsigned DEFAULT NULL,
+                group_post_types bigint(20) unsigned DEFAULT NULL,
+                group_default tinyint(1) DEFAULT '0',
+                PRIMARY KEY  (id),
+                UNIQUE KEY group_name (group_name),
+                UNIQUE KEY group_slug (group_slug)
+            ) {$charset};";
+            }
+        );
+
+        return 'groups';
+    }
+    public static function forms_table(): string {
+        Database::register_core_table(
+            'forms',
+            static function ( string $table_name, string $charset ) {
+                return "CREATE TABLE {$table_name} (
+                id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                form_group varchar(120) NOT NULL,
+                form_value longtext DEFAULT NULL,
+                form_updated_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY  (id),
+                UNIQUE KEY form_group (form_group)
+            ) {$charset};";
+            }
+        );
+
+        return 'forms';
     }
 }

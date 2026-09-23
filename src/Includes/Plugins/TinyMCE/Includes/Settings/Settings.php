@@ -23,7 +23,7 @@ final class Settings {
 	 * 
 	 * @since 1.0.0
 	 */
-	private const DEFAULT_PLUGINS = array( 'advlist', 'autolink', 'lists', 'link', 'image', 'media', 'table', 'code', 'preview', 'searchreplace', 'wordcount' );
+	private const DEFAULT_PLUGINS = array( 'advlist', 'autolink', 'autoresize', 'codesample', 'lists', 'link', 'image', 'media', 'quickbars', 'table', 'code', 'preview', 'searchreplace', 'wordcount' );
 	/**
 	 * The available TinyMCE plugins.
 	 * 

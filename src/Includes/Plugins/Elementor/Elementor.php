@@ -13,7 +13,7 @@ use AccessPress\Includes\Plugins\PluginInterface;
 use AccessPress\Includes\Plugins\SettingsProviderInterface;
 use AccessPress\Includes\Plugins\SettingsPageProviderInterface;
 use AccessPress\Includes\Plugins\Elementor\Assets\Assets;
-use AccessPress\Includes\Plugins\Elementor\Includes\I18n;
+use AccessPress\Includes\Plugins\Elementor\Includes\Core\I18n;
 use AccessPress\Includes\Plugins\Elementor\Includes\Includes;
 use AccessPress\Includes\Plugins\Elementor\Includes\Settings\Settings;
 use AccessPress\Includes\Plugins\Elementor\Includes\Widgets\Widgets;
@@ -59,10 +59,21 @@ final class Elementor implements PluginInterface, SettingsProviderInterface, Set
             return;
         }
 
-        $this->loader->register_component( $this, [
-            [ 'type' => 'action', 'hook' => 'elementor/elements/categories_registered', 'callback' => 'register_category' ],
-        ] );
-        $this->loader->add_action( 'elementor/widgets/register', Widgets::class, 'register' )->run();
+        $this->loader->register_component( 
+            $this, 
+            [
+                [ 
+                    'type' => 'action', 
+                    'hook' => 'elementor/elements/categories_registered', 
+                    'callback' => 'register_category' 
+                ],
+            ] 
+        );
+        $this->loader->add_action( 
+            'elementor/widgets/register', 
+            Widgets::class, 
+            'register' 
+        )->run();
     }
     /**
      * Check if the Elementor plugin is available.
@@ -193,10 +204,10 @@ final class Elementor implements PluginInterface, SettingsProviderInterface, Set
      */
     public function register_category( $elements_manager ): void {
         $elements_manager->add_category(
-            'trilbdev-wiki',
+            'accesspress-user-management',
             [
                 'title' => __( 'AccessPress', 'accesspress' ),
-                'icon'  => 'eicon-book',
+                'icon'  => 'eicon-lock',
             ]
         );
     }

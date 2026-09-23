@@ -211,6 +211,131 @@ final class Database {
 	}
 
 	/**
+	 * Get the WordPress database instance.
+	 *
+	 * @return \wpdb The WordPress database object.
+	 */
+	public static function wpdb() {
+		global $wpdb;
+		return $wpdb;
+	}
+
+	/**
+	 * Prepare a SQL query using the WordPress database object.
+	 *
+	 * @param string $query Query string.
+	 * @param mixed  ...$args Query arguments.
+	 * @return string Prepared query string.
+	 */
+	public static function prepare( string $query, ...$args ): string {
+		global $wpdb;
+		return $wpdb->prepare( $query, ...$args );
+	}
+
+	/**
+	 * Run a raw database query.
+	 *
+	 * @param string $query SQL statement.
+	 * @return mixed Query result.
+	 */
+	public static function query( string $query ) {
+		global $wpdb;
+		return $wpdb->query( $query );
+	}
+
+	/**
+	 * Get a single variable from the database.
+	 *
+	 * @param string $query SQL query.
+	 * @param int    $x     Column index.
+	 * @param int    $y     Offset.
+	 * @return mixed Database value.
+	 */
+	public static function get_var( string $query, int $x = 0, int $y = 0 ) {
+		global $wpdb;
+		return $wpdb->get_var( $query, $x, $y );
+	}
+
+	/**
+	 * Get a single row from the database.
+	 *
+	 * @param string $query SQL query.
+	 * @param string $output Output format.
+	 * @param int    $y      Offset.
+	 * @return mixed Database row.
+	 */
+	public static function get_row( string $query, string $output = ARRAY_A, int $y = 0 ) {
+		global $wpdb;
+		return $wpdb->get_row( $query, $output, $y );
+	}
+
+	/**
+	 * Get multiple rows from the database.
+	 *
+	 * @param string $query SQL query.
+	 * @param string $output Output format.
+	 * @return mixed Database rows.
+	 */
+	public static function get_results( string $query, string $output = ARRAY_A ) {
+		global $wpdb;
+		return $wpdb->get_results( $query, $output );
+	}
+
+	/**
+	 * Insert a row into a table.
+	 *
+	 * @param string $table Table name.
+	 * @param array  $data  Row data.
+	 * @param array  $format Optional value format array.
+	 * @return int|false Insert ID or false.
+	 */
+	public static function insert( string $table, array $data, ?array $format = null ) {
+		global $wpdb;
+		return $wpdb->insert( $table, $data, $format );
+	}
+
+	/**
+	 * Update rows in a table.
+	 *
+	 * @param string $table       Table name.
+	 * @param array  $data        Row data.
+	 * @param array  $where       Where clause values.
+	 * @param array  $format      Optional data format array.
+	 * @param array  $where_format Optional where format array.
+	 * @return int|false Number of rows updated or false.
+	 */
+	public static function update( string $table, array $data, array $where, ?array $format = null, ?array $where_format = null ) {
+		global $wpdb;
+		return $wpdb->update( $table, $data, $where, $format, $where_format );
+	}
+
+	/**
+	 * Delete rows from a table.
+	 *
+	 * @param string $table       Table name.
+	 * @param array  $where       Where clause values.
+	 * @param array  $where_format Optional where format array.
+	 * @return int|false Number of rows deleted or false.
+	 */
+	public static function delete( string $table, array $where, ?array $where_format = null ) {
+		global $wpdb;
+		return $wpdb->delete( $table, $where, $where_format );
+	}
+
+	/**
+	 * Replace a row in a table.
+	 *
+	 * @param string $table Table name.
+	 * @param array  $data  Row data.
+	 * @param array  $format Optional value format array.
+	 * @return int|false Insert or update result.
+	 */
+	public static function replace( string $table, array $data, ?array $format = null ) {
+		global $wpdb;
+		return $wpdb->replace( $table, $data, $format );
+	}
+
+	/**
 	 * Return a prefixed AccessPress table name.
 	 *
 	 * @param string $table Unprefixed table suffix.

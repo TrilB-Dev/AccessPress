@@ -7,6 +7,7 @@
 namespace AccessPress\Public\Templates;
 
 use AccessPress\Includes\Functions\Helpers\FormFieldHelper;
+use AccessPress\Includes\Settings\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,12 +25,26 @@ final class Login {
 			return '<p>' . esc_html__( 'You are already logged in.', 'accesspress' ) . '</p>';
 		}
 
+		if ( Settings::get_bool( 'elementor_integration', false ) ) {
+			return '';
+		}
+
+		$template_path = self::locate_theme_template( 'login' );
+		if ( '' !== $template_path ) {
+			ob_start();
+			include $template_path;
+			return (string) ob_get_clean();
+		}
+
+		$mode = Settings::get( 'login_identifier_mode', 'default' );
+		$mode = in_array( (string) $mode, array( 'default', 'username', 'email' ), true ) ? (string) $mode : 'default';
+		$label = 'email' === $mode ? __( 'Email', 'accesspress' ) : ( 'username' === $mode ? __( 'Username', 'accesspress' ) : __( 'Username or email', 'accesspress' ) );
 		$redirect_to = ! empty( $args['redirect_to'] ) ? esc_url_raw( (string) $args['redirect_to'] ) : home_url( '/' );
 		ob_start();
 		?>
 		<form method="post" class="accesspress-user-management-form accesspress-login-form">
 			<div class="mb-3">
-				<?php echo FormFieldHelper::label( 'accesspress-login-user', __( 'Username or email', 'accesspress' ) ); ?>
+				<?php echo FormFieldHelper::label( 'accesspress-login-user', $label ); ?>
 				<?php echo FormFieldHelper::input( 'log', '', array( 'id' => 'accesspress-login-user', 'required' => true ) ); ?>
 			</div>
 			<div class="mb-3">
@@ -43,5 +58,29 @@ final class Login {
 		</form>
 		<?php
 		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Locate an active theme override for the template.
+	 *
+	 * @param string $template_name Template slug.
+	 * @return string
+	 */
+	private static function locate_theme_template( string $template_name ): string {
+		$paths = array( get_stylesheet_directory(), get_template_directory() );
+		$paths = array_values( array_unique( array_filter( $paths ) ) );
+		foreach ( $paths as $path ) {
+			foreach ( array(
+				$path . '/accesspress/templates/' . $template_name . '.php',
+				$path . '/accesspress/' . $template_name . '.php',
+				$path . '/templates/accesspress/' . $template_name . '.php',
+			) as $candidate ) {
+				if ( file_exists( $candidate ) ) {
+					return $candidate;
+				}
+			}
+		}
+
+		return '';
 	}
 }

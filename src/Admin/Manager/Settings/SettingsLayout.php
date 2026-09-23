@@ -37,6 +37,7 @@ final class SettingsLayout extends SettingsManager {
 		$site_logo   = is_scalar( $values['site_logo'] ?? '' ) ? (string) $values['site_logo'] : '';
 		$user_menu   = (string) ( $values['frontend_user_menu'] ?? 'horizontal' );
 		$ajax_profile = ! empty( $values['ajax_submission_user_profile'] );
+		$elementor_integration = ! empty( $values['elementor_integration'] );
 		$user_menu_options = array(
 			'horizontal' => __( 'Horizontal', 'accesspress' ),
 			'vertical'   => __( 'Vertical', 'accesspress' ),
@@ -150,6 +151,29 @@ final class SettingsLayout extends SettingsManager {
 								array(
 									'id' => 'accesspress-layout-ajax-submission-user-profile',
 									'checked' => $ajax_profile,
+								)
+							); ?>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<?php echo FormFieldHelper::label(
+								'accesspress-layout-elementor-integration',
+								__( 'Elementor Integration', 'accesspress' ),
+								array(
+									'description' => __( 'Enable integration with Elementor.', 'accesspress' ),
+									'tooltip' => __( 'Enable integration with Elementor to create your own custom templates.', 'accesspress' ),
+								)
+							); ?>
+						</th>
+						<td>
+							<?php echo FormFieldHelper::switch(
+								'accesspress_layout[elementor_integration]',
+								'1',
+								__( 'Elementor Integration', 'accesspress' ),
+								array(
+									'id' => 'accesspress-layout-elementor-integration',
+									'checked' => $elementor_integration,
 								)
 							); ?>
 						</td>

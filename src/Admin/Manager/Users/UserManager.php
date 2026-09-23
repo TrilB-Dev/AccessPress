@@ -222,10 +222,27 @@ class UserManager extends Manager {
 	 */
 	public function register_assets( Assets $assets ): void {
 		$user_management_assets = $this->assets( 'user-management' );
+		$user_management_assets['styles'][] = array(
+			'handle' => 'accesspress-bootstrap-drag-and-drop',
+			'src'    => ACCESSPRESS_ASSETS_URL . '/dist/css/bootstrap-drag-and-drop.min.css',
+			'deps'   => array( 'accesspress-bootstrap' ),
+		);
+		$user_management_assets['scripts'][] = array(
+			'handle'    => 'accesspress-bootstrap-drag-and-drop-js',
+			'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/bootstrap-drag-and-drop.min.js',
+			'deps'      => array( 'accesspress-bootstrap' ),
+			'in_footer' => true,
+		);
 		$user_management_assets['scripts'][] = array(
 			'handle'    => 'accesspress-admin-user-management',
 			'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/admin.user-management.js',
-			'deps'      => array( 'accesspress-bootstrap' ),
+			'deps'      => array( 'accesspress-bootstrap', 'accesspress-bootstrap-drag-and-drop-js' ),
+			'in_footer' => true,
+		);
+		$user_management_assets['scripts'][] = array(
+			'handle'    => 'accesspress-admin-profile-builder',
+			'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/admin.profile.js',
+			'deps'      => array( 'accesspress-bootstrap', 'accesspress-bootstrap-drag-and-drop-js' ),
 			'in_footer' => true,
 		);
 		$assets->register_page( 'accesspress-user-management', $user_management_assets );

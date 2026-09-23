@@ -1,0 +1,1 @@
+(()=>{const e=()=>{(document.querySelector("[data-profile-builder]")||document).querySelectorAll('[data-bs-toggle="collapse"]').forEach(e=>{"true"!==e.dataset.initialized&&(e.dataset.initialized="true")})};"loading"===document.readyState?document.addEventListener("DOMContentLoaded",e):e()})();

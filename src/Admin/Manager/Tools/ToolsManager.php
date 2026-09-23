@@ -16,6 +16,7 @@ use AccessPress\Assets\Assets;
 use AccessPress\Includes\Functions\Helpers\RequestHelper;
 use AccessPress\Includes\Functions\Helpers\SanitizationHelper;
 use AccessPress\Includes\Functions\Helpers\PermissionHelper;
+use AccessPress\Includes\Functions\Admin\FunctionsTools;
 
 
 class ToolsManager extends Manager {
@@ -62,6 +63,13 @@ class ToolsManager extends Manager {
 	 * @var General $general_tools_manager The general tools manager instance.
 	 */
 	private General $general_tools_manager;
+	/**
+	 * FunctionsTools instance for managing the tools functions.
+	 *
+	 * @since 1.0.0
+	 * @var FunctionsTools $functions_tools The functions tools instance.
+	 */
+	private FunctionsTools $functions_tools;
 
 	/**
 	 * `Constructor` method for the `ToolsManager` class.
@@ -111,6 +119,12 @@ class ToolsManager extends Manager {
 		 * @since 1.0.0
 		 */
 		$this->general_tools_manager = new General();
+		/**
+		 * Initialize the FunctionsTools instance.
+		 *
+		 * @since 1.0.0
+		 */
+		$this->functions_tools = new FunctionsTools();
 	}
 	/**
 	 * Renders the tools page.

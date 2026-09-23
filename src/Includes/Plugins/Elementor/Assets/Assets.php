@@ -21,11 +21,11 @@ final class Assets {
     }
 
     public function enqueue_styles(): void {
-        wp_enqueue_style( 'accesspress-elementor', ACCESSPRESS_URL . 'src/includes/Plugins/Elementor/Assets/dist/css/wiki.css', [], ACCESSPRESS_VERSION );
+        wp_enqueue_style( 'accesspress-elementor', ACCESSPRESS_URL . 'src/Includes/Plugins/Elementor/Assets/dist/css/wiki.css', [], ACCESSPRESS_VERSION );
     }
 
     public function register_scripts(): void {
-        wp_register_script( 'accesspress-elementor', ACCESSPRESS_URL . 'src/includes/Plugins/Elementor/Assets/dist/js/wiki.js', [ 'jquery' ], ACCESSPRESS_VERSION, true );
+        wp_register_script( 'accesspress-elementor', ACCESSPRESS_URL . 'src/Includes/Plugins/Elementor/Assets/dist/js/wiki.js', [ 'jquery' ], ACCESSPRESS_VERSION, true );
     }
 
     public function enqueue_scripts(): void {

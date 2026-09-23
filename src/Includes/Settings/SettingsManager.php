@@ -8,6 +8,7 @@
 namespace AccessPress\Includes\Settings;
 
 use AccessPress\Includes\Core\WP\Database;
+use AccessPress\Includes\Functions\Helpers\DBHelper;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -28,12 +29,24 @@ final class SettingsManager {
 	 */
 	private static array $registered_keys = array();
 	/**
-	 * Get the name of the settings table in the database.
+	 * Get the name of a custom AccessPress table in the database.
 	 *
-	 * @return string The name of the settings table.
+	 * @param string $table Optional table suffix. Defaults to the settings table.
+	 * @return string The database table name.
 	 */
-	public static function table_name(): string {
-		return Database::table_name( 'settings' );
+	public static function table_name( string $table = 'settings' ): string {
+		$table = self::normalize_table_name( $table );
+		return Database::table_name( $table );
+	}
+	/**
+	 * Normalize a supported AccessPress table name before routing queries.
+	 *
+	 * @param string $table The table suffix.
+	 * @return string The normalized table suffix.
+	 */
+	private static function normalize_table_name( string $table ): string {
+		$table = sanitize_key( $table );
+		return '' === $table ? 'settings' : $table;
 	}
 	/**
 	 * Get the name of the settings table in the database.
@@ -61,8 +74,8 @@ final class SettingsManager {
 	 * @param mixed  $default The default value to return if the key is not found.
 	 * @return mixed The value of the setting key if found, otherwise the default value.
 	 */
-	public static function get( string $key, $default = null ) {
-		$settings = self::get_all();
+	public static function get( string $key, $default = null, ?string $table = null ) {
+		$settings = self::get_all( $table ?? 'settings' );
 		foreach ( $settings as $group_settings ) {
 			if ( is_array( $group_settings ) && array_key_exists( $key, $group_settings ) ) {
 				return $group_settings[ $key ];
@@ -77,11 +90,12 @@ final class SettingsManager {
 	 * @param mixed  $value The value to set for the key.
 	 * @return bool True if the key was successfully set, false otherwise.
 	 */
-	public static function set( string $key, $value ): bool {
+	public static function set( string $key, $value, ?string $table = null ): bool {
+		$table            = self::normalize_table_name( $table ?? 'settings' );
 		$group            = self::group_for_key( $key );
-		$settings         = self::get_group( $group ) ?? array();
+		$settings         = self::get_group( $group, $table ) ?? array();
 		$settings[ $key ] = $value;
-		return self::set_group( $group, $settings );
+		return self::set_group( $group, $settings, $table );
 	}
 	/**
 	 * Delete a specific setting key from the database.
@@ -89,14 +103,15 @@ final class SettingsManager {
 	 * @param string $key The setting key to delete.
 	 * @return bool True if the key was successfully deleted, false otherwise.
 	 */
-	public static function delete( string $key ): bool {
+	public static function delete( string $key, ?string $table = null ): bool {
+		$table    = self::normalize_table_name( $table ?? 'settings' );
 		$group    = self::group_for_key( $key );
-		$settings = self::get_group( $group );
+		$settings = self::get_group( $group, $table );
 		if ( ! is_array( $settings ) || ! array_key_exists( $key, $settings ) ) {
 			return false;
 		}
 		unset( $settings[ $key ] );
-		return self::set_group( $group, $settings );
+		return self::set_group( $group, $settings, $table );
 	}
 	/**
 	 * Check if a specific setting key exists in the database.
@@ -104,8 +119,8 @@ final class SettingsManager {
 	 * @param string $key The setting key to check.
 	 * @return bool True if the key exists, false otherwise.
 	 */
-	public static function has( string $key ): bool {
-		foreach ( self::get_all() as $settings ) {
+	public static function has( string $key, ?string $table = null ): bool {
+		foreach ( self::get_all( $table ?? 'settings' ) as $settings ) {
 			if ( is_array( $settings ) && array_key_exists( $key, $settings ) ) {
 				return true;
 			}
@@ -118,19 +133,19 @@ final class SettingsManager {
 	 *
 	 * @return array The array of all settings grouped by their respective groups.
 	 */
-	public static function get_all(): array {
-		global $wpdb;
-
-		if ( ! self::table_exists() ) {
+	public static function get_all( ?string $table = null ): array {
+		$table = self::normalize_table_name( $table ?? 'settings' );
+		if ( ! self::table_exists( $table ) ) {
 			return array();
 		}
 
-		$rows = $wpdb->get_results( 'SELECT setting_group, setting_value FROM ' . self::table_name(), ARRAY_A );
+		$rows = DBHelper::get_results( 'SELECT setting_group, setting_value FROM ' . self::table_name( $table ), ARRAY_A );
 		$rows = is_array( $rows ) ? $rows : array();
 
 		$settings = array();
 		foreach ( $rows as $row ) {
-			$group              = self::logical_group( $row['setting_group'] );
+			$group_key = $row['setting_group'] ?? '';
+			$group     = self::logical_group( $group_key );
 			$settings[ $group ] = maybe_unserialize( $row['setting_value'] );
 		}
 		return $settings;
@@ -168,15 +183,15 @@ final class SettingsManager {
 	 * @param string $group The group name to retrieve.
 	 * @return array|null The settings array if found, null otherwise.
 	 */
-	public static function get_group( string $group ): ?array {
-		global $wpdb;
-
-		if ( ! self::table_exists() ) {
+	public static function get_group( string $group, ?string $table = null ): ?array {
+		$table = self::normalize_table_name( $table ?? 'settings' );
+		if ( ! self::table_exists( $table ) ) {
 			return null;
 		}
 
 		foreach ( array( self::storage_group( $group ), 'accesspress_' . self::normalize_group( $group ) ) as $stored_group ) {
-			$value    = $wpdb->get_var( $wpdb->prepare( 'SELECT setting_value FROM ' . self::table_name() . ' WHERE setting_group = %s', $stored_group ) );
+			$query = DBHelper::prepare( 'SELECT setting_value FROM ' . self::table_name( $table ) . ' WHERE setting_group = %s', $stored_group );
+			$value = DBHelper::get_var( $query );
 			$settings = $value === null ? null : maybe_unserialize( $value );
 			if ( is_array( $settings ) ) {
 				return $settings;
@@ -192,10 +207,10 @@ final class SettingsManager {
 	 * @param array $settings The settings array to store.
 	 * @return bool True if the group was successfully set, false otherwise.
 	 */
-	public static function set_group( string $group, array $settings ): bool {
-		global $wpdb;
-		return false !== $wpdb->replace(
-			self::table_name(),
+	public static function set_group( string $group, array $settings, ?string $table = null ): bool {
+		$table = self::normalize_table_name( $table ?? 'settings' );
+		return false !== DBHelper::replace(
+			self::table_name( $table ),
 			array(
 				'setting_group' => self::storage_group( $group ),
 				'setting_value' => maybe_serialize( $settings ),
@@ -278,15 +293,14 @@ final class SettingsManager {
 	 * @return array|null The settings array if found, null otherwise.
 	 */
 	private static function get_legacy_group( string $group ): ?array {
-		global $wpdb;
-
 		if ( ! self::table_exists() ) {
 			return null;
 		}
 
 		$group_names = array( sanitize_key( $group ), 'accesspress_' . sanitize_key( $group ), 'accesspress_' . sanitize_key( $group ) );
 		foreach ( $group_names as $group_name ) {
-			$value = $wpdb->get_var( $wpdb->prepare( 'SELECT setting_value FROM ' . self::table_name() . ' WHERE setting_group = %s', $group_name ) );
+			$query = DBHelper::prepare( 'SELECT setting_value FROM ' . self::table_name() . ' WHERE setting_group = %s', $group_name );
+			$value = DBHelper::get_var( $query );
 			if ( $value !== null ) {
 				return maybe_unserialize( $value );
 			}
@@ -298,21 +312,24 @@ final class SettingsManager {
 	 *
 	 * @return bool True if the table exists, false otherwise.
 	 */
-	private static function table_exists(): bool {
-		global $wpdb;
-
-		if ( ! isset( $wpdb ) || ! is_object( $wpdb ) || ! method_exists( $wpdb, 'get_var' ) ) {
+	private static function table_exists( ?string $table = null ): bool {
+		$table_name = self::table_name( $table ?? 'settings' );
+		if ( ! DBHelper::wpdb() instanceof \wpdb ) {
 			return false;
 		}
 
-		if ( ! method_exists( $wpdb, 'prepare' ) ) {
+		if ( ! method_exists( DBHelper::wpdb(), 'get_var' ) ) {
 			return false;
 		}
 
-		$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', self::table_name() );
-		$table = $wpdb->get_var( $query );
+		if ( ! method_exists( DBHelper::wpdb(), 'prepare' ) ) {
+			return false;
+		}
 
-		return is_string( $table ) && '' !== $table;
+		$query = DBHelper::prepare( 'SHOW TABLES LIKE %s', $table_name );
+		$result = DBHelper::get_var( $query );
+
+		return is_string( $result ) && '' !== $result;
 	}
 	/**
 	 * Delete the legacy settings group from the database.
@@ -320,10 +337,9 @@ final class SettingsManager {
 	 * @param string $group The group name to delete.
 	 */
 	private static function delete_legacy_group( string $group ): void {
-		global $wpdb;
 		$normalized = self::normalize_group( $group );
 		foreach ( array( sanitize_key( $normalized ), 'accesspress_' . sanitize_key( $normalized ) ) as $legacy_group ) {
-			$wpdb->delete( self::table_name(), array( 'setting_group' => $legacy_group ), array( '%s' ) );
+			DBHelper::delete( self::table_name(), array( 'setting_group' => $legacy_group ), array( '%s' ) );
 		}
 	}
 	/**
@@ -405,18 +421,16 @@ final class SettingsManager {
 	 * @return bool True if the table exists and is accessible, false otherwise.
 	 */
 	private static function table_ready(): bool {
-		global $wpdb;
-
-		if ( ! isset( $wpdb ) || ! is_object( $wpdb ) ) {
+		if ( ! DBHelper::wpdb() instanceof \wpdb ) {
 			return false;
 		}
 
-		if ( ! method_exists( $wpdb, 'get_var' ) ) {
+		if ( ! method_exists( DBHelper::wpdb(), 'get_var' ) ) {
 			return false;
 		}
 
-		$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', self::table_name() );
-		$table = $wpdb->get_var( $query );
+		$query = DBHelper::prepare( 'SHOW TABLES LIKE %s', self::table_name() );
+		$table = DBHelper::get_var( $query );
 
 		return null !== $table && '' !== (string) $table;
 	}

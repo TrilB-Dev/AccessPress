@@ -126,20 +126,22 @@ final class UserGroups extends UserManager {
 			$this->redirect( 'invalid' );
 		}
 
-		$definitions = Groups::register_default_groups();
-		if ( isset( $definitions[ $slug ] ) ) {
+		$created = Groups::create_group(
+			array(
+				'group_slug'        => $slug,
+				'group_name'        => $name,
+				'group_description' => SanitizationHelper::text( RequestHelper::text( $_POST, 'group_description' ) ),
+				'group_priority'    => absint( RequestHelper::key( $_POST, 'group_priority' ) ),
+				'group_color'       => RequestHelper::text( $_POST, 'group_color' ) ?: '#4f46e5',
+				'group_price'       => floatval( RequestHelper::key( $_POST, 'group_price' ) ),
+				'group_status'      => 'active',
+			)
+		);
+
+		if ( false === $created ) {
 			$this->redirect( 'invalid' );
 		}
 
-		$definitions[ $slug ] = array(
-			'label'       => $name,
-			'description' => SanitizationHelper::text( RequestHelper::text( $_POST, 'group_description' ) ),
-			'priority'    => absint( RequestHelper::key( $_POST, 'group_priority' ) ),
-			'color'       => sanitize_hex_color( RequestHelper::text( $_POST, 'group_color' ) ) ?: '#4f46e5',
-			'price'       => floatval( RequestHelper::key( $_POST, 'group_price' ) ),
-		);
-
-		update_option( 'accesspress_default_user_groups', $definitions, false );
 		$this->redirect( 'created' );
 	}
 
@@ -159,21 +161,23 @@ final class UserGroups extends UserManager {
 			$this->redirect( 'invalid' );
 		}
 
-		$definitions = Groups::register_default_groups();
-		if ( ! isset( $definitions[ $old_slug ] ) ) {
+		$updated = Groups::update_group(
+			$old_slug,
+			array(
+				'group_slug'        => $slug,
+				'group_name'        => $name,
+				'group_description' => SanitizationHelper::text( RequestHelper::text( $_POST, 'group_description' ) ),
+				'group_priority'    => absint( RequestHelper::key( $_POST, 'group_priority' ) ),
+				'group_color'       => RequestHelper::text( $_POST, 'group_color' ) ?: '#4f46e5',
+				'group_price'       => floatval( RequestHelper::key( $_POST, 'group_price' ) ),
+				'group_status'      => 'active',
+			)
+		);
+
+		if ( ! $updated ) {
 			$this->redirect( 'invalid' );
 		}
 
-		unset( $definitions[ $old_slug ] );
-		$definitions[ $slug ] = array(
-			'label'       => $name,
-			'description' => SanitizationHelper::text( RequestHelper::text( $_POST, 'group_description' ) ),
-			'priority'    => absint( RequestHelper::key( $_POST, 'group_priority' ) ),
-			'color'       => sanitize_hex_color( RequestHelper::text( $_POST, 'group_color' ) ) ?: '#4f46e5',
-			'price'       => floatval( RequestHelper::key( $_POST, 'group_price' ) ),
-		);
-
-		update_option( 'accesspress_default_user_groups', $definitions, false );
 		$this->redirect( 'updated' );
 	}
 
@@ -190,13 +194,11 @@ final class UserGroups extends UserManager {
 			$this->redirect( 'invalid' );
 		}
 
-		$definitions = Groups::register_default_groups();
-		if ( ! isset( $definitions[ $slug ] ) ) {
+		$deleted = Groups::delete_group( $slug );
+		if ( ! $deleted ) {
 			$this->redirect( 'invalid' );
 		}
 
-		unset( $definitions[ $slug ] );
-		update_option( 'accesspress_default_user_groups', $definitions, false );
 		$this->redirect( 'deleted' );
 	}
 
