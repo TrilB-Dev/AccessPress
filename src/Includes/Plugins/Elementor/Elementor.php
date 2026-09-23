@@ -92,6 +92,14 @@ final class Elementor implements PluginInterface, SettingsProviderInterface, Set
         return 'Elementor';
     }
     /**
+     * Get the plugin icon.
+     *
+     * @return array<int, string> The plugin icon classes and optional color.
+     */
+    public function get_icon(): array {
+        return array( 'eicon-elementor', '#7f6fff' );
+    }
+    /**
      * Get the version of the Elementor plugin.
      *
      * @return string The version of the plugin.
