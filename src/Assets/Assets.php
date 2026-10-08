@@ -18,13 +18,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 
-final class Assets {
+class Assets {
 	/**
 	 * Array to hold registered assets for different pages.
 	 *
 	 * @var array
+	 * @since 1.0.0
 	 */
 	private array $pages = array();
+	/**
+	 * Array to hold registered asset groups.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
+	private array $groups = array();
+	/**
+	 * Array to hold registered asset tabs.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
+	private array $tabs = array();
 	/**
 	 * Registers the default assets for the plugin.
 	 *
@@ -62,10 +77,38 @@ final class Assets {
 	 * @return void
 	 */
 	public function register_page( string $page, array $assets ): void {
-		$page                 = SanitizationHelper::key( $page, 'accesspress' );
+		$page                 = SanitizationHelper::key( $page );
 		$this->pages[ $page ] = array(
 			'styles'  => array_merge( $this->pages[ $page ]['styles'] ?? array(), $assets['styles'] ?? array() ),
 			'scripts' => array_merge( $this->pages[ $page ]['scripts'] ?? array(), $assets['scripts'] ?? array() ),
+		);
+	}
+	/**
+	 * Registers assets for a specific group.
+	 *
+	 * @param string $group The group identifier.
+	 * @param array  $assets The assets to register for the group.
+	 * @return void
+	 */
+	public function register_group( string $group, array $assets ): void {
+		$group = SanitizationHelper::key( $group );
+		$this->groups[ $group ] = array(
+			'styles'  => array_merge( $this->groups[ $group ]['styles'] ?? array(), $assets['styles'] ?? array() ),
+			'scripts' => array_merge( $this->groups[ $group ]['scripts'] ?? array(), $assets['scripts'] ?? array() ),
+		);
+	}
+	/**
+	 * Registers assets for a specific tab.
+	 *
+	 * @param string $tab The tab identifier.
+	 * @param array  $assets The assets to register for the tab.
+	 * @return void
+	 */
+	public function register_tab( string $tab, array $assets ): void {
+		$tab = SanitizationHelper::key( $tab );
+		$this->tabs[ $tab ] = array(
+			'styles'  => array_merge( $this->tabs[ $tab ]['styles'] ?? array(), $assets['styles'] ?? array() ),
+			'scripts' => array_merge( $this->tabs[ $tab ]['scripts'] ?? array(), $assets['scripts'] ?? array() ),
 		);
 	}
 	/**
@@ -116,13 +159,6 @@ final class Assets {
 					'deps'      => array( 'accesspress-bootstrap' ),
 					'in_footer' => true,
 				),
-				/*
-				array(
-					'handle'    => 'accesspress-bootstrap-select-control',
-					'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/bootstrap-select-control.js',
-					'version'   => '1.0.0',
-					'in_footer' => true,
-				),*/
 				array(
 					'handle'	=> 'accesspress-bs-country-data',
 					'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/bs-country-data.min.js',
@@ -140,6 +176,7 @@ final class Assets {
 	 * Enqueues the frontend assets for the plugin.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function enqueue_frontend(): void {
 		if ( ! is_singular( 'accesspress_page' ) ) {
@@ -156,6 +193,7 @@ final class Assets {
 						array(
 							'handle' => 'accesspress-public',
 							'src'    => ACCESSPRESS_ASSETS_URL . '/dist/css/public.css',
+							'version' => ACCESSPRESS_VERSION,
 						),
 					)
 				),
@@ -165,6 +203,7 @@ final class Assets {
 						array(
 							'handle'    => 'accesspress-public',
 							'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/public.js',
+							'version'   => ACCESSPRESS_VERSION,
 							'in_footer' => true,
 						),
 					)
@@ -177,6 +216,7 @@ final class Assets {
 	 *
 	 * @param string $hook_suffix The current admin page hook suffix.
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function enqueue_admin( string $hook_suffix ): void {
 		if ( false === strpos( $hook_suffix, 'accesspress' ) ) {
@@ -195,7 +235,7 @@ final class Assets {
 						array(
 							'handle'  => 'accesspress-admin-ui',
 							'src'     => ACCESSPRESS_ASSETS_URL . '/dist/css/admin.ui.css',
-							'version' => '1.0.0',
+							'version' => ACCESSPRESS_VERSION,
 							'deps'    => array( 'accesspress-bootstrap' ),
 						),
 					),
@@ -207,6 +247,7 @@ final class Assets {
 						array(
 							'handle'    => 'accesspress-admin-ui',
 							'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/admin.ui.js',
+							'version'   => ACCESSPRESS_VERSION,
 							'deps'      => array( 'accesspress-bootstrap' ),
 							'in_footer' => true,
 						),
@@ -222,8 +263,9 @@ final class Assets {
 	 * @param string $context The context (e.g., 'frontend', 'admin').
 	 * @param array  $assets The assets to enqueue.
 	 * @return void
+	 * @since 1.0.0
 	 */
-	private function enqueue_registered( string $context, array $assets ): void {
+	protected function enqueue_registered( string $context, array $assets ): void {
 		$assets = apply_filters( 'accesspress_' . $context . '_assets', $assets, $context );
 		$this->enqueue_bundle( $assets );
 	}
@@ -232,13 +274,16 @@ final class Assets {
 	 *
 	 * @param array $assets The assets to enqueue.
 	 * @return void
+	 * @since 1.0.0
 	 */
-	private function enqueue_bundle( array $assets ): void {
+	protected function enqueue_bundle( array $assets ): void {
 		if ( isset( $assets['styles'] ) && is_string( $assets['styles'] ) ) {
 			$assets['styles'] = array(
 				array(
 					'handle' => 'accesspress-admin-' . $assets['styles'],
 					'src'    => ACCESSPRESS_ASSETS_URL . '/dist/css/admin.' . $assets['styles'] . '.css',
+					'deps'    => array( 'accesspress-admin-ui' ),
+					'version' => ACCESSPRESS_VERSION,
 				),
 			);
 		}
@@ -247,7 +292,9 @@ final class Assets {
 				array(
 					'handle' => 'accesspress-admin-' . $assets['scripts'],
 					'src'    => ACCESSPRESS_ASSETS_URL . '/dist/js/admin.' . $assets['scripts'] . '.js',
-					'deps'   => array( 'accesspress-bootstrap' ),
+					'deps'   => array( 'accesspress-admin-ui' ),
+					'version' => ACCESSPRESS_VERSION,
+					'in_footer' => true,
 				),
 			);
 		}
@@ -272,14 +319,16 @@ final class Assets {
 			);
 		}
 
-		$current_page = RequestHelper::get_key( 'page', '' );
+		$route = $this->current_admin_route();
+		$settings_page = 'accesspress' === $route['page'] && 'settings' === $route['group'];
+		$plugin_tab = in_array( $route['tab'], array( 'plugins', 'third-party' ), true );
 
-		if ( 'accesspress-settings' === $current_page ) {
+		if ( $settings_page && $plugin_tab ) {
 			$settings_config = array(
 				'ajaxUrl'             => admin_url( 'admin-ajax.php' ),
 				'nonce'               => wp_create_nonce( 'accesspress_settings_tabs' ),
 				'pluginNonce'         => wp_create_nonce( 'accesspress_plugin_toggle' ),
-				'pluginSettingsNonce' => wp_create_nonce( 'accesspress_plugin_settings' ),
+				'pluginSettingsNonce' => wp_create_nonce( 'accesspress_save_plugin_settings' ),
 			);
 			foreach ( array( 'accesspress-admin-settings', 'accesspress-admin-plugins' ) as $handle ) {
 				if ( wp_script_is( $handle, 'enqueued' ) ) {
@@ -287,10 +336,10 @@ final class Assets {
 				}
 			}
 		}
-		if ( 'accesspress-manage' === $current_page && wp_script_is( 'accesspress-admin', 'enqueued' ) ) {
+		if ( 'accesspress' === $route['page'] && in_array( $route['group'], array( 'manage-mod', 'mods' ), true ) && wp_script_is( 'accesspress-admin', 'enqueued' ) ) {
 			LoaderHelper::localize_script(
 				'accesspress-admin',
-				'accesspressWikiManager',
+				'accesspressManager',
 				array(
 					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 					'nonce'   => wp_create_nonce( 'accesspress_manage' ),
@@ -298,17 +347,28 @@ final class Assets {
 			);
 		}
 	}
+
+	/**
+	 * Get the current admin route values.
+	 *
+	 * @return array{page:string,group:string,tab:string}
+	 */
+	private function current_admin_route(): array {
+		return array(
+			'page'  => RequestHelper::get_key( 'page', '' ),
+			'group' => RequestHelper::get_key( 'group', '' ),
+			'tab'   => RequestHelper::get_key( 'tab', '' ),
+		);
+	}
 	/**
 	 * Retrieves the URL of an image asset.
 	 *
 	 * @param string $file The image file name.
 	 * @return string The URL of the image asset.
+	 * @since 1.0.0
 	 */
 	public static function get_image( string $file ): string {
 
 		return ImageHelper::get_image_url( 'core', $file );
 	}
 }
-
-
-

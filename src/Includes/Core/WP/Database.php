@@ -6,8 +6,6 @@
  */
 namespace AccessPress\Includes\Core\WP;
 
-use AccessPress\Includes\Core\Schema;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -124,11 +122,9 @@ final class Database {
 			return false;
 		}
 
-		if ( file_exists( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		}
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-		$statement = call_user_func( $schema, self::table_name( $table ), method_exists( $wpdb, 'get_charset_collate' ) ? $wpdb->get_charset_collate() : '' );
+		$statement = call_user_func( $schema, self::table_name( $table ), $wpdb->get_charset_collate() );
 		if ( ! is_string( $statement ) || '' === trim( $statement ) ) {
 			return false;
 		}
@@ -195,8 +191,6 @@ final class Database {
 	 * @return void
 	 */
 	public static function install(): void {
-		Schema::register_tables();
-
 		foreach ( self::$registered_core_tables as $table => $schema ) {
 			self::create_table( $table );
 		}
@@ -205,15 +199,13 @@ final class Database {
 			self::create_table( $table );
 		}
 
-		if ( function_exists( 'update_option' ) ) {
-			update_option( 'accesspress_db_version', defined( 'ACCESSPRESS_VERSION' ) ? ACCESSPRESS_VERSION : '1.0.0' );
-		}
+		update_option( 'accesspress_db_version', defined( 'ACCESSPRESS_VERSION' ) ? ACCESSPRESS_VERSION : '1.0.0' );
 	}
 
 	/**
-	 * Get the WordPress database instance.
+	 * Return the underlying WordPress database object.
 	 *
-	 * @return \wpdb The WordPress database object.
+	 * @return \wpdb
 	 */
 	public static function wpdb() {
 		global $wpdb;
@@ -221,118 +213,109 @@ final class Database {
 	}
 
 	/**
-	 * Prepare a SQL query using the WordPress database object.
+	 * Prepare SQL using the current WordPress database instance.
 	 *
-	 * @param string $query Query string.
+	 * @param string $query SQL query.
 	 * @param mixed  ...$args Query arguments.
-	 * @return string Prepared query string.
+	 * @return string
 	 */
 	public static function prepare( string $query, ...$args ): string {
-		global $wpdb;
-		return $wpdb->prepare( $query, ...$args );
+		return self::wpdb()->prepare( $query, ...$args );
 	}
 
 	/**
-	 * Run a raw database query.
+	 * Run a raw SQL query through WordPress.
 	 *
-	 * @param string $query SQL statement.
-	 * @return mixed Query result.
+	 * @param string $query SQL query.
+	 * @return mixed
 	 */
 	public static function query( string $query ) {
-		global $wpdb;
-		return $wpdb->query( $query );
+		return self::wpdb()->query( $query );
 	}
 
 	/**
-	 * Get a single variable from the database.
+	 * Return a single variable from the database.
 	 *
 	 * @param string $query SQL query.
-	 * @param int    $x     Column index.
-	 * @param int    $y     Offset.
-	 * @return mixed Database value.
+	 * @param int    $x Column offset.
+	 * @param int    $y Row offset.
+	 * @return mixed
 	 */
 	public static function get_var( string $query, int $x = 0, int $y = 0 ) {
-		global $wpdb;
-		return $wpdb->get_var( $query, $x, $y );
+		return self::wpdb()->get_var( $query, $x, $y );
 	}
 
 	/**
-	 * Get a single row from the database.
+	 * Return a single row from the database.
 	 *
 	 * @param string $query SQL query.
 	 * @param string $output Output format.
-	 * @param int    $y      Offset.
-	 * @return mixed Database row.
+	 * @param int    $y Row offset.
+	 * @return mixed
 	 */
 	public static function get_row( string $query, string $output = ARRAY_A, int $y = 0 ) {
-		global $wpdb;
-		return $wpdb->get_row( $query, $output, $y );
+		return self::wpdb()->get_row( $query, $output, $y );
 	}
 
 	/**
-	 * Get multiple rows from the database.
+	 * Return multiple rows from the database.
 	 *
 	 * @param string $query SQL query.
 	 * @param string $output Output format.
-	 * @return mixed Database rows.
+	 * @return mixed
 	 */
 	public static function get_results( string $query, string $output = ARRAY_A ) {
-		global $wpdb;
-		return $wpdb->get_results( $query, $output );
+		return self::wpdb()->get_results( $query, $output );
 	}
 
 	/**
 	 * Insert a row into a table.
 	 *
 	 * @param string $table Table name.
-	 * @param array  $data  Row data.
-	 * @param array  $format Optional value format array.
-	 * @return int|false Insert ID or false.
+	 * @param array  $data Row data.
+	 * @param array  $format Optional format values.
+	 * @return int|false
 	 */
 	public static function insert( string $table, array $data, ?array $format = null ) {
-		global $wpdb;
-		return $wpdb->insert( $table, $data, $format );
+		return self::wpdb()->insert( $table, $data, $format );
 	}
 
 	/**
 	 * Update rows in a table.
 	 *
-	 * @param string $table       Table name.
-	 * @param array  $data        Row data.
-	 * @param array  $where       Where clause values.
-	 * @param array  $format      Optional data format array.
-	 * @param array  $where_format Optional where format array.
-	 * @return int|false Number of rows updated or false.
+	 * @param string $table Table name.
+	 * @param array  $data Row data.
+	 * @param array  $where Where clause values.
+	 * @param array  $format Optional format values.
+	 * @param array  $where_format Optional where format values.
+	 * @return int|false
 	 */
 	public static function update( string $table, array $data, array $where, ?array $format = null, ?array $where_format = null ) {
-		global $wpdb;
-		return $wpdb->update( $table, $data, $where, $format, $where_format );
+		return self::wpdb()->update( $table, $data, $where, $format, $where_format );
 	}
 
 	/**
 	 * Delete rows from a table.
 	 *
-	 * @param string $table       Table name.
-	 * @param array  $where       Where clause values.
-	 * @param array  $where_format Optional where format array.
-	 * @return int|false Number of rows deleted or false.
+	 * @param string $table Table name.
+	 * @param array  $where Where clause values.
+	 * @param array  $where_format Optional where format values.
+	 * @return int|false
 	 */
 	public static function delete( string $table, array $where, ?array $where_format = null ) {
-		global $wpdb;
-		return $wpdb->delete( $table, $where, $where_format );
+		return self::wpdb()->delete( $table, $where, $where_format );
 	}
 
 	/**
 	 * Replace a row in a table.
 	 *
 	 * @param string $table Table name.
-	 * @param array  $data  Row data.
-	 * @param array  $format Optional value format array.
-	 * @return int|false Insert or update result.
+	 * @param array  $data Row data.
+	 * @param array  $format Optional format values.
+	 * @return int|false
 	 */
 	public static function replace( string $table, array $data, ?array $format = null ) {
-		global $wpdb;
-		return $wpdb->replace( $table, $data, $format );
+		return self::wpdb()->replace( $table, $data, $format );
 	}
 
 	/**
@@ -346,3 +329,6 @@ final class Database {
 		return $wpdb->prefix . 'accesspress_' . self::normalize_table_key( $table );
 	}
 }
+
+
+

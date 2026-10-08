@@ -15,8 +15,8 @@ use AccessPress\Includes\Core\Capabilities;
 use AccessPress\Includes\Plugins\Plugins;
 use AccessPress\Includes\Settings\SettingsManager;
 use AccessPress\Includes\Settings\Settings;
-//use AccessPress\Includes\Core\PostType;
-//use AccessPress\Includes\Core\Taxonomy;
+use AccessPress\Includes\Core\PostType;
+use AccessPress\Includes\Core\Taxonomy;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -59,8 +59,8 @@ final class Activator {
 		Capabilities::install();
 		Database::install();
 		SettingsManager::install();
-		//( new PostType() )->register();
-		//( new Taxonomy() )->register();
+		( new PostType() )->register();
+		( new Taxonomy() )->register();
 
 		foreach ( $callbacks ?? self::$callbacks as $callback ) {
 			call_user_func( $callback );
@@ -69,6 +69,7 @@ final class Activator {
 		flush_rewrite_rules();
 	}
 }
+
 
 
 

@@ -42,6 +42,7 @@ final class FunctionsSettings {
 	 *
 	 * @param array<string, mixed> $input The input to sanitize.
 	 * @return array The sanitized input.
+	 * @since 1.0.0
 	 */
 	public function sanitize_general( $input ): array {
 		if ( ! current_user_can( 'accesspress_settings_general_edit' ) ) {
@@ -63,6 +64,7 @@ final class FunctionsSettings {
 	 * @param string $key The setting key.
 	 * @param mixed  $value The submitted value.
 	 * @return string The saved page ID or an empty string.
+	 * @since 1.0.0
 	 */
 	private function resolve_page_setting( string $key, $value ): string {
 		$value = is_scalar( $value ) ? (string) $value : '';

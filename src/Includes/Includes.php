@@ -1,128 +1,156 @@
 <?php
-/**
- * Main Includes class for the AccessPress plugin.
- *
- * Handles core initialization and extension management.
- */
+
 namespace AccessPress\Includes;
 
-use AccessPress\Includes\Core\Core;
+use AccessPress\Includes\Core\Capabilities;
 use AccessPress\Includes\Core\WP\WPLoader;
 use AccessPress\Includes\Functions\Helpers\LoggerHelper;
+use AccessPress\Includes\UserManagement\UserManagement;
+use AccessPress\Includes\Pages\CronJobs;
+use AccessPress\Includes\Pages\PostTypes;
+use AccessPress\Includes\Pages\Shortcodes;
+use AccessPress\Includes\Pages\Taxonomies;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+    exit;
 }
 
 final class Includes {
-	/**
-	 * The singleton instance of the Includes class.
-	 *
-	 * @var self|null
-	 */
-	private static ?self $instance = null;
-	/**
-	 * The core instance managing the main plugin functionality.
-	 *
-	 * @var Core
-	 */
-	private Core $core;
-	/**
-	 * List of registered extension initializers.
-	 *
-	 * @var array<int, callable>
-	 */
-	private array $extensions = array();
-	/**
-	 * Indicates whether the Includes instance has been initialized.
-	 *
-	 * @var bool
-	 */
-	private bool $initialized = false;
-	/**
-	 * Private constructor to enforce singleton pattern.
-	 */
-	private function __construct() {
-		$this->core = new Core();
-		LoggerHelper::write_log( 'AccessPress core includes initialized.' );
-	}
-	/**
-	 * Get the singleton instance of the Includes class.
-	 *
-	 * @return self
-	 */
-	public static function get_instance(): self {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
+    /**
+     * Instance of the Includes class.
+     *
+     * @var self|null
+     */
+    private static ?self $instance = null;
 
-		return self::$instance;
-	}
-	/**
-	 * Initialize the Includes instance and its extensions.
-	 *
-	 * Subsequent calls have no effect.
-	 */
-	public function init(): void {
-		if ( $this->initialized ) {
-			return;
-		}
+    /**
+     * Array of registered extension initializers.
+     *
+     * @var array
+     */
+    private array $extensions = array();
 
-		$this->core->register();
-		foreach ( $this->extensions as $extension ) {
-			call_user_func( $extension, $this );
-		}
-		$this->initialized = true;
-	}
-	/**
-	 * Get the core instance managing the main plugin functionality.
-	 *
-	 * @return Core
-	 */
-	public function core(): Core {
-		return $this->core;
-	}
+    /**
+     * Flag indicating whether the Includes instance has been initialized.
+     *
+     * @var bool
+     */
+    private bool $initialized = false;
 
-	/**
-	 * Queue an extension initializer for the shared Includes lifecycle.
-	 *
-	 * Extensions registered after initialization are invoked immediately.
-	 *
-	 * @param callable $extension Callback receiving this Includes instance.
-	 * @return self
-	 */
-	public function register_extension( callable $extension ): self {
-		if ( $this->initialized ) {
-			call_user_func( $extension, $this );
-		} else {
-			$this->extensions[] = $extension;
-		}
+    /**
+     * Private constructor to prevent direct instantiation.
+     */
+    private function __construct() {
+        LoggerHelper::write_log( 'AccessPress includes initialized.' );
+    }
 
-		return $this;
-	}
+    /**
+     * Get the singleton instance of the Includes class.
+     *
+     * @return self The singleton instance of the Includes class.
+     */
+    public static function get_instance(): self {
+        return self::$instance ??= new self();
+    }
 
-	/**
-	 * Attach Core registration to an external AccessPress loader.
-	 *
-	 * @param WPLoader $loader Loader owned by the main runtime or an extension.
-	 * @param string   $hook WordPress action name.
-	 * @param int      $priority Hook priority.
-	 * @return self
-	 */
-	public function register_hooks( WPLoader $loader, string $hook = 'init', int $priority = 10 ): self {
-		$this->core->register_hooks( $loader, $hook, $priority );
-		return $this;
-	}
+    /**
+     * Initialize the core AccessPress runtime registrations.
+     *
+     * @return void
+     */
+    public function register_core(): void {
+        if ( $this->initialized ) {
+            return;
+        }
 
-	/**
-	 * Check if the Includes instance has been initialized.
-	 *
-	 * @return bool
-	 */
-	public function is_initialized(): bool {
-		return $this->initialized;
-	}
+        /**
+         * Capabilities installation.
+         * 
+         * @since 1.0.0
+         */
+        Capabilities::install();
+        /**
+         * Mod management registration.
+         * 
+         * @since 1.0.0
+         */
+        UserManagement::get_instance();
+        /**
+         * Post types registration.
+         * 
+         * @since 1.0.0
+         */
+        PostTypes::register();
+        /**
+         * Taxonomies registration.
+         * 
+         * @since 1.0.0
+         */
+        Taxonomies::register();
+        /**
+         * Shortcodes registration.
+         * 
+         * @since 1.0.0
+         */
+        Shortcodes::register();
+        /**
+         * Cron jobs registration.
+         * 
+         * @since 1.0.0
+         */
+        CronJobs::register();
+
+        $this->initialized = true;
+    }
+
+    /**
+     * Initialize the Includes instance and register core and extension functionalities.
+     */
+    public function init(): void {
+        $this->register_core();
+
+        foreach ( $this->extensions as $extension ) {
+            call_user_func( $extension, $this );
+        }
+    }
+
+    /**
+     * Queue an extension initializer for the shared Includes lifecycle.
+     *
+     * Extensions registered after initialization are invoked immediately.
+     *
+     * @param callable $extension Callback receiving this Includes instance.
+     * @return self
+     */
+    public function register_extension( callable $extension ): self {
+        if ( $this->initialized ) {
+            call_user_func( $extension, $this );
+        } else {
+            $this->extensions[] = $extension;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Attach the shared init lifecycle to an external AccessPress loader.
+     *
+     * @param WPLoader $loader Loader owned by the main runtime or an extension.
+     * @param string $hook WordPress action name.
+     * @param int $priority Hook priority.
+     * @return self
+     */
+    public function register_hooks( WPLoader $loader, string $hook = 'init', int $priority = 10 ): self {
+        $loader->add_action( $hook, $this, 'init', $priority, 0 );
+        return $this;
+    }
+
+    /**
+     * Check if the Includes instance has been initialized.
+     *
+     * @return bool True if initialized, false otherwise.
+     */
+    public function is_initialized(): bool {
+        return $this->initialized;
+    }
 }
-
-
-

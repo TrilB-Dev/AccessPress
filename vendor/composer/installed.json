@@ -1015,17 +1015,17 @@
         },
         {
             "name": "php-stubs/woocommerce-stubs",
-            "version": "v11.1.1",
-            "version_normalized": "11.1.1.0",
+            "version": "v11.1.2",
+            "version_normalized": "11.1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/woocommerce-stubs.git",
-                "reference": "b34e5fa17f177b89f486b639c41e57d78a44d4cd"
+                "reference": "06dfedfe33a46a12db99fd343b80f1f2f11e64f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/b34e5fa17f177b89f486b639c41e57d78a44d4cd",
-                "reference": "b34e5fa17f177b89f486b639c41e57d78a44d4cd",
+                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/06dfedfe33a46a12db99fd343b80f1f2f11e64f6",
+                "reference": "06dfedfe33a46a12db99fd343b80f1f2f11e64f6",
                 "shasum": ""
             },
             "require": {
@@ -1039,7 +1039,7 @@
                 "symfony/polyfill-php73": "Symfony polyfill backporting some PHP 7.3+ features to lower PHP versions",
                 "szepeviktor/phpstan-wordpress": "WordPress extensions for PHPStan"
             },
-            "time": "2026-09-18T13:07:48+00:00",
+            "time": "2026-09-22T23:29:58+00:00",
             "type": "library",
             "installation-source": "dist",
             "notification-url": "https://packagist.org/downloads/",
@@ -1056,7 +1056,7 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/woocommerce-stubs/issues",
-                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v11.1.1"
+                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v11.1.2"
             },
             "install-path": "../php-stubs/woocommerce-stubs"
         },
@@ -1679,17 +1679,17 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.6.36",
-            "version_normalized": "9.6.36.0",
+            "version": "9.6.37",
+            "version_normalized": "9.6.37.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "abab27ed286d3e1246fbbfe6b56bfd732d945ec9"
+                "reference": "aceaa623912caf8e80bffea22fc4103a0a01565f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/abab27ed286d3e1246fbbfe6b56bfd732d945ec9",
-                "reference": "abab27ed286d3e1246fbbfe6b56bfd732d945ec9",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/aceaa623912caf8e80bffea22fc4103a0a01565f",
+                "reference": "aceaa623912caf8e80bffea22fc4103a0a01565f",
                 "shasum": ""
             },
             "require": {
@@ -1725,7 +1725,7 @@
                 "ext-soap": "To be able to generate mocks based on WSDL files",
                 "ext-xdebug": "PHP extension that provides line coverage as well as branch and path coverage"
             },
-            "time": "2026-08-11T06:25:15+00:00",
+            "time": "2026-09-23T09:59:59+00:00",
             "bin": [
                 "phpunit"
             ],
@@ -1765,7 +1765,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.36"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.37"
             },
             "funding": [
                 {

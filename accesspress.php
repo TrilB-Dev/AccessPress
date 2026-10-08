@@ -93,7 +93,3 @@ function run_accesspress() {
 
 }
 run_accesspress();
-
-
-
-

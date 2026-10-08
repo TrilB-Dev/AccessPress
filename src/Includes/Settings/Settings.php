@@ -165,7 +165,7 @@ final class Settings {
 	 * @return array|null The array of settings within the group if found, otherwise the default value.
 	 */
 	public static function get_group( string $group, ?array $default = null, ?string $table = null ): ?array {
-		return SettingsManager::get_group( $group, $table ) ?? $default;
+		return SettingsManager::get_group( $group, $default, $table ) ?? $default;
 	}
 
 	/**

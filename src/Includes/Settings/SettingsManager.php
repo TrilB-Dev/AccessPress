@@ -15,141 +15,136 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class SettingsManager {
-	/**
-	 * Registered setting groups and their corresponding default settings.
-	 *
-	 * @var array<string, array<string, mixed>>
-	 */
-	private static array $registered_groups = array();
+	  /**
+     * Registered setting groups.
+     *
+     * @var array<string, array<string, mixed>>
+     * @since 1.0.0
+     */
+    private static array $registered_groups = [];
+    /**
+     * Registered setting keys.
+     *
+     * @var array<string, string>
+     * @since 1.0.0
+     */
+    private static array $registered_keys = [];
+    /**
+     * Get the name of the settings table.
+     *
+     * @return string
+     * @since 1.0.0
+     */
+    public static function table_name( ?string $table = 'settings' ): string {
+        $table = trim( (string) $table );
+        $table = '' === $table ? 'settings' : $table;
+        return Database::table_name( str_replace( array( '-', ' ' ), '_', sanitize_key( $table ) ) );
+    }
+    /**
+     * Install the settings table and initialize default settings.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public static function install(): void {
+        Database::install();
 
-	/**
-	 * Registered setting keys and their corresponding groups.
-	 * 
-	 * @var array<string, string>
-	 */
-	private static array $registered_keys = array();
-	/**
-	 * Get the name of a custom AccessPress table in the database.
-	 *
-	 * @param string $table Optional table suffix. Defaults to the settings table.
-	 * @return string The database table name.
-	 */
-	public static function table_name( string $table = 'settings' ): string {
-		$table = self::normalize_table_name( $table );
-		return Database::table_name( $table );
-	}
-	/**
-	 * Normalize a supported AccessPress table name before routing queries.
-	 *
-	 * @param string $table The table suffix.
-	 * @return string The normalized table suffix.
-	 */
-	private static function normalize_table_name( string $table ): string {
-		$table = sanitize_key( $table );
-		return '' === $table ? 'settings' : $table;
-	}
-	/**
-	 * Get the name of the settings table in the database.
-	 *
-	 * @return string The name of the settings table.
-	 */
-	public static function install(): void {
-		Database::install();
+        foreach ( self::registered_defaults() as $group => $settings ) {
+            $stored_settings = self::get_group( $group );
+            if ( null === $stored_settings ) {
+                $legacy_settings = self::get_legacy_group( $group );
+                $stored_settings = is_array( $legacy_settings ) ? $legacy_settings : [];
+            }
 
-		foreach ( self::registered_defaults() as $group => $settings ) {
-			$stored_settings = self::get_group( $group );
-			if ( null === $stored_settings ) {
-				$legacy_settings = self::get_legacy_group( $group );
-				$stored_settings = is_array( $legacy_settings ) ? $legacy_settings : array();
-			}
+            self::set_group( $group, array_merge( $settings, $stored_settings ) );
+            self::delete_legacy_group( $group );
+        }
+    }
+    /**
+     * Get a setting by its key.
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public static function get( string $key, $default = null, ?string $table = null ) {
+        $table = $table ?? 'settings';
+        foreach ( self::get_all( $table ) as $settings ) {
+            if ( is_array( $settings ) && array_key_exists( $key, $settings ) ) {
+                return $settings[ $key ];
+            }
+        }
+        return self::registered_default( $key, $default );
+    }
+    /**
+     * Set a setting by its key.
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return boolean
+     */
+    public static function set( string $key, $value, ?string $table = null ): bool {
+        $group = self::group_for_key( $key );
+        $settings = self::get_group( $group, array(), $table ) ?? [];
+        $settings[ $key ] = $value;
+        return self::set_group( $group, $settings, $table );
+    }
+    /**
+     * Delete a setting by its key.
+     *
+     * @param string $key
+     * @return boolean
+     */
+    public static function delete( string $key, ?string $table = null ): bool {
+        $group = self::group_for_key( $key );
+        $settings = self::get_group( $group, array(), $table );
+        if ( ! is_array( $settings ) || ! array_key_exists( $key, $settings ) ) {
+            return false;
+        }
+        unset( $settings[ $key ] );
+        return self::set_group( $group, $settings, $table );
+    }
+    /**
+     * Check if a setting exists.
+     *
+     * @param string $key
+     * @return bool
+     * @since 1.0.0
+     */
+    public static function has( string $key, ?string $table = null ): bool {
+        foreach ( self::get_all( $table ) as $settings ) {
+            if ( is_array( $settings ) && array_key_exists( $key, $settings ) ) {
+                return true;
+            }
+        }
 
-			self::set_group( $group, array_merge( $settings, $stored_settings ) );
-			self::delete_legacy_group( $group );
-		}
-	}
-	/**
-	 * Retrieve a specific setting key from the database.
-	 *
-	 * @param string $key The setting key to retrieve.
-	 * @param mixed  $default The default value to return if the key is not found.
-	 * @return mixed The value of the setting key if found, otherwise the default value.
-	 */
-	public static function get( string $key, $default = null, ?string $table = null ) {
-		$settings = self::get_all( $table ?? 'settings' );
-		foreach ( $settings as $group_settings ) {
-			if ( is_array( $group_settings ) && array_key_exists( $key, $group_settings ) ) {
-				return $group_settings[ $key ];
-			}
-		}
-		return self::registered_default( $key, $default );
-	}
-	/**
-	 * Set a specific setting key in the database.
-	 *
-	 * @param string $key The setting key to set.
-	 * @param mixed  $value The value to set for the key.
-	 * @return bool True if the key was successfully set, false otherwise.
-	 */
-	public static function set( string $key, $value, ?string $table = null ): bool {
-		$table            = self::normalize_table_name( $table ?? 'settings' );
-		$group            = self::group_for_key( $key );
-		$settings         = self::get_group( $group, $table ) ?? array();
-		$settings[ $key ] = $value;
-		return self::set_group( $group, $settings, $table );
-	}
-	/**
-	 * Delete a specific setting key from the database.
-	 *
-	 * @param string $key The setting key to delete.
-	 * @return bool True if the key was successfully deleted, false otherwise.
-	 */
-	public static function delete( string $key, ?string $table = null ): bool {
-		$table    = self::normalize_table_name( $table ?? 'settings' );
-		$group    = self::group_for_key( $key );
-		$settings = self::get_group( $group, $table );
-		if ( ! is_array( $settings ) || ! array_key_exists( $key, $settings ) ) {
-			return false;
-		}
-		unset( $settings[ $key ] );
-		return self::set_group( $group, $settings, $table );
-	}
-	/**
-	 * Check if a specific setting key exists in the database.
-	 *
-	 * @param string $key The setting key to check.
-	 * @return bool True if the key exists, false otherwise.
-	 */
-	public static function has( string $key, ?string $table = null ): bool {
-		foreach ( self::get_all( $table ?? 'settings' ) as $settings ) {
-			if ( is_array( $settings ) && array_key_exists( $key, $settings ) ) {
-				return true;
-			}
-		}
+        return false;
+    }
+    /**
+     * Get all settings, including stored and default values.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    public static function get_all( ?string $table = null ): array {
+        $table_name = self::table_name( $table ?? 'settings' );
+        global $wpdb;
+        $rows = $wpdb->get_results( 'SELECT setting_group, setting_value FROM ' . $table_name, ARRAY_A );
+        $settings = array();
 
-		return false;
-	}
-	/**
-	 * Retrieve all settings from the database.
-	 *
-	 * @return array The array of all settings grouped by their respective groups.
-	 */
-	public static function get_all( ?string $table = null ): array {
-		$table = self::normalize_table_name( $table ?? 'settings' );
-		if ( ! self::table_exists( $table ) ) {
-			return array();
-		}
+        foreach ( $rows ?: [] as $row ) {
+            $group = self::logical_group( (string) ( $row['setting_group'] ?? '' ) );
+            $stored = maybe_unserialize( $row['setting_value'] );
 
-		$rows = DBHelper::get_results( 'SELECT setting_group, setting_value FROM ' . self::table_name( $table ), ARRAY_A );
-		$rows = is_array( $rows ) ? $rows : array();
+            if ( ! is_array( $stored ) || '' === $group ) {
+                continue;
+            }
 
-		$settings = array();
-		foreach ( $rows as $row ) {
-			$group_key = $row['setting_group'] ?? '';
-			$group     = self::logical_group( $group_key );
-			$settings[ $group ] = maybe_unserialize( $row['setting_value'] );
-		}
-		return $settings;
-	}
+            $settings[ $group ] = $stored;
+        }
+
+        return $settings;
+    }
 	/**
 	 * Retrieve the default settings for all registered groups.
 	 *
@@ -177,264 +172,185 @@ final class SettingsManager {
 			),
 		);
 	}
-	/**
-	 * Retrieve a group of settings from the database.
-	 *
-	 * @param string $group The group name to retrieve.
-	 * @return array|null The settings array if found, null otherwise.
-	 */
-	public static function get_group( string $group, ?string $table = null ): ?array {
-		$table = self::normalize_table_name( $table ?? 'settings' );
-		if ( ! self::table_exists( $table ) ) {
-			return null;
-		}
+    /**
+     * Get the default settings.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    public static function get_group( string $group, ?array $default = null, ?string $table = null ): ?array {
+        $table_name = self::table_name( $table ?? 'settings' );
+        global $wpdb;
+        $group = self::normalize_group( $group );
+        $value = $wpdb->get_var( $wpdb->prepare( 'SELECT setting_value FROM ' . $table_name . ' WHERE setting_group = %s', self::storage_group( $group ) ) );
+        $settings = $value === null ? null : maybe_unserialize( $value );
 
-		foreach ( array( self::storage_group( $group ), 'accesspress_' . self::normalize_group( $group ) ) as $stored_group ) {
-			$query = DBHelper::prepare( 'SELECT setting_value FROM ' . self::table_name( $table ) . ' WHERE setting_group = %s', $stored_group );
-			$value = DBHelper::get_var( $query );
-			$settings = $value === null ? null : maybe_unserialize( $value );
-			if ( is_array( $settings ) ) {
-				return $settings;
-			}
-		}
+        if ( ! is_array( $settings ) ) {
+            return is_array( $default ) ? $default : null;
+        }
 
-		return null;
-	}
-	/**
-	 * Set a group of settings in the database.
-	 *
-	 * @param string $group The group name to set.
-	 * @param array $settings The settings array to store.
-	 * @return bool True if the group was successfully set, false otherwise.
-	 */
-	public static function set_group( string $group, array $settings, ?string $table = null ): bool {
-		$table = self::normalize_table_name( $table ?? 'settings' );
-		return false !== DBHelper::replace(
-			self::table_name( $table ),
-			array(
-				'setting_group' => self::storage_group( $group ),
-				'setting_value' => maybe_serialize( $settings ),
-				'autoload'      => 'yes',
-				'updated_at'    => current_time( 'mysql' ),
-			),
-			array( '%s', '%s', '%s', '%s' )
-		);
-	}
-	/**
-	 * Register a settings group with default values.
-	 *
-	 * @param string $group The group name to register.
-	 * @param array $defaults The default settings for the group.
-	 * @return bool True if the group was successfully registered, false otherwise.
-	 */
-	public static function register_group( string $group, array $defaults = array() ): bool {
-		$group = self::normalize_group( $group );
-		if ( '' === $group ) {
-			return false;
-		}
+        return $settings;
+    }
+    /**
+     * Set the settings for a specific group.
+     *
+     * @param string $group
+     * @param array $settings
+     * @return bool
+     * @since 1.0.0
+     */
+    public static function set_group( string $group, array $settings, ?string $table = null ): bool {
+        $table_name = self::table_name( $table ?? 'settings' );
+        global $wpdb;
+        return false !== $wpdb->replace( $table_name, [
+            'setting_group' => self::storage_group( $group ),
+            'setting_value' => maybe_serialize( $settings ),
+            'autoload' => 'yes',
+            'updated_at' => current_time( 'mysql' ),
+        ], [ '%s', '%s', '%s', '%s' ] );
+    }
+    /**
+     * Register a settings group with default values.
+     *
+     * @param string $group
+     * @param array $defaults
+     * @return bool
+     * @since 1.0.0
+     */
+    public static function register_group( string $group, array $defaults = [] ): bool {
+        $group = self::normalize_group( $group );
+        if ( '' === $group ) {
+            return false;
+        }
 
-		self::$registered_groups[ $group ] = array_merge( self::$registered_groups[ $group ] ?? array(), $defaults );
-		foreach ( $defaults as $key => $default ) {
-			$key = sanitize_key( (string) $key );
-			if ( '' !== $key ) {
-				self::$registered_keys[ $key ] = $group;
-			}
-		}
-		return true;
-	}
-	/**
-	 * Register a single setting key under a specific group with an optional default value.
-	 *
-	 * @param string $key The setting key to register.
-	 * @param string $group The group under which the key should be registered.
-	 * @param mixed $default The default value for the setting key.
-	 * @return bool True if the key was successfully registered, false otherwise.
-	 */
-	public static function register_key( string $key, string $group, $default = null ): bool {
-		$key = sanitize_key( $key );
-		if ( '' === $key || ! self::register_group( $group ) ) {
-			return false;
-		}
+        self::$registered_groups[ $group ] = array_merge( self::$registered_groups[ $group ] ?? [], $defaults );
+        foreach ( $defaults as $key => $default ) {
+            $key = sanitize_key( (string) $key );
+            if ( '' !== $key ) {
+                self::$registered_keys[ $key ] = $group;
+            }
+        }
+        return true;
+    }
+    /**
+     * Register a single setting key with a default value.
+     *
+     * @param string $key
+     * @param string $group
+     * @param mixed $default
+     * @return bool
+     * @since 1.0.0
+     */
+    public static function register_key( string $key, string $group, $default = null ): bool {
+        $key = sanitize_key( $key );
+        if ( '' === $key || ! self::register_group( $group ) ) {
+            return false;
+        }
 
-		$group                                     = self::normalize_group( $group );
-		self::$registered_keys[ $key ]             = $group;
-		self::$registered_groups[ $group ][ $key ] = $default;
-		return true;
-	}
-	/**
-	 * Normalize the group name by ensuring it is a non-empty string.
-	 *
-	 * @param string $group The group name to normalize.
-	 * @return string The normalized group name.
-	 */
-	private static function storage_group( string $group ): string {
-		$group = self::normalize_group( $group );
-		return 'accesspress_' . $group;
-	}
-	/**
-	 * Retrieve the logical group name from the storage group name.
-	 *
-	 * @param string $group The storage group name.
-	 * @return string The logical group name.
-	 */
-	private static function logical_group( string $group ): string {
-		if ( str_starts_with( $group, 'accesspress_' ) ) {
-			return substr( $group, 12 );
-		}
-		if ( str_starts_with( $group, 'accesspress_' ) ) {
-			return substr( $group, 12 );
-		}
-		return $group;
-	}
-	/**
-	 * Retrieve the legacy settings group from the database.
-	 *
-	 * @param string $group The group name to retrieve.
-	 * @return array|null The settings array if found, null otherwise.
-	 */
-	private static function get_legacy_group( string $group ): ?array {
-		if ( ! self::table_exists() ) {
-			return null;
-		}
+        $group = self::normalize_group( $group );
+        self::$registered_keys[ $key ] = $group;
+        self::$registered_groups[ $group ][ $key ] = $default;
+        return true;
+    }
+    /**
+     * Get the storage group name for a logical group.
+     *
+     * @param string $group
+     * @return string
+     * @since 1.0.0
+     */
+    private static function storage_group( string $group ): string {
+        $group = self::normalize_group( $group );
+        return str_starts_with( $group, 'accesspress_' ) ? $group : 'accesspress_' . $group;
+    }
 
-		$group_names = array( sanitize_key( $group ), 'accesspress_' . sanitize_key( $group ), 'accesspress_' . sanitize_key( $group ) );
-		foreach ( $group_names as $group_name ) {
-			$query = DBHelper::prepare( 'SELECT setting_value FROM ' . self::table_name() . ' WHERE setting_group = %s', $group_name );
-			$value = DBHelper::get_var( $query );
-			if ( $value !== null ) {
-				return maybe_unserialize( $value );
-			}
-		}
-		return null;
-	}
-	/**
-	 * Check if the settings table exists in the database.
-	 *
-	 * @return bool True if the table exists, false otherwise.
-	 */
-	private static function table_exists( ?string $table = null ): bool {
-		$table_name = self::table_name( $table ?? 'settings' );
-		if ( ! DBHelper::wpdb() instanceof \wpdb ) {
-			return false;
-		}
+    /**
+     * Get the logical group name from a storage group name.
+     *
+     * @param string $group
+     * @return string
+     * @since 1.0.0
+     */
+    private static function logical_group( string $group ): string {
+        return str_starts_with( $group, 'accesspress_' ) ? substr( $group, 10 ) : $group;
+    }
+    /**
+     * Get the logical group name for a given setting key.
+     *
+     * @param string $key
+     * @return string
+     * @since 1.0.0
+     */
+    private static function group_for_key( string $key ): string {
+        $key = sanitize_key( $key );
+        if ( isset( self::$registered_keys[ $key ] ) ) {
+            return self::$registered_keys[ $key ];
+        }
+        if ( in_array( $key, [ 'view_general', 'write_pages', 'view_analytics','view_user_management', 'manage_plugins' ], true ) ) {
+            return 'access';
+        }
+        if ( str_contains( $key, 'layout' ) ) {
+            return 'layout';
+        }
+        if ( str_contains( $key, 'access' ) ) {
+            return 'access';
+        }
+		if ( str_contains( $key, 'user-management' ) ) {
+            return 'user-management';
+        }
+        if ( str_contains( $key, 'tool' ) ) {
+            return 'tools';
+        }
+        return 'general';
+    }
 
-		if ( ! method_exists( DBHelper::wpdb(), 'get_var' ) ) {
-			return false;
-		}
+    /**
+     * Return core and extension defaults for activation and fallback reads.
+     *
+     * @return array<string, array<string, mixed>>
+     * @since 1.0.0
+     */
+    private static function registered_defaults(): array {
+        $defaults = self::defaults();
+        foreach ( self::$registered_groups as $group => $settings ) {
+            $defaults[ $group ] = array_merge( $defaults[ $group ] ?? [], $settings );
+        }
 
-		if ( ! method_exists( DBHelper::wpdb(), 'prepare' ) ) {
-			return false;
-		}
+        return $defaults;
+    }
+    /**
+     * Get the registered default for a specific setting key.
+     *
+     * @param string $key
+     * @param mixed $fallback
+     * @return mixed
+     * @since 1.0.0
+     */
+    private static function registered_default( string $key, $fallback ) {
+        $key = sanitize_key( $key );
+        foreach ( self::registered_defaults() as $settings ) {
+            if ( array_key_exists( $key, $settings ) ) {
+                return $settings[ $key ];
+            }
+        }
 
-		$query = DBHelper::prepare( 'SHOW TABLES LIKE %s', $table_name );
-		$result = DBHelper::get_var( $query );
+        return $fallback;
+    }
+    /**
+     * Normalize a group name by replacing dashes and spaces with underscores and removing the 'accesspress_' prefix if present.
+     *
+     * @param string $group
+     * @return string
+     * @since 1.0.0
+     */
+    private static function normalize_group( string $group ): string {
+        $group = str_replace( '-', '_', sanitize_key( $group ) );
+        $group = str_replace( ' ', '_', $group );
 
-		return is_string( $result ) && '' !== $result;
-	}
-	/**
-	 * Delete the legacy settings group from the database.
-	 *
-	 * @param string $group The group name to delete.
-	 */
-	private static function delete_legacy_group( string $group ): void {
-		$normalized = self::normalize_group( $group );
-		foreach ( array( sanitize_key( $normalized ), 'accesspress_' . sanitize_key( $normalized ) ) as $legacy_group ) {
-			DBHelper::delete( self::table_name(), array( 'setting_group' => $legacy_group ), array( '%s' ) );
-		}
-	}
-	/**
-	 * Determine the group associated with a specific key.
-	 *
-	 * @param string $key The key to look up.
-	 * @return string The group name associated with the key.
-	 */
-	private static function group_for_key( string $key ): string {
-		$key = sanitize_key( $key );
-		if ( isset( self::$registered_keys[ $key ] ) ) {
-			return self::$registered_keys[ $key ];
-		}
-		if ( in_array( $key, array( 'create_wikis', 'write_pages', 'view_analytics', 'manage_plugins' ), true ) ) {
-			return 'access';
-		}
-		if ( str_contains( $key, 'layout' ) ) {
-			return 'layout';
-		}
-		if ( str_contains( $key, 'access' ) ) {
-			return 'access';
-		}
-		if ( str_contains( $key, 'tool' ) ) {
-			return 'tools';
-		}
-		return 'general';
-	}
+        if ( str_starts_with( $group, 'accesspress_' ) ) {
+            return preg_replace( '/^accesspress_/', '', $group ) ?: $group;
+        }
 
-	/**
-	 * Return core and extension defaults for activation and fallback reads.
-	 *
-	 * @return array<string, array<string, mixed>>
-	 * @since 1.0.0
-	 */
-	private static function registered_defaults(): array {
-		$defaults = self::defaults();
-		foreach ( self::$registered_groups as $group => $settings ) {
-			$defaults[ $group ] = array_merge( $defaults[ $group ] ?? array(), $settings );
-		}
-
-		return $defaults;
-	}
-	/**
-	 * Retrieve the registered default value for a specific key, with a fallback if not found.
-	 *
-	 * @param string $key The key to retrieve the default for.
-	 * @param mixed $fallback The fallback value if the key is not found.
-	 * @return mixed The registered default value or the fallback.
-	 */
-	private static function registered_default( string $key, $fallback ) {
-		$key = sanitize_key( $key );
-		foreach ( self::registered_defaults() as $settings ) {
-			if ( array_key_exists( $key, $settings ) ) {
-				return $settings[ $key ];
-			}
-		}
-
-		return $fallback;
-	}
-	/**
-	 * Normalize the group name by removing the 'accesspress_' prefix if present.
-	 *
-	 * @param string $group The group name to normalize.
-	 * @return string The normalized group name.
-	 */
-	private static function normalize_group( string $group ): string {
-		$group = sanitize_key( $group );
-		if ( str_starts_with( $group, 'accesspress_' ) ) {
-			return substr( $group, 12 );
-		}
-		if ( str_starts_with( $group, 'accesspress_' ) ) {
-			return substr( $group, 10 );
-		}
-		return $group;
-	}
-	/**
-	 * Check if the settings table is ready for use.
-	 *
-	 * @return bool True if the table exists and is accessible, false otherwise.
-	 */
-	private static function table_ready(): bool {
-		if ( ! DBHelper::wpdb() instanceof \wpdb ) {
-			return false;
-		}
-
-		if ( ! method_exists( DBHelper::wpdb(), 'get_var' ) ) {
-			return false;
-		}
-
-		$query = DBHelper::prepare( 'SHOW TABLES LIKE %s', self::table_name() );
-		$table = DBHelper::get_var( $query );
-
-		return null !== $table && '' !== (string) $table;
-	}
+        return $group;
+    }
 }
-
-
-
