@@ -115,13 +115,13 @@ final class Assets extends RootAssets {
         if ( FontAwesomeSettings::enable_icon_picker() ) {
             $assets['styles'][] = array(
                 'handle' => 'accesspress-fontawesome-icon-picker',
-                'src' => ACCESSPRESS_PLUGINS_URL . '/FontAwesome/Assets/dist/css/icon-picker.css',
+                'src' => ACCESSPRESS_PLUGINS_URL . '/FontAwesome/Assets/dist/css/fontawesome.icon-picker.css',
                 'deps' => array( 'accesspress-bootstrap' ),
                 'version' => ACCESSPRESS_VERSION,
             );
             $assets['scripts'][] = array(
                 'handle' => 'accesspress-fontawesome-icon-picker',
-                'src' => ACCESSPRESS_PLUGINS_URL . '/FontAwesome/Assets/dist/js/icon-picker.js',
+                'src' => ACCESSPRESS_PLUGINS_URL . '/FontAwesome/Assets/dist/js/fontawesome.icon-picker.js',
                 'deps' => array( 'jquery' ),
                 'version' => ACCESSPRESS_VERSION,
                 'in_footer' => true,
