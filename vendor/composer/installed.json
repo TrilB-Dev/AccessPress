@@ -53,17 +53,17 @@
         },
         {
             "name": "arts/elementor-stubs",
-            "version": "v4.2.4",
-            "version_normalized": "4.2.4.0",
+            "version": "v4.3.3",
+            "version_normalized": "4.3.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/artkrsk/elementor-stubs.git",
-                "reference": "4345323b7429014d1cd595178d52107bca16696e"
+                "reference": "0f0a562a9c94c4db59715361e19dcf48f132a157"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/artkrsk/elementor-stubs/zipball/4345323b7429014d1cd595178d52107bca16696e",
-                "reference": "4345323b7429014d1cd595178d52107bca16696e",
+                "url": "https://api.github.com/repos/artkrsk/elementor-stubs/zipball/0f0a562a9c94c4db59715361e19dcf48f132a157",
+                "reference": "0f0a562a9c94c4db59715361e19dcf48f132a157",
                 "shasum": ""
             },
             "require": {
@@ -82,7 +82,7 @@
                 "vlucas/phpdotenv": "^5.6",
                 "wp-coding-standards/wpcs": "^3.0"
             },
-            "time": "2026-09-15T04:00:45+00:00",
+            "time": "2026-10-05T11:44:15+00:00",
             "type": "library",
             "installation-source": "dist",
             "notification-url": "https://packagist.org/downloads/",
@@ -111,7 +111,7 @@
             ],
             "support": {
                 "issues": "https://github.com/artkrsk/elementor-stubs/issues",
-                "source": "https://github.com/artkrsk/elementor-stubs/tree/v4.2.4"
+                "source": "https://github.com/artkrsk/elementor-stubs/tree/v4.3.3"
             },
             "funding": [
                 {
@@ -1015,17 +1015,17 @@
         },
         {
             "name": "php-stubs/woocommerce-stubs",
-            "version": "v11.1.2",
-            "version_normalized": "11.1.2.0",
+            "version": "v11.2.0",
+            "version_normalized": "11.2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/woocommerce-stubs.git",
-                "reference": "06dfedfe33a46a12db99fd343b80f1f2f11e64f6"
+                "reference": "fb590c1c2a26c47aa5da2c6c51a707130e8a389c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/06dfedfe33a46a12db99fd343b80f1f2f11e64f6",
-                "reference": "06dfedfe33a46a12db99fd343b80f1f2f11e64f6",
+                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/fb590c1c2a26c47aa5da2c6c51a707130e8a389c",
+                "reference": "fb590c1c2a26c47aa5da2c6c51a707130e8a389c",
                 "shasum": ""
             },
             "require": {
@@ -1039,7 +1039,7 @@
                 "symfony/polyfill-php73": "Symfony polyfill backporting some PHP 7.3+ features to lower PHP versions",
                 "szepeviktor/phpstan-wordpress": "WordPress extensions for PHPStan"
             },
-            "time": "2026-09-22T23:29:58+00:00",
+            "time": "2026-10-07T19:02:59+00:00",
             "type": "library",
             "installation-source": "dist",
             "notification-url": "https://packagist.org/downloads/",
@@ -1056,7 +1056,7 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/woocommerce-stubs/issues",
-                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v11.1.2"
+                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v11.2.0"
             },
             "install-path": "../php-stubs/woocommerce-stubs"
         },
@@ -1679,17 +1679,17 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.6.37",
-            "version_normalized": "9.6.37.0",
+            "version": "9.6.38",
+            "version_normalized": "9.6.38.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "aceaa623912caf8e80bffea22fc4103a0a01565f"
+                "reference": "8b5f757e8e92071bfdbfa93943f94f84c4e31007"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/aceaa623912caf8e80bffea22fc4103a0a01565f",
-                "reference": "aceaa623912caf8e80bffea22fc4103a0a01565f",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/8b5f757e8e92071bfdbfa93943f94f84c4e31007",
+                "reference": "8b5f757e8e92071bfdbfa93943f94f84c4e31007",
                 "shasum": ""
             },
             "require": {
@@ -1725,7 +1725,7 @@
                 "ext-soap": "To be able to generate mocks based on WSDL files",
                 "ext-xdebug": "PHP extension that provides line coverage as well as branch and path coverage"
             },
-            "time": "2026-09-23T09:59:59+00:00",
+            "time": "2026-10-05T05:44:26+00:00",
             "bin": [
                 "phpunit"
             ],
@@ -1765,7 +1765,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.37"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.38"
             },
             "funding": [
                 {
@@ -3270,17 +3270,17 @@
         },
         {
             "name": "symfony/http-client",
-            "version": "v8.1.7",
-            "version_normalized": "8.1.7.0",
+            "version": "v8.1.8",
+            "version_normalized": "8.1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-client.git",
-                "reference": "099aae7d3619bffb5e68b33dbbadf6649c6d49c5"
+                "reference": "e20aca4ceaa888197de5c792ffc551d99e43d98a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-client/zipball/099aae7d3619bffb5e68b33dbbadf6649c6d49c5",
-                "reference": "099aae7d3619bffb5e68b33dbbadf6649c6d49c5",
+                "url": "https://api.github.com/repos/symfony/http-client/zipball/e20aca4ceaa888197de5c792ffc551d99e43d98a",
+                "reference": "e20aca4ceaa888197de5c792ffc551d99e43d98a",
                 "shasum": ""
             },
             "require": {
@@ -3315,7 +3315,7 @@
                 "symfony/rate-limiter": "^7.4|^8.0",
                 "symfony/stopwatch": "^7.4|^8.0"
             },
-            "time": "2026-09-08T13:39:13+00:00",
+            "time": "2026-09-24T11:09:32+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -3346,7 +3346,7 @@
                 "http"
             ],
             "support": {
-                "source": "https://github.com/symfony/http-client/tree/v8.1.7"
+                "source": "https://github.com/symfony/http-client/tree/v8.1.8"
             },
             "funding": [
                 {
