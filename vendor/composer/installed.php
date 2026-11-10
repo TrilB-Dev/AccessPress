@@ -3,7 +3,7 @@
         'name' => 'trilbdev/accesspress',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '25b00696dc16ac48b1d000c7a103bd2f1882ad19',
+        'reference' => '6683c45cece13dcfd5d3f03ef053b6e7d6d714e4',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -568,7 +568,7 @@
         'trilbdev/accesspress' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '25b00696dc16ac48b1d000c7a103bd2f1882ad19',
+            'reference' => '6683c45cece13dcfd5d3f03ef053b6e7d6d714e4',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
