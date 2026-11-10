@@ -43,7 +43,6 @@ const entries = {
   'admin.settings': './src/Assets/js/admin.settings.js',
   'admin.tools': './src/Assets/js/admin.tools.js',
   'admin.wpmedia': './src/Assets/js/admin.wpmedia.js',
-  'admin.mods': './src/Assets/js/admin.mods.js',
   'admin.ajax': './src/Assets/js/admin.ajax.js',
   'admin.profile': './src/Assets/js/admin.profile.js',
   'admin.user-management': './src/Assets/js/admin.user-management.js',
