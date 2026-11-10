@@ -33,10 +33,10 @@ final class PostTypes {
 	 */
 	public static function accesspress_posttype(): bool {
 		return PostType::create(
-			'accesspress_accesspress',
+			'accesspress_group',
 			array(
-				'label'           => __( 'AccessPress', 'accesspress' ),
-				'description'     => __( 'An AccessPress entry managed by AccessPress.', 'accesspress' ),
+				'label'           => __( 'Groups', 'accesspress' ),
+				'description'     => __( 'An AccessPress group managed by AccessPress.', 'accesspress' ),
 				'supports'        => array( 'title', 'editor', 'excerpt', 'thumbnail', 'revisions' ),
 				'taxonomies'      => array( 'accesspress_category', 'accesspress_tag' ),
 				'public'          => true,

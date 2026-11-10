@@ -245,6 +245,18 @@ class UserManager extends Manager {
 			'deps'      => array( 'accesspress-bootstrap', 'accesspress-bootstrap-drag-and-drop-js' ),
 			'in_footer' => true,
 		);
+		$user_management_assets['scripts'][] = array(
+			'handle'    => 'accesspress-admin-user-roles',
+			'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/admin.users-roles.js',
+			'deps'      => array( 'accesspress-bootstrap', 'accesspress-bootstrap-drag-and-drop-js' ),
+			'in_footer' => true,
+		);
+		$user_management_assets['scripts'][] = array(
+			'handle'    => 'accesspress-admin-user-groups',
+			'src'       => ACCESSPRESS_ASSETS_URL . '/dist/js/admin.user-groups.js',
+			'deps'      => array( 'accesspress-bootstrap', 'accesspress-bootstrap-drag-and-drop-js' ),
+			'in_footer' => true,
+		);
 		$assets->register_page( 'accesspress-user-management', $user_management_assets );
 	}
 
