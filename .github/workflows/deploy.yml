@@ -5,13 +5,17 @@ on:
     branches:
       - master
 
+concurrency:
+  group: deploy-master-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  deploy:
+  php-test:
     runs-on: self-hosted
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.4', '8.5']
+        php-version: ['8.3', '8.4', '8.5']
 
     steps:
       - name: Checkout code
@@ -37,7 +41,44 @@ jobs:
           key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-${{ matrix.php-version }}-
+      
+      - name: Install dependencies
+        shell: bash
+        run: composer install --prefer-dist --no-progress --no-interaction --no-scripts
 
+      - name: Validate Composer
+        shell: bash
+        run: composer validate --no-check-publish
+
+      - name: Run PHPCS if configured
+        shell: bash
+        run: |
+          if [ -f phpcs.xml.dist ] || [ -f .phpcs.xml ] || [ -f phpcs.xml ]; then
+            vendor/bin/phpcs --standard=phpcs.xml.dist . || vendor/bin/phpcs .
+          else
+            echo "No PHPCS config found; skipping static analysis."
+          fi
+
+  deploy:
+    needs: php-test
+    runs-on: self-hosted
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, xml, curl, zip, intl
+          tools: composer:v2
+          coverage: none
+          
       - name: Configure Git
         shell: bash
         run: |
