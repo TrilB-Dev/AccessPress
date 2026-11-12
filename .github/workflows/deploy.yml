@@ -1,4 +1,4 @@
-name: Build AccessPress Deploy Branch
+name: Build WordPress Deploy Branch
 
 on:
   push:
@@ -41,7 +41,7 @@ jobs:
           key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-${{ matrix.php-version }}-
-      
+
       - name: Install dependencies
         shell: bash
         run: composer install --prefer-dist --no-progress --no-interaction --no-scripts
@@ -54,7 +54,13 @@ jobs:
         shell: bash
         run: |
           if [ -f phpcs.xml.dist ] || [ -f .phpcs.xml ] || [ -f phpcs.xml ]; then
-            vendor/bin/phpcs --standard=phpcs.xml.dist . || vendor/bin/phpcs .
+            if [ -f vendor/bin/phpcs ]; then
+              chmod -R u+rwX,go+rX vendor 2>/dev/null || true
+              chmod +x vendor/bin/phpcs vendor/bin/phpcbf 2>/dev/null || true
+              php vendor/bin/phpcs --standard=phpcs.xml.dist . || php vendor/bin/phpcs .
+            else
+              echo "PHPCS is not installed for this PHP version; skipping static analysis."
+            fi
           else
             echo "No PHPCS config found; skipping static analysis."
           fi
@@ -78,7 +84,7 @@ jobs:
           extensions: mbstring, xml, curl, zip, intl
           tools: composer:v2
           coverage: none
-          
+
       - name: Configure Git
         shell: bash
         run: |
