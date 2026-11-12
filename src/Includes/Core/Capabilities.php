@@ -23,24 +23,24 @@ class Capabilities {
 		return array_merge(
 			array(
 				'accesspress_admin_view'                => array(
-					'group'       => 'AccessPress Licence',
-					'label'       => __( 'View Licence Administration', 'accesspress' ),
+					'group'       => 'AccessPress',
+					'label'       => __( 'View AccessPress Administration', 'accesspress' ),
 					'description' => __( 'Allows access to the AccessPress dashboard and admin pages.', 'accesspress' ),
 				),
 				'accesspress_dashboard_view'            => array(
-					'group'       => 'AccessPress Licence',
-					'label'       => __( 'View Licence Dashboard', 'accesspress' ),
+					'group'       => 'AccessPress',
+					'label'       => __( 'View AccessPress Dashboard', 'accesspress' ),
 					'description' => __( 'Allows viewing the AccessPress dashboard and summary status.', 'accesspress' ),
 				),
 				'accesspress_settings_general_view'     => array(
 					'group'       => 'AccessPress Settings',
-					'label'       => __( 'View Licence Settings', 'accesspress' ),
-					'description' => __( 'Allows viewing the general licence management settings.', 'accesspress' ),
+					'label'       => __( 'View AccessPress Settings', 'accesspress' ),
+					'description' => __( 'Allows viewing the general AccessPress settings.', 'accesspress' ),
 				),
 				'accesspress_settings_general_edit'     => array(
 					'group'       => 'AccessPress Settings',
-					'label'       => __( 'Edit Licence Settings', 'accesspress' ),
-					'description' => __( 'Allows editing the licence management settings.', 'accesspress' ),
+					'label'       => __( 'Edit AccessPress Settings', 'accesspress' ),
+					'description' => __( 'Allows editing the AccessPress settings.', 'accesspress' ),
 				),
 				'accesspress_settings_access_view'      => array(
 					'group'       => 'AccessPress Settings',
@@ -50,7 +50,7 @@ class Capabilities {
 				'accesspress_settings_access_edit'      => array(
 					'group'       => 'AccessPress Settings',
 					'label'       => __( 'Edit Access Controls', 'accesspress' ),
-					'description' => __( 'Allows changing licence access roles and permission boundaries.', 'accesspress' ),
+					'description' => __( 'Allows changing AccessPress access roles and permission boundaries.', 'accesspress' ),
 				),
 				'accesspress_settings_security_view'    => array(
 					'group'       => 'AccessPress Settings',
@@ -64,13 +64,13 @@ class Capabilities {
 				),
 				'accesspress_tools_import'              => array(
 					'group'       => 'AccessPress Tools',
-					'label'       => __( 'Import Licence Data', 'accesspress' ),
-					'description' => __( 'Allows importing licence exports into the system securely.', 'accesspress' ),
+					'label'       => __( 'Import AccessPress Data', 'accesspress' ),
+					'description' => __( 'Allows importing AccessPress exports into the system securely.', 'accesspress' ),
 				),
 				'accesspress_tools_export'              => array(
 					'group'       => 'AccessPress Tools',
-					'label'       => __( 'Export Licence Data', 'accesspress' ),
-					'description' => __( 'Allows exporting licence records using encryption and a password.', 'accesspress' ),
+					'label'       => __( 'Export AccessPress Data', 'accesspress' ),
+					'description' => __( 'Allows exporting AccessPress records using encryption and a password.', 'accesspress' ),
 				),
 				'accesspress_tools_debug'               => array(
 					'group'       => 'AccessPress Tools',
@@ -79,8 +79,8 @@ class Capabilities {
 				),
 				'accesspress_tools_reset'               => array(
 					'group'       => 'AccessPress Tools',
-					'label'       => __( 'Reset Licence Data', 'accesspress' ),
-					'description' => __( 'Allows resetting or clearing licence records and related data.', 'accesspress' ),
+					'label'       => __( 'Reset AccessPress Data', 'accesspress' ),
+					'description' => __( 'Allows resetting or clearing AccessPress records and related data.', 'accesspress' ),
 				),
 				'accesspress_settings_plugins_view'     => array(
 					'group'       => 'AccessPress Settings',
