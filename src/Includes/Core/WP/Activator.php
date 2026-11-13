@@ -11,12 +11,10 @@
  */
 namespace AccessPress\Includes\Core\WP;
 
-use AccessPress\Includes\Core\Capabilities;
 use AccessPress\Includes\Core\Defaults;
 use AccessPress\Includes\Core\Roles;
-use AccessPress\Includes\ModManagement\GroupsManager;
 use AccessPress\Includes\Plugins\Plugins;
-use AccessPress\Includes\Settings\SettingsManager;
+
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -51,7 +49,6 @@ final class Activator {
 		Database::install();
 		Database::update();
 		Roles::install();
-		Capabilities::install();
 		Defaults::install_defaults();
 
 

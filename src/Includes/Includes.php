@@ -70,23 +70,27 @@ final class Includes {
          */
         Capabilities::install();
         /**
-         * Mod management registration.
-         * 
+         * Page-driven AccessPress content registrations.
+         *
+         * These are the only canonical registrations for the built-in AccessPress
+         * content model. Dynamic database-backed extensions may register through
+         * ModManagement without duplicating the core definitions.
+         *
          * @since 1.0.0
          */
-        UserManagement::get_instance();
-        /**
-         * Post types registration.
-         * 
-         * @since 1.0.0
-         */
-        PostTypes::register();
+        PostTypes::register(); 
         /**
          * Taxonomies registration.
          * 
          * @since 1.0.0
          */
         Taxonomies::register();
+        /**
+         * Dynamic plugin content registrations from database-driven definitions.
+         *
+         * @since 1.0.0
+         */
+        UserManagement::get_instance();
         /**
          * Shortcodes registration.
          * 

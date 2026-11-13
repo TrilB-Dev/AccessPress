@@ -75,7 +75,7 @@ register_deactivation_hook( __FILE__, 'deactivate_accesspress' );
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require_once ACCESSPRESS_DIR . 'src/AccessPress.php';
+require_once ACCESSPRESS_DIR . 'src/Plugin.php';
 
 /**
  * Begins execution of the plugin.
@@ -88,7 +88,7 @@ require_once ACCESSPRESS_DIR . 'src/AccessPress.php';
  */
 function run_accesspress() {
 
-	$plugin = new \AccessPress\AccessPress( ACCESSPRESS_FILE, ACCESSPRESS_NAME, ACCESSPRESS_VERSION );
+	$plugin = new \AccessPress\Plugin( ACCESSPRESS_FILE, ACCESSPRESS_NAME, ACCESSPRESS_VERSION );
 	$plugin->run();
 
 }
