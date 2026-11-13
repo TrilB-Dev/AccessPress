@@ -30,6 +30,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class SettingsManager extends Manager {
 	/**
+	 * Whether the base settings manager has already initialized its child pages.
+	 *
+	 * @var bool
+	 * @since 1.0.0
+	 */
+	private static bool $initialized = false;
+	/**
+	 * Whether the settings manager AJAX and admin-post hooks are already registered.
+	 *
+	 * @var bool
+	 * @since 1.0.0
+	 */
+	private static bool $actions_registered = false;
+	/**
 	 * General settings page manager instance.
 	 *
 	 * @var SettingsGeneral
@@ -96,66 +110,34 @@ class SettingsManager extends Manager {
 	 * Constructor for the settings manager.
 	 */
 	public function __construct() {
-		/**
-         * Set the page variable to 'settinigs'.
-         *
-         * @since 1.0.0
-         */
-        $this->page = 'settings';
-        /**
-         * Initialize the General Settings pages.
-         *
-         * @since 1.0.0
-         */
-        $this->general_page = new SettingsGeneral();
-        /**
-         * Initialize the Layout Settings pages.
-         *
-         * @since 1.0.0
-         */
-        $this->layout_page = new SettingsLayout();
-        /**
-         * Initialize the Email Settings page.
-         *
-         * @since 1.0.0
-         */
-        $this->email_page = new SettingsEmail();
-        /**
-         * Initialize the Security Settings page.
-         *
-         * @since 1.0.0
-         */
+		if ( static::class !== self::class || self::$initialized ) {
+			return;
+		}
+
+		self::$initialized = true;
+		$this->page        = 'settings';
+
+		$this->initialize_child_pages();
+		$this->plugin_functions   = new FunctionsPlugins();
+		$this->settings_functions = new FunctionsSettings( $this->plugin_functions );
+		$this->register_actions();
+	}
+
+	/**
+	 * Initialize the internal settings page managers once for the base manager.
+	 *
+	 * Child page classes inherit this base constructor but should never re-enter it.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	private function initialize_child_pages(): void {
+		$this->general_page = new SettingsGeneral();
+		$this->layout_page  = new SettingsLayout();
+		$this->email_page   = new SettingsEmail();
 		$this->security_page = new SettingsSecurity();
-        /**
-         * Initialize the Access Settings page.
-         *
-         * @since 1.0.0
-         */
-        $this->access_page = new SettingsAccess();
-        /**
-         * Initialize the Plugins Settings pages.
-         *
-         * @since 1.0.0
-         */
-        $this->plugins_page = new SettingsPlugins();
-        /**
-         * Initialize the Plugin and Settings function handlers.
-         *
-         * @since 1.0.0
-         */
-        $this->plugin_functions = new FunctionsPlugins();
-        /**
-         * Initialize the Settings function handler.
-         *
-         * @since 1.0.0
-         */
-        $this->settings_functions = new FunctionsSettings( $this->plugin_functions );
-        /**
-         * Register the admin actions for the settings manager.
-         *
-         * @since 1.0.0
-         */
-        $this->register_actions();
+		$this->access_page  = new SettingsAccess();
+		$this->plugins_page = new SettingsPlugins();
 	}
 	/**
      * Register the Settings Manager admin actions.
@@ -163,6 +145,12 @@ class SettingsManager extends Manager {
      * @return void
      */
     private function register_actions(): void {
+        if ( self::$actions_registered ) {
+            return;
+        }
+
+        self::$actions_registered = true;
+
         add_action( 'admin_post_pluginname_save_settings', array( $this->settings_functions, 'save_settings' ) );
         add_action( 'wp_ajax_pluginname_toggle_plugin', array( $this->plugin_functions, 'toggle_plugin' ) );
         add_action( 'wp_ajax_pluginname_save_plugin_settings', array( $this->plugin_functions, 'save_plugin_settings' ) );

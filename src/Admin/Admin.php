@@ -114,7 +114,7 @@ final class Admin {
 		/**
 		 * Initialize the user manager instance from the registry.
 		 */
-		$this->user_manager      = $this->managers['user-management'];
+		$this->user_manager      = $this->managers['user'];
 		/**
 		 * Initialize the tools manager instance from the registry.
 		 */
