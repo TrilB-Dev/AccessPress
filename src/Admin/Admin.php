@@ -114,7 +114,7 @@ final class Admin {
 		/**
 		 * Initialize the user manager instance from the registry.
 		 */
-		$this->user_manager      = $this->managers['user'];
+		$this->user_manager      = $this->managers['user-management'];
 		/**
 		 * Initialize the tools manager instance from the registry.
 		 */
@@ -208,7 +208,7 @@ final class Admin {
 		$normalized_group = array(
 			'accesspress'     => 'dashboard',
 			'dashboard'       => 'dashboard',
-			'user-management' => 'users',
+			'user-management' => 'user-management',
 			'settings'        => 'settings',
 			'tools'           => 'tools',
 			'reports'         => 'reports',
@@ -218,8 +218,8 @@ final class Admin {
 
 		try {
 			switch ( $normalized_group ) {
-				case 'users':
-					LoggerHelper::write_log( 'AccessPress dashboard routed to users page.' );
+				case 'user-management':
+					LoggerHelper::write_log( 'AccessPress dashboard routed to user management page.' );
 					$this->render_users();
 					return;
 				case 'reports':
