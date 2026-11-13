@@ -12,11 +12,11 @@
 namespace AccessPress\Includes\Core\WP;
 
 use AccessPress\Includes\Core\Capabilities;
+use AccessPress\Includes\Core\Defaults;
+use AccessPress\Includes\Core\Roles;
+use AccessPress\Includes\ModManagement\GroupsManager;
 use AccessPress\Includes\Plugins\Plugins;
 use AccessPress\Includes\Settings\SettingsManager;
-use AccessPress\Includes\Settings\Settings;
-use AccessPress\Includes\Core\PostType;
-use AccessPress\Includes\Core\Taxonomy;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -47,20 +47,13 @@ final class Activator {
 	 * @return void
 	 */
 	public static function activate( ?array $callbacks = null ): void {
-		Settings::register_group(
-			'setup',
-			array(
-				'first_install_complete'    => false,
-				'onboarding_steps_complete' => 0,
-			)
-		);
-
 		Plugins::get_instance()->init();
-		Capabilities::install();
 		Database::install();
-		SettingsManager::install();
-		( new PostType() )->register();
-		( new Taxonomy() )->register();
+		Database::update();
+		Roles::install();
+		Capabilities::install();
+		Defaults::install_defaults();
+
 
 		foreach ( $callbacks ?? self::$callbacks as $callback ) {
 			call_user_func( $callback );
@@ -69,7 +62,3 @@ final class Activator {
 		flush_rewrite_rules();
 	}
 }
-
-
-
-

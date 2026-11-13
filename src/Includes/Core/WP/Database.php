@@ -6,6 +6,8 @@
  */
 namespace AccessPress\Includes\Core\WP;
 
+use AccessPress\Includes\Core\Schema;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -122,9 +124,11 @@ final class Database {
 			return false;
 		}
 
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		if ( file_exists( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		}
 
-		$statement = call_user_func( $schema, self::table_name( $table ), $wpdb->get_charset_collate() );
+		$statement = call_user_func( $schema, self::table_name( $table ), method_exists( $wpdb, 'get_charset_collate' ) ? $wpdb->get_charset_collate() : '' );
 		if ( ! is_string( $statement ) || '' === trim( $statement ) ) {
 			return false;
 		}
@@ -191,131 +195,57 @@ final class Database {
 	 * @return void
 	 */
 	public static function install(): void {
+		Schema::register_tables();
+
 		foreach ( self::$registered_core_tables as $table => $schema ) {
+			if ( self::table_exists( $table ) ) {
+				continue;
+			}
 			self::create_table( $table );
 		}
 
 		foreach ( self::$registered_plugin_tables as $table => $schema ) {
+			if ( self::table_exists( $table ) ) {
+				continue;
+			}
 			self::create_table( $table );
 		}
 
-		update_option( 'accesspress_db_version', defined( 'ACCESSPRESS_VERSION' ) ? ACCESSPRESS_VERSION : '1.0.0' );
+		if ( function_exists( 'update_option' ) ) {
+			update_option( 'accesspress_db_version', defined( 'WIKIPRESS_VERSION' ) ? WIKIPRESS_VERSION : '1.0.0' );
+		}
 	}
 
 	/**
-	 * Return the underlying WordPress database object.
+	 * Run database upgrade work only after the registered tables exist.
 	 *
-	 * @return \wpdb
+	 * This method intentionally avoids mutating data while the schema is
+	 * incomplete. Any migration work should be guarded by the presence of the
+	 * expected AccessPress tables before inserts, updates, or row-level changes.
+	 *
+	 * @return void
 	 */
-	public static function wpdb() {
-		global $wpdb;
-		return $wpdb;
-	}
+	public static function update(): void {
+		Schema::register_tables();
 
-	/**
-	 * Prepare SQL using the current WordPress database instance.
-	 *
-	 * @param string $query SQL query.
-	 * @param mixed  ...$args Query arguments.
-	 * @return string
-	 */
-	public static function prepare( string $query, ...$args ): string {
-		return self::wpdb()->prepare( $query, ...$args );
-	}
+		$tables = array_merge( self::$registered_core_tables, self::$registered_plugin_tables );
+		if ( empty( $tables ) ) {
+			return;
+		}
 
-	/**
-	 * Run a raw SQL query through WordPress.
-	 *
-	 * @param string $query SQL query.
-	 * @return mixed
-	 */
-	public static function query( string $query ) {
-		return self::wpdb()->query( $query );
-	}
+		foreach ( array_keys( $tables ) as $table ) {
+			if ( ! self::table_exists( $table ) ) {
+				return;
+			}
+		}
 
-	/**
-	 * Return a single variable from the database.
-	 *
-	 * @param string $query SQL query.
-	 * @param int    $x Column offset.
-	 * @param int    $y Row offset.
-	 * @return mixed
-	 */
-	public static function get_var( string $query, int $x = 0, int $y = 0 ) {
-		return self::wpdb()->get_var( $query, $x, $y );
-	}
+		foreach ( array_keys( $tables ) as $table ) {
+			self::create_table( $table );
+		}
 
-	/**
-	 * Return a single row from the database.
-	 *
-	 * @param string $query SQL query.
-	 * @param string $output Output format.
-	 * @param int    $y Row offset.
-	 * @return mixed
-	 */
-	public static function get_row( string $query, string $output = ARRAY_A, int $y = 0 ) {
-		return self::wpdb()->get_row( $query, $output, $y );
-	}
-
-	/**
-	 * Return multiple rows from the database.
-	 *
-	 * @param string $query SQL query.
-	 * @param string $output Output format.
-	 * @return mixed
-	 */
-	public static function get_results( string $query, string $output = ARRAY_A ) {
-		return self::wpdb()->get_results( $query, $output );
-	}
-
-	/**
-	 * Insert a row into a table.
-	 *
-	 * @param string $table Table name.
-	 * @param array  $data Row data.
-	 * @param array  $format Optional format values.
-	 * @return int|false
-	 */
-	public static function insert( string $table, array $data, ?array $format = null ) {
-		return self::wpdb()->insert( $table, $data, $format );
-	}
-
-	/**
-	 * Update rows in a table.
-	 *
-	 * @param string $table Table name.
-	 * @param array  $data Row data.
-	 * @param array  $where Where clause values.
-	 * @param array  $format Optional format values.
-	 * @param array  $where_format Optional where format values.
-	 * @return int|false
-	 */
-	public static function update( string $table, array $data, array $where, ?array $format = null, ?array $where_format = null ) {
-		return self::wpdb()->update( $table, $data, $where, $format, $where_format );
-	}
-
-	/**
-	 * Delete rows from a table.
-	 *
-	 * @param string $table Table name.
-	 * @param array  $where Where clause values.
-	 * @param array  $where_format Optional where format values.
-	 * @return int|false
-	 */
-	public static function delete( string $table, array $where, ?array $where_format = null ) {
-		return self::wpdb()->delete( $table, $where, $where_format );
-	}
-
-	/**
-	 * Replace a row in a table.
-	 *
-	 * @param string $table Table name.
-	 * @param array  $data Row data.
-	 * @param array  $format Optional format values.
-	 * @return int|false
-	 */
-	public static function replace( string $table, array $data, ?array $format = null ) {
-		return self::wpdb()->replace( $table, $data, $format );
+		if ( function_exists( 'update_option' ) ) {
+			update_option( 'accesspress_db_version', defined( 'WIKIPRESS_VERSION' ) ? WIKIPRESS_VERSION : '1.0.0' );
+		}
 	}
 
 	/**
@@ -329,6 +259,3 @@ final class Database {
 		return $wpdb->prefix . 'accesspress_' . self::normalize_table_key( $table );
 	}
 }
-
-
-
