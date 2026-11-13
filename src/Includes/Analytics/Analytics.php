@@ -8,7 +8,6 @@
 namespace AccessPress\Includes\Analytics;
 
 use AccessPress\Includes\Core\WP\Database;
-use AccessPress\Includes\Functions\Helpers\DBHelper;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -62,7 +61,9 @@ final class Analytics {
 	 * @return void
 	 */
 	public static function track_event( string $event, array $context = array(), int $user_id = 0 ): void {
-		if ( '' === trim( $event ) || ! is_object( DBHelper::wpdb() ) || ! method_exists( DBHelper::wpdb(), 'insert' ) ) {
+		global $wpdb;
+
+		if ( '' === trim( $event ) || ! is_object( $wpdb ) || ! method_exists( $wpdb, 'insert' ) ) {
 			return;
 		}
 
@@ -82,7 +83,7 @@ final class Analytics {
 			'updated_at'   => current_time( 'mysql' ),
 		);
 
-		DBHelper::insert( Database::table_name( 'analytics' ), $payload );
+		$wpdb->insert( Database::table_name( 'analytics' ), $payload );
 	}
 
 	/**
@@ -94,13 +95,15 @@ final class Analytics {
 	 * @return void
 	 */
 	public static function log_event( string $level, string $message, array $context = array() ): void {
-		if ( '' === trim( $message ) || ! is_object( DBHelper::wpdb() ) || ! method_exists( DBHelper::wpdb(), 'insert' ) ) {
+		global $wpdb;
+
+		if ( '' === trim( $message ) || ! is_object( $wpdb ) || ! method_exists( $wpdb, 'insert' ) ) {
 			return;
 		}
 
 		Database::install();
 
-		DBHelper::insert(
+		$wpdb->insert(
 			Database::table_name( 'logs' ),
 			array(
 				'log_level'  => sanitize_key( $level ),
@@ -120,6 +123,8 @@ final class Analytics {
 	 * @return array<string, mixed>
 	 */
 	public static function get_summary( array $filters = array() ): array {
+		global $wpdb;
+
 		$summary = array(
 			'event' => '',
 			'count' => 0,
@@ -127,7 +132,7 @@ final class Analytics {
 			'last_seen' => null,
 		);
 
-		if ( ! is_object( DBHelper::wpdb() ) || ! method_exists( DBHelper::wpdb(), 'get_results' ) ) {
+		if ( ! is_object( $wpdb ) || ! method_exists( $wpdb, 'get_results' ) ) {
 			return $summary;
 		}
 
@@ -136,13 +141,13 @@ final class Analytics {
 		$event = isset( $filters['event'] ) ? sanitize_key( (string) $filters['event'] ) : '';
 		$where = '';
 		if ( '' !== $event ) {
-			$where = DBHelper::prepare( ' WHERE event_key = %s ', $event );
+			$where = $wpdb->prepare( ' WHERE event_key = %s ', $event );
 		}
 
-		$rows = DBHelper::get_results( 'SELECT event_key, COUNT(*) AS count, MAX(created_at) AS last_seen FROM ' . Database::table_name( 'analytics' ) . $where . ' GROUP BY event_key LIMIT 1', ARRAY_A );
+		$rows = $wpdb->get_results( 'SELECT event_key, COUNT(*) AS count, MAX(created_at) AS last_seen FROM ' . Database::table_name( 'analytics' ) . $where . ' GROUP BY event_key LIMIT 1', ARRAY_A );
 		$rows = is_array( $rows ) ? $rows : array();
 		if ( empty( $rows ) ) {
-			$raw_rows = DBHelper::get_results( 'SELECT event_key, created_at FROM ' . Database::table_name( 'analytics' ) . $where . ' ORDER BY created_at DESC', ARRAY_A );
+			$raw_rows = $wpdb->get_results( 'SELECT event_key, created_at FROM ' . Database::table_name( 'analytics' ) . $where . ' ORDER BY created_at DESC', ARRAY_A );
 			$raw_rows = is_array( $raw_rows ) ? $raw_rows : array();
 			if ( empty( $raw_rows ) ) {
 				return array_merge( $summary, array( 'event' => $event ) );
@@ -198,12 +203,14 @@ final class Analytics {
 	 * @return array<int, array<string, mixed>>
 	 */
 	public static function get_recent_events( int $limit = 10 ): array {
-		if ( ! is_object( DBHelper::wpdb() ) || ! method_exists( DBHelper::wpdb(), 'get_results' ) ) {
+		global $wpdb;
+
+		if ( ! is_object( $wpdb ) || ! method_exists( $wpdb, 'get_results' ) ) {
 			return array();
 		}
 
 		Database::install();
-		$rows = DBHelper::get_results( 'SELECT event_key, event_value, user_id, event_source, created_at FROM ' . Database::table_name( 'analytics' ) . ' ORDER BY created_at DESC LIMIT ' . max( 1, (int) $limit ), ARRAY_A );
+		$rows = $wpdb->get_results( 'SELECT event_key, event_value, user_id, event_source, created_at FROM ' . Database::table_name( 'analytics' ) . ' ORDER BY created_at DESC LIMIT ' . max( 1, (int) $limit ), ARRAY_A );
 		$rows = is_array( $rows ) ? $rows : array();
 
 		foreach ( $rows as &$row ) {
@@ -214,6 +221,3 @@ final class Analytics {
 		return $rows;
 	}
 }
-
-
-
