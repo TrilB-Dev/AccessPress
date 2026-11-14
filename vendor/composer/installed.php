@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'trilbdev/accesspress',
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
-        'reference' => '6683c45cece13dcfd5d3f03ef053b6e7d6d714e4',
+        'pretty_version' => 'dev-Deploy',
+        'version' => 'dev-Deploy',
+        'reference' => '24cca25c3da1921d5994256b2b4eaf8940a35e8c',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -566,9 +566,9 @@
             'dev_requirement' => true,
         ),
         'trilbdev/accesspress' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => '6683c45cece13dcfd5d3f03ef053b6e7d6d714e4',
+            'pretty_version' => 'dev-Deploy',
+            'version' => 'dev-Deploy',
+            'reference' => '24cca25c3da1921d5994256b2b4eaf8940a35e8c',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
