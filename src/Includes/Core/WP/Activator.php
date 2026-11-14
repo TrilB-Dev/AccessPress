@@ -48,11 +48,9 @@ final class Activator {
 	public static function activate( ?array $callbacks = null ): void {
 		Plugins::get_instance()->init();
 		Database::install();
+		SettingsManager::install();
 		Database::update();
 		Roles::install();
-		Defaults::install_defaults();
-		Defaults::install_default_settings();
-
 
 		foreach ( $callbacks ?? self::$callbacks as $callback ) {
 			call_user_func( $callback );
