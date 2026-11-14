@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class SettingsGeneral extends SettingsManager {
+final class SettingsGeneral {
 	/**
 	 * Normalize the current values for the default-prefixed general settings fields.
 	 *
@@ -31,7 +31,7 @@ final class SettingsGeneral extends SettingsManager {
 	 * @param array $values The current values for the settings fields.
 	 * @since 1.0.0
 	 */
-	public function render_page_content( array $values ): void {
+	public function render( array $values ): void {
 		$values = $this->normalize_values( $values );
 		$registration_page = (string) ( $values['registration_page'] ?? '' );
 		$login_page        = (string) ( $values['login_page'] ?? '' );

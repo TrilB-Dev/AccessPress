@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class SettingsAccess extends SettingsManager {
+final class SettingsAccess {
 	/**
 	 * Normalize the current values for the default-prefixed general settings fields.
 	 *
@@ -30,7 +30,7 @@ final class SettingsAccess extends SettingsManager {
 	 * @param array $values The current values for the access restriction settings fields.
 	 * @since 1.0.0
 	 */
-	public function render_page_content( array $values ): void {
+	public function render( array $values ): void {
 		$values = $this->normalize_values( $values );
 		$manage_users    = is_array( $values['issue_licences'] ?? null ) ? $values['issue_licences'] : array( $values['issue_licences'] ?? 'manage_options' );
 		$manage_roles    = is_array( $values['revoke_licences'] ?? null ) ? $values['revoke_licences'] : array( $values['revoke_licences'] ?? 'manage_options' );

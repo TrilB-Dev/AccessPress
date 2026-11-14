@@ -92,54 +92,11 @@ final class Admin {
 	 * @param Assets $assets The Assets instance for managing admin assets.
 	 */
 	public function __construct( Assets $assets ) {
-		$this->managers = array(
-			'dashboard' => new DashboardManager(),
-			'settings'  => new SettingsManager(),
-			'reports'   => new ReportsManager(),
-			'user'      => new UserManager(),
-			'tools'     => new ToolsManager(),
-		);
-		/**
-		 * Initialize the individual manager instances from the registry.
-		 */
-		$this->dashboard_manager = $this->managers['dashboard'];
-		/**
-		 * Initialize the settings manager instance from the registry.
-		 */
-		$this->settings_manager  = $this->managers['settings'];
-		/**
-		 * Initialize the reports manager instance from the registry.
-		 */
-		$this->reports_manager   = $this->managers['reports'];
-		/**
-		 * Initialize the user manager instance from the registry.
-		 */
-		$this->user_manager      = $this->managers['user'];
-		/**
-		 * Initialize the tools manager instance from the registry.
-		 */
-		$this->tools_manager     = $this->managers['tools'];
-		/**
-		 * Initialize the plugin functions manager.
-		 */
+		$this->managers = array();
 		$this->plugin_functions = new FunctionsPlugins();
-		/**
-		 * Initialize the loader helper.
-		 */
 		$this->loader = new LoaderHelper();
-		/**
-		 * Initialize the assets manager.
-		 */
 		$this->assets = $assets;
-		/**
-		 * Register assets for the admin managers.
-		 */
-		foreach ( $this->managers as $manager ) {
-			$manager->register_assets( $assets );
-		}
-		/**
-		 * Register assets for the plugin functions manager.
-		 */
+
 		$this->loader->register_component(
 			$this,
 			array(
@@ -165,6 +122,59 @@ final class Admin {
 				),
 			)
 		)->run();
+	}
+
+	/**
+	 * Instantiate and cache a manager only when it is first used.
+	 *
+	 * @param string $key Manager key.
+	 * @return Manager
+	 */
+	private function get_manager( string $key ): Manager {
+		if ( ! isset( $this->managers[ $key ] ) ) {
+			switch ( $key ) {
+				case 'dashboard':
+					$manager = new DashboardManager();
+					break;
+				case 'settings':
+					$manager = new SettingsManager();
+					break;
+				case 'reports':
+					$manager = new ReportsManager();
+					break;
+				case 'user':
+					$manager = new UserManager();
+					break;
+				case 'tools':
+					$manager = new ToolsManager();
+					break;
+				default:
+					throw new \InvalidArgumentException( 'Unknown admin manager: ' . $key );
+			}
+
+			$manager->register_assets( $this->assets );
+			$this->managers[ $key ] = $manager;
+
+			switch ( $key ) {
+				case 'dashboard':
+					$this->dashboard_manager = $manager;
+					break;
+				case 'settings':
+					$this->settings_manager = $manager;
+					break;
+				case 'reports':
+					$this->reports_manager = $manager;
+					break;
+				case 'user':
+					$this->user_manager = $manager;
+					break;
+				case 'tools':
+					$this->tools_manager = $manager;
+					break;
+			}
+		}
+
+		return $this->managers[ $key ];
 	}
 	/**
 	 * Register admin menu pages and subpages.
@@ -236,7 +246,7 @@ final class Admin {
 					return;
 				default:
 					LoggerHelper::write_log( 'AccessPress dashboard default render path selected.' );
-					$this->dashboard_manager->render();
+					$this->get_manager( 'dashboard' )->render();
 			}
 		} catch ( \Throwable $e ) {
 			LoggerHelper::write_log( 'AccessPress dashboard render failed: ' . $e->getMessage() );
@@ -269,7 +279,7 @@ final class Admin {
 	 */
 	public function render_users(): void {
 		LoggerHelper::write_log( 'AccessPress users render started.' );
-		$this->user_manager->render();
+		$this->get_manager( 'user' )->render();
 		LoggerHelper::write_log( 'AccessPress users render complete.' );
 	}
 	/**
@@ -280,7 +290,7 @@ final class Admin {
 	 */
 	public function render_reports(): void {
 		LoggerHelper::write_log( 'AccessPress reports render started.' );
-		$this->reports_manager->render();
+		$this->get_manager( 'reports' )->render();
 		LoggerHelper::write_log( 'AccessPress reports render complete.' );
 	}
 	/**
@@ -291,7 +301,7 @@ final class Admin {
 	 */
 	public function render_settings(): void {
 		LoggerHelper::write_log( 'AccessPress settings page render started.' );
-		$this->settings_manager->render();
+		$this->get_manager( 'settings' )->render();
 		LoggerHelper::write_log( 'AccessPress settings page render complete.' );
 	}
 	/**
@@ -301,7 +311,7 @@ final class Admin {
 	 */
 	public function render_tools(): void {
 		LoggerHelper::write_log( 'AccessPress tools page render started.' );
-		$this->tools_manager->render();
+		$this->get_manager( 'tools' )->render();
 		LoggerHelper::write_log( 'AccessPress tools page render complete.' );
 	}
 	/**

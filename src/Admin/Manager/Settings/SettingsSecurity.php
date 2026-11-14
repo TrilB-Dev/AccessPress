@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class SettingsSecurity extends SettingsManager {
+final class SettingsSecurity {
 	/**
 	 * Normalize the current values for the default-prefixed general settings fields.
 	 *
@@ -31,7 +31,7 @@ final class SettingsSecurity extends SettingsManager {
 	 * @param array $values The current values for the security settings fields.
 	 * @since 1.0.0
 	 */
-	public function render_page_content( array $values ): void {
+	public function render( array $values ): void {
 		$values = $this->normalize_values( $values );
 		$disable_wp_admin = is_array( $values['disable_wp_admin_access'] ?? null ) ? array_map( 'strval', $values['disable_wp_admin_access'] ) : array( is_scalar( $values['disable_wp_admin_access'] ?? '' ) ? (string) $values['disable_wp_admin_access'] : '' );
 		$disable_toolbar  = is_array( $values['disable_admin_toolbar'] ?? null ) ? array_map( 'strval', $values['disable_admin_toolbar'] ) : array( is_scalar( $values['disable_admin_toolbar'] ?? '' ) ? (string) $values['disable_admin_toolbar'] : '' );

@@ -8,33 +8,353 @@
  */
 namespace AccessPress\Includes\Functions\Admin;
 
+use AccessPress\Includes\Functions\Admin\FunctionsPlugins;
+use AccessPress\Includes\Functions\Helpers\LoaderHelper;
+use AccessPress\Includes\Functions\Helpers\LoggerHelper;
 use AccessPress\Includes\Functions\Helpers\PermalinkHelper;
 use AccessPress\Includes\Settings\Settings;
+use AccessPress\Includes\Settings\SettingsManager;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+    exit;
 }
 
 final class FunctionsSettings {
-	/**
-	 * Register AccessPress and provider-backed plugin settings.
+
+    /**
+     * Register AccessPress and provider-backed plugin settings.
+     *
+     * @return void
+     */
+    public function register_settings(): void {
+        // AccessPress stores settings in its own custom table rather than the default
+        // WordPress options table. The regular settings API is intentionally not used
+        // here; form submissions are handled through the custom admin-post flow.
+    }
+
+    /**
+	 * Register the WordPress admin-post actions used by the settings forms.
+	 *
+	 * @param LoaderHelper $loader Loader instance used to register hooks.
+	 * @return void
+	 */
+	public function register_admin_post_hooks( LoaderHelper $loader ): void {
+		$loader->register_component(
+			$this,
+			array(
+				array(
+					'type'     => 'action',
+					'hook'     => 'admin_post_accesspress_save_general_settings',
+					'callback' => 'handle_general_save',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'admin_post_accesspress_save_access_settings',
+					'callback' => 'handle_access_save',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'admin_post_accesspress_save_layout_settings',
+					'callback' => 'handle_layout_save',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'admin_post_accesspress_save_security_settings',
+					'callback' => 'handle_security_save',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'admin_post_accesspress_save_email_settings',
+					'callback' => 'handle_email_save',
+				),
+			)
+		)->run();
+	}
+    /**
+	 * Save settings using the direct admin POST flow used by the custom table store.
 	 *
 	 * @return void
 	 */
-	public function register_settings(): void {
-		register_setting( 'accesspress_settings', 'accesspress_general', array( 'sanitize_callback' => array( $this, 'sanitize_general' ) ) );
-		register_setting( 'accesspress_settings', 'accesspress_layout', array( 'sanitize_callback' => array( $this, 'sanitize_layout' ) ) );
-		register_setting( 'accesspress_settings', 'accesspress_access', array( 'sanitize_callback' => array( $this, 'sanitize_access' ) ) );
-		register_setting( 'accesspress_settings', 'accesspress_security', array( 'sanitize_callback' => array( $this, 'sanitize_security' ) ) );
-		register_setting( 'accesspress_settings', 'accesspress_email', array( 'sanitize_callback' => array( $this, 'sanitize_email' ) ) );
-		register_setting( 'accesspress_settings', 'accesspress_tools', array( 'sanitize_callback' => array( $this, 'sanitize_tools' ) ) );
+	public function save_settings(): void {
+		$action = isset( $_POST['action'] ) ? sanitize_key( wp_unslash( $_POST['action'] ) ) : '';
+		if ( '' === $action ) {
+			return;
+		}
 
-		foreach ( $this->plugin_functions->plugin_settings_pages() as $page ) {
-			register_setting(
-				'accesspress_settings',
-				'accesspress_' . $page['slug'],
-				array( 'sanitize_callback' => $page['provider']->sanitize_settings( ... ) )
-			);
+		if ( 'accesspress_save_general_settings' === $action ) {
+			$this->general_save();
+		}
+
+		if ( in_array( $action, array( 'accesspress_save_access_settings' ), true ) ) {
+			$this->access_save();
+		}
+
+		if ( 'accesspress_save_security_settings' === $action ) {
+			$this->security_save();
+		}
+
+		if ( 'accesspress_save_email_settings' === $action ) {
+			$this->email_save();
+		}
+
+		if ( 'accesspress_save_layout_settings' === $action ) {
+			$this->layout_save();
+		}
+	}
+
+	/**
+	 * Validate a save nonce against the standard WordPress field and the legacy plugin-specific field.
+	 *
+	 * @param string $action Nonce action.
+	 * @return void
+     * @since 1.0.0
+	 */
+	private function validate_save_nonce( string $action ): void {
+		if ( isset( $_REQUEST['_wpnonce'] ) ) {
+			check_admin_referer( $action, '_wpnonce' );
+			return;
+		}
+
+		check_admin_referer( $action );
+	}
+	 /**
+     * Redirect back to the settings page with a success or error notification flag.
+     *
+     * @param string $tab The settings tab to return to.
+     * @param bool $success Whether the save succeeded.
+     * @param string $message Optional notice message.
+     * @param array<string, string> $extra_query Extra query arguments.
+     * @return void
+     * @since 1.0.0
+     */
+    private function redirect_after_save( string $tab, bool $success, string $message = '', array $extra_query = array() ): void {
+        $query = array(
+            'page' => 'accesspress',
+            'group' => 'settings',
+            'tab' => $tab,
+            $success ? 'settings_saved' : 'settings_failed' => '1',
+        );
+
+        foreach ( $extra_query as $key => $value ) {
+            $query[ $key ] = $value;
+        }
+
+        if ( '' !== $message ) {
+            $query['settings_message'] = rawurlencode( $message );
+        }
+
+        wp_safe_redirect( admin_url( 'admin.php?' . build_query( $query ) ) );
+        exit;
+    }
+	 /**
+	 * Save the general settings.
+	 *
+	 * @return void
+     * @since 1.0.0
+	 */
+	public function general_save(): void {
+		LoggerHelper::write_log( 'AccessPress general settings save started.' );
+		LoggerHelper::write_log( array(
+			'request' => $_POST,
+			'action' => 'accesspress_save_general_settings',
+		) );
+		if ( ! user_can( get_current_user_id(), 'accesspress_settings_general_edit' ) ) {
+			LoggerHelper::write_log( 'AccessPress general settings save denied: missing general_edit capability.' );
+			$this->redirect_after_save( 'general', false, __( 'You are not allowed to save AccessPress general settings.', 'accesspress' ) );
+		}
+
+		$this->validate_save_nonce( 'accesspress_save_general_settings' );
+		$input = isset( $_POST['accesspress_general'] ) && is_array( $_POST['accesspress_general'] ) ? wp_unslash( $_POST['accesspress_general'] ) : array();
+		LoggerHelper::write_log( array(
+			'general_input' => $input,
+			'general_input_keys' => array_keys( $input ),
+		) );
+
+		try {
+			$sanitized = $this->sanitize_general( $input );
+			Settings::set_group( Settings::GENERAL, $sanitized );
+			foreach ( $sanitized as $key => $value ) {
+				Settings::set( $key, $value );
+			}
+			LoggerHelper::write_log( array(
+				'general_sanitized' => $sanitized,
+				'general_db_group' => Settings::get_group( Settings::GENERAL, array() ),
+			) );
+			$this->redirect_after_save( 'general', true, __( 'AccessPress general settings saved successfully.', 'accesspress' ) );
+		} catch ( \Throwable $exception ) {
+			LoggerHelper::write_log( array(
+				'general_save_error' => $exception->getMessage(),
+				'general_save_trace' => $exception->getTraceAsString(),
+			) );
+			$this->redirect_after_save( 'general', false, __( 'Failed to save AccessPress general settings.', 'accesspress' ) );
+		}
+	}
+
+	/**
+	 * Save the access settings.
+	 *
+	 * @return void
+     * @since 1.0.0
+	 */
+	public function access_save(): void {
+		LoggerHelper::write_log( 'AccessPress access settings save started.' );
+		LoggerHelper::write_log( array(
+			'request' => $_POST,
+			'action' => 'accesspress_save_access_settings',
+		) );
+		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'accesspress_settings_access_edit' ) ) {
+			LoggerHelper::write_log( 'AccessPress access settings save denied: missing access_edit capability.' );
+			$this->redirect_after_save( 'access', false, __( 'You are not allowed to save AccessPress access settings.', 'accesspress' ) );
+		}
+
+		$this->validate_save_nonce( 'accesspress_save_access_settings' );
+		$input = isset( $_POST['accesspress_access'] ) && is_array( $_POST['accesspress_access'] ) ? wp_unslash( $_POST['accesspress_access'] ) : array();
+		LoggerHelper::write_log( array(
+			'access_input' => $input,
+			'access_input_keys' => array_keys( $input ),
+		) );
+
+		try {
+			$sanitized = $this->sanitize_access( $input );
+			Settings::set_group( Settings::ACCESS, $sanitized );
+			foreach ( $sanitized as $key => $value ) {
+				Settings::set( $key, $value );
+			}
+			LoggerHelper::write_log( array(
+				'access_sanitized' => $sanitized,
+				'access_db_group' => Settings::get_group( Settings::ACCESS, array() ),
+			) );
+			$this->redirect_after_save( 'access', true, __( 'AccessPress access settings saved successfully.', 'accesspress' ) );
+		} catch ( \Throwable $exception ) {
+			LoggerHelper::write_log( array(
+				'access_save_error' => $exception->getMessage(),
+				'access_save_trace' => $exception->getTraceAsString(),
+			) );
+			$this->redirect_after_save( 'access', false, __( 'Failed to save AccessPress access settings.', 'accesspress' ) );
+		}
+	}
+
+	/**
+	 * Save the layout settings.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	public function layout_save(): void {
+		LoggerHelper::write_log( 'AccessPress layout settings save started.' );
+		LoggerHelper::write_log( array(
+			'request' => $_POST,
+			'action' => 'accesspress_save_layout_settings',
+		) );
+		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'accesspress_settings_layout_edit' ) ) {
+			LoggerHelper::write_log( 'AccessPress layout settings save denied: missing layout_edit capability.' );
+			$this->redirect_after_save( 'layout', false, __( 'You are not allowed to save AccessPress layout settings.', 'accesspress' ) );
+		}
+
+		$this->validate_save_nonce( 'accesspress_save_layout_settings' );
+		$input = isset( $_POST['accesspress_layout'] ) && is_array( $_POST['accesspress_layout'] ) ? wp_unslash( $_POST['accesspress_layout'] ) : array();
+		LoggerHelper::write_log( array(
+			'layout_input' => $input,
+			'layout_input_keys' => array_keys( $input ),
+		) );
+
+		try {
+			$section = sanitize_key( $input['layout_section'] ?? 'general' );
+			$sanitized = $this->sanitize_layout( $input );
+			Settings::set_group( Settings::LAYOUT, $sanitized );
+			foreach ( $sanitized as $key => $value ) {
+				Settings::set( $key, $value );
+			}
+			LoggerHelper::write_log( array(
+				'layout_section' => $section,
+				'layout_sanitized' => $sanitized,
+				'layout_db_group' => Settings::get_group( Settings::LAYOUT, array() ),
+			) );
+			$this->redirect_after_save( 'layout', true, __( 'AccessPress layout settings saved successfully.', 'accesspress' ), array( 'layout_section' => $section ) );
+		} catch ( \Throwable $exception ) {
+			LoggerHelper::write_log( array(
+				'layout_save_error' => $exception->getMessage(),
+				'layout_save_trace' => $exception->getTraceAsString(),
+			) );
+			$this->redirect_after_save( 'layout', false, __( 'Failed to save AccessPress layout settings.', 'accesspress' ) );
+		}
+	}
+	public function security_save(): void {
+		LoggerHelper::write_log( 'AccessPress security settings save started.' );
+		LoggerHelper::write_log( array(
+			'request' => $_POST,
+			'action' => 'accesspress_save_security_settings',
+		) );
+		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'accesspress_settings_security_edit' ) ) {
+			LoggerHelper::write_log( 'AccessPress security settings save denied: missing security_edit capability.' );
+			$this->redirect_after_save( 'security', false, __( 'You are not allowed to save AccessPress security settings.', 'accesspress' ) );
+		}
+
+		$this->validate_save_nonce( 'accesspress_save_security_settings' );
+		$input = isset( $_POST['accesspress_security'] ) && is_array( $_POST['accesspress_security'] ) ? wp_unslash( $_POST['accesspress_security'] ) : array();
+		LoggerHelper::write_log( array(
+			'security_input' => $input,
+			'security_input_keys' => array_keys( $input ),
+		) );
+
+		try {
+			$section = sanitize_key( $input['security_section'] ?? 'general' );
+			$sanitized = $this->sanitize_security( $input );
+			Settings::set_group( Settings::SECURITY, $sanitized );
+			foreach ( $sanitized as $key => $value ) {
+				Settings::set( $key, $value );
+			}
+			LoggerHelper::write_log( array(
+				'security_section' => $section,
+				'security_sanitized' => $sanitized,
+				'security_db_group' => Settings::get_group( Settings::SECURITY, array() ),
+			) );
+			$this->redirect_after_save( 'security', true, __( 'AccessPress security settings saved successfully.', 'accesspress' ), array( 'security_section' => $section ) );
+		} catch ( \Throwable $exception ) {
+			LoggerHelper::write_log( array(
+				'security_save_error' => $exception->getMessage(),
+				'security_save_trace' => $exception->getTraceAsString(),
+			) );
+			$this->redirect_after_save( 'security', false, __( 'Failed to save AccessPress security settings.', 'accesspress' ) );
+		}
+	}
+	public function email_save(): void {
+		LoggerHelper::write_log( 'AccessPress email settings save started.' );
+		LoggerHelper::write_log( array(
+			'request' => $_POST,
+			'action' => 'accesspress_save_email_settings',
+		) );
+		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'accesspress_settings_email_edit' ) ) {
+			LoggerHelper::write_log( 'AccessPress email settings save denied: missing email_edit capability.' );
+			$this->redirect_after_save( 'email', false, __( 'You are not allowed to save AccessPress email settings.', 'accesspress' ) );
+		}
+
+		$this->validate_save_nonce( 'accesspress_save_email_settings' );
+		$input = isset( $_POST['accesspress_email'] ) && is_array( $_POST['accesspress_email'] ) ? wp_unslash( $_POST['accesspress_email'] ) : array();
+		LoggerHelper::write_log( array(
+			'email_input' => $input,
+			'email_input_keys' => array_keys( $input ),
+		) );
+
+		try {
+			$section = sanitize_key( $input['email_section'] ?? 'general' );
+			$sanitized = $this->sanitize_email( $input );
+			Settings::set_group( Settings::EMAIL, $sanitized );
+			foreach ( $sanitized as $key => $value ) {
+				Settings::set( $key, $value );
+			}
+			LoggerHelper::write_log( array(
+				'email_section' => $section,
+				'email_sanitized' => $sanitized,
+				'email_db_group' => Settings::get_group( Settings::EMAIL, array() ),
+			) );
+			$this->redirect_after_save( 'email', true, __( 'AccessPress email settings saved successfully.', 'accesspress' ), array( 'email_section' => $section ) );
+		} catch ( \Throwable $exception ) {
+			LoggerHelper::write_log( array(
+				'email_save_error' => $exception->getMessage(),
+				'email_save_trace' => $exception->getTraceAsString(),
+			) );
+			$this->redirect_after_save( 'email', false, __( 'Failed to save AccessPress email settings.', 'accesspress' ) );
 		}
 	}
 	/**
@@ -238,6 +558,28 @@ final class FunctionsSettings {
 			$values        = is_array( $input[ $key ] ?? null ) ? $input[ $key ] : array( $input[ $key ] ?? 'manage_options' );
 			$values        = array_values( array_unique( array_intersect( $allowed, array_map( 'sanitize_key', $values ) ) ) );
 			$input[ $key ] = empty( $values ) ? array( 'manage_options' ) : $values;
+			Settings::set( $key, $input[ $key ] );
+		}
+		return $input;
+	}
+	public function sanitize_security( $input ): array {
+		if ( ! current_user_can( 'accesspress_settings_security_edit' ) ) {
+			return (array) Settings::get_group( Settings::SECURITY, array() );
+		}
+		$input   = is_array( $input ) ? $input : array();
+		foreach ( array( 'enable_firewall', 'enable_login_protection' ) as $key ) {
+			$input[ $key ] = ! empty( $input[ $key ] );
+			Settings::set( $key, $input[ $key ] );
+		}
+		return $input;
+	}
+	public function sanitize_email( $input ): array {
+		if ( ! current_user_can( 'accesspress_settings_email_edit' ) ) {
+			return (array) Settings::get_group( Settings::EMAIL, array() );
+		}
+		$input   = is_array( $input ) ? $input : array();
+		foreach ( array( 'email_from_name', 'email_from_address' ) as $key ) {
+			$input[ $key ] = sanitize_text_field( $input[ $key ] ?? '' );
 			Settings::set( $key, $input[ $key ] );
 		}
 		return $input;

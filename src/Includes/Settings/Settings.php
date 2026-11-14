@@ -35,6 +35,18 @@ final class Settings {
      */
     public const ACCESS = 'access';
     /**
+     * Email settings group.
+     * 
+     * @since 1.0.0
+     */
+    public const EMAIL = 'email';
+    /**
+     * Security settings group.
+     * 
+     * @since 1.0.0
+     */
+    public const SECURITY = 'security';
+    /**
      * Tools settings group.
      * 
      * @since 1.0.0

@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class SettingsLayout extends SettingsManager {
+final class SettingsLayout {
 	/**
 	 * Normalize the current values for the default-prefixed general settings fields.
 	 *
@@ -31,7 +31,7 @@ final class SettingsLayout extends SettingsManager {
 	 * @param array $values The current values for the layout settings fields.
 	 * @since 1.0.0
 	 */
-	public function render_page_content( array $values ): void {
+	public function render( array $values ): void {
 		$values = $this->normalize_values( $values );
 		$login_title = is_scalar( $values['login_registration_title'] ?? '' ) ? (string) $values['login_registration_title'] : ( get_bloginfo( 'name' ) ?: __( 'AccessPress', 'accesspress' ) );
 		$site_logo   = is_scalar( $values['site_logo'] ?? '' ) ? (string) $values['site_logo'] : '';

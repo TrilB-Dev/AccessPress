@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class SettingsEmail extends SettingsManager {
+final class SettingsEmail {
 	/**
 	 * Normalize the current values for the default-prefixed general settings fields.
 	 *
@@ -33,7 +33,7 @@ final class SettingsEmail extends SettingsManager {
 	 * @return void
 	 * @since 1.0.0
 	 */
-	public function render_page_content( array $values ): void {
+	public function render( array $values ): void {
 		$values = $this->normalize_values( $values );
 		$from_name = is_scalar( $values['from_name'] ?? '' ) ? (string) $values['from_name'] : get_bloginfo( 'name' );
 		$from_email = is_scalar( $values['from_email'] ?? '' ) ? (string) $values['from_email'] : get_option( 'admin_email' );
