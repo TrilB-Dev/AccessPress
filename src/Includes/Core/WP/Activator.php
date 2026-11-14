@@ -14,6 +14,7 @@ namespace AccessPress\Includes\Core\WP;
 use AccessPress\Includes\Core\Defaults;
 use AccessPress\Includes\Core\Roles;
 use AccessPress\Includes\Plugins\Plugins;
+use AccessPress\Includes\Settings\SettingsManager;
 
 
 if ( ! defined( 'ABSPATH' ) ) {

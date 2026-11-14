@@ -10,6 +10,7 @@ namespace AccessPress\Includes\Core;
 
 use AccessPress\Includes\Functions\Helpers\DBHelper;
 use AccessPress\Includes\Functions\Helpers\LoggerHelper;
+use AccessPress\Includes\Settings\SettingsManager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -41,12 +42,18 @@ final class Defaults {
      */
     public static function install_default_settings(): void {
         $default_settings = self::default_settings();
+
         foreach ( $default_settings as $section => $settings ) {
+            $existing = SettingsManager::get_group( $section );
+            $group_settings = is_array( $existing ) ? $existing : [];
+
             foreach ( $settings as $key => $value ) {
-                if ( get_option( "{$section}_{$key}" ) === false ) {
-                    update_option( "{$section}_{$key}", $value );
+                if ( ! array_key_exists( $key, $group_settings ) ) {
+                    $group_settings[ $key ] = $value;
                 }
             }
+
+            SettingsManager::set_group( $section, $group_settings );
         }
     }
     /**
