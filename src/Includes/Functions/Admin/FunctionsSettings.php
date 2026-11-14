@@ -279,6 +279,13 @@ final class FunctionsSettings {
 			$this->redirect_after_save( 'layout', false, __( 'Failed to save AccessPress layout settings.', 'accesspress' ) );
 		}
 	}
+	/**
+	 * Save security settings.
+	 *
+	 * @param array<string, mixed> $input The incoming security settings values.
+	 * @return void
+	 * @since 1.0.0
+	 */
 	public function security_save(): void {
 		LoggerHelper::write_log( 'AccessPress security settings save started.' );
 		LoggerHelper::write_log( array(
@@ -318,6 +325,15 @@ final class FunctionsSettings {
 			$this->redirect_after_save( 'security', false, __( 'Failed to save AccessPress security settings.', 'accesspress' ) );
 		}
 	}
+	/**
+	 * Save email settings.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array<string, mixed> $input The incoming email settings values.
+	 * @return void
+	 * @since 1.0.0
+	 */
 	public function email_save(): void {
 		LoggerHelper::write_log( 'AccessPress email settings save started.' );
 		LoggerHelper::write_log( array(

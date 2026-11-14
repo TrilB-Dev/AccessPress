@@ -10,6 +10,7 @@ namespace AccessPress\Admin\Manager\Settings;
 
 use AccessPress\Includes\Functions\Helpers\FormFieldHelper;
 use AccessPress\Includes\Functions\Helpers\SanitizationHelper;
+use AccessPress\Includes\Functions\Helpers\WPMediaHelper;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -33,6 +34,8 @@ final class SettingsGeneral {
 	 */
 	public function render( array $values ): void {
 		$values = $this->normalize_values( $values );
+		$website_title      = (string) ( $values['title'] ?? '' );
+		$website_logo       = (string) ( $values['logo'] ?? '' );
 		$registration_page = (string) ( $values['registration_page'] ?? '' );
 		$login_page        = (string) ( $values['login_page'] ?? '' );
 		$my_account_page   = (string) ( $values['my_account_page'] ?? '' );
@@ -64,22 +67,50 @@ final class SettingsGeneral {
 					<tr>
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
-								'accesspress-general-registration-page', 
-								__( 'Registration Page', 'accesspress' ), 
+								'accesspress-general-title', 
+								__( 'Website Title', 'accesspress' ), 
 								array( 
-									'description' => __( 'Choose the frontend registration page for new users.', 'accesspress' ), 
-									'tooltip' => __( 'Create a page if none exists and assign it here.', 'accesspress' ) 
+									'description' => __( 'Enter the title of your website.', 'accesspress' ), 
+									'tooltip' => __( 'This will be displayed as the website title.', 'accesspress' ) 
 								) 
 							); ?>
 						</th>
 						<td>
-							<?php echo FormFieldHelper::bootstrap_select(
-								'accesspress_general[registration_page]',
+							<?php echo FormFieldHelper::text_input(
+								'accesspress_general[title]',
+								'',
 								array(
-									'data' => $register_options,
-									'selected' => $registration_page,
-									'id' => 'accesspress-general-registration-page',
-									'live_search' => true,
+									'value' => $website_title,
+									'id' => 'accesspress-general-title',
+								)
+							); ?>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<?php echo FormFieldHelper::label( 
+								'accesspress-general-logo', 
+								__( 'Website Logo', 'accesspress' ), 
+								array( 
+									'description' => __( 'Enter the URL of your website logo.', 'accesspress' ), 
+									'tooltip' => __( 'This will be displayed as the website logo.', 'accesspress' ) 
+								) 
+							); ?>
+						</th>
+						<td>
+							<?php echo WPMediaHelper::create(
+								$website_logo,
+								array(
+									'name' => 'accesspress_general[logo]',
+									'id' => 'accesspress-general-logo',
+									'button_text' => __( 'Choose Logo', 'accesspress' ),
+									'show_remove' => true,
+									'media_type' => 'image',
+									'multiple' => false,
+									'return_value' => 'id',
+								),
+								array(
+									'alt' => __( 'Website logo preview', 'accesspress' ),
 								)
 							); ?>
 						</td>
