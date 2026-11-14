@@ -50,6 +50,7 @@ final class Activator {
 		Database::update();
 		Roles::install();
 		Defaults::install_defaults();
+		Defaults::install_default_settings();
 
 
 		foreach ( $callbacks ?? self::$callbacks as $callback ) {

@@ -137,10 +137,15 @@ class Capabilities {
 					'label'       => __( 'Manage User Roles', 'accesspress' ),
 					'description' => __( 'Allows managing user roles within AccessPress User Management.', 'accesspress' ),
 				),
-				'accesspress_user_management_groups' => array(
+				'accesspress_user_management_groups_view' => array(
 					'group'       => 'AccessPress User Management',
-					'label'       => __( 'Manage User Groups', 'accesspress' ),
-					'description' => __( 'Allows managing user groups within AccessPress User Management.', 'accesspress' ),
+					'label'       => __( 'View User Groups', 'accesspress' ),
+					'description' => __( 'Allows viewing user groups within AccessPress User Management.', 'accesspress' ),
+				),
+				'accesspress_user_management_groups_edit' => array(
+					'group'       => 'AccessPress User Management',
+					'label'       => __( 'Edit User Groups', 'accesspress' ),
+					'description' => __( 'Allows editing user groups within AccessPress User Management.', 'accesspress' ),
 				),
 				'accesspress_user_management_login' => array(
 					'group'       => 'AccessPress User Management',

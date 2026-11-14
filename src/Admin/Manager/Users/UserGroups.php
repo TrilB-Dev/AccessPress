@@ -98,11 +98,11 @@ final class UserGroups extends UserManager {
 			<?php endforeach; ?>
 		</div>
 
-		<?php if ( PermissionHelper::can( 'accesspress_groups_create' ) ) : ?>
+		<?php if ( PermissionHelper::can( 'accesspress_user_management_groups_view' ) ) : ?>
 			<?php $this->render_add_modal(); ?>
 		<?php endif; ?>
 
-		<?php if ( PermissionHelper::can( 'accesspress_groups_edit' ) ) : ?>
+		<?php if ( PermissionHelper::can( 'accesspress_user_management_groups_edit' ) ) : ?>
 			<?php foreach ( $groups as $slug => $group ) : ?>
 				<?php $this->render_edit_modal( $slug, $group ); ?>
 			<?php endforeach; ?>
@@ -117,7 +117,7 @@ final class UserGroups extends UserManager {
 	 * @return void
 	 */
 	public function create_group(): void {
-		$this->authorize_action( 'accesspress_create_group', 'accesspress_groups_create' );
+		$this->authorize_action( 'accesspress_create_group', 'accesspress_user_management_groups_edit' );
 
 		$slug = $this->valid_slug( RequestHelper::key( $_POST, 'group_slug' ) );
 		$name = $this->valid_name( RequestHelper::text( $_POST, 'group_name' ) );
@@ -187,7 +187,7 @@ final class UserGroups extends UserManager {
 	 * @return void
 	 */
 	public function delete_group(): void {
-		$this->authorize_action( 'accesspress_delete_group', 'accesspress_groups_delete' );
+		$this->authorize_action( 'accesspress_delete_group', 'accesspress_user_management_groups_edit' );
 
 		$slug = $this->valid_slug( RequestHelper::key( $_POST, 'group_slug' ) );
 		if ( '' === $slug ) {
