@@ -11,7 +11,7 @@
             "AccessPress\\": "src/"
         },
         "classmap": [
-            "src/AccessPress.php"
+            "src/Plugin.php"
         ],
         "exclude-from-classmap": [
             "src/Includes/Plugins/"
